@@ -7,6 +7,10 @@ import labelUtil from "@utils/labelUtil";
 
 export default class SummaryTable extends React.Component {
 
+    state = {
+        collapsed: false,
+    }
+
     render() {
         const { transactions, accounts } = this.props;
         if (_.isEmpty(transactions) || _.isEmpty(accounts)) return <></>;
@@ -43,10 +47,16 @@ export default class SummaryTable extends React.Component {
         };
         cumulative.closingBalance = cumulative.openingBalance + cumulative.totalCredit - cumulative.totalDebit;
 
+        const { collapsed } = this.state;
+
         return (
-            <div className="mt-4">
-                <h4 className="mb-3">Summary</h4>
-                <div className="table-responsive">
+            <div className="">
+                <div className="mb-2 d-flex align-items-center cursor-pointer"
+                    onClick={() => this.setState({ collapsed: !collapsed })}>
+                    <h3 className="mb-0">Summary</h3>
+                    <i className={"bi ms-2 " + (collapsed ? "bi-plus-square" : "bi-dash-square")}></i>
+                </div>
+                {!collapsed && <div className="table-responsive">
                     <table className="table table-bordered table-striped text-center shadow-sm">
                         <thead className="table-light">
                             <tr>
@@ -76,7 +86,7 @@ export default class SummaryTable extends React.Component {
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </div>}
             </div>
         );
     }

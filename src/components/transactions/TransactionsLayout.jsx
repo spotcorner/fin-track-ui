@@ -129,7 +129,7 @@ class TransactionsLayout extends React.Component {
 
     getLayoutBody() {
         const filteredTransactions = this.getFilteredTransactions();
-        return <TransactionsView isDraft={this.props.isDraft}
+        return <TransactionsView isDraft={this.props.isDraft} draftId={this.props.draftId}
             transactions={this.state.transactions} filteredTransactions={filteredTransactions}
             updateTransaction={this.updateTransaction} deleteTransaction={this.deleteTransaction}
             fetchTransactions={this.fetchTransactions} />;
@@ -145,7 +145,7 @@ class TransactionsLayout extends React.Component {
 
     fetchTransactions = () => {
         this.setState({ transactions: [], transactionsLoading: true });
-        transactionService.getAll(this.state.startDateFilter, this.state.endDateFilter, this.props.isDraft, this.props.sortByDate).then(data => {
+        transactionService.getAll(this.state.startDateFilter, this.state.endDateFilter, this.props.isDraft, this.props.sortByDate, this.props.draftId).then(data => {
             this.setState({ transactions: data.transactions, transactionsLoading: false });
         });
     }

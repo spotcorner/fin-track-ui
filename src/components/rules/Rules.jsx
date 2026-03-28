@@ -43,7 +43,11 @@ class Rules extends React.Component {
                         <div className="card shadow-sm">
                             <div className="card-body">
                                 <strong>{rule.tag}</strong>
-                                <div className="mt-1 text-muted"><small>Keywords: {rule.keywords}</small></div>
+                                <div className="mt-1 text-muted"><small>Keywords: {rule.keywords.map((kw, i) => (
+                                    <span key={i} className={"badge me-1 " + (kw.caseSensitive ? "bg-warning text-dark" : "bg-secondary")}>
+                                        {kw.value}
+                                    </span>
+                                ))}</small></div>
                                 <div className="mt-3 d-flex justify-content-between">
                                     <button className="btn btn-warning btn-sm" onClick={() => this.toggleModal(rule)}>
                                         <i className="bi bi-pencil"></i> Edit

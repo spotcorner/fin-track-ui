@@ -6,8 +6,8 @@ import { toast } from "react-toastify";
 import transactionService from "@services/transactionService";
 import SummaryTable from "./SummaryTable.jsx";
 import { TRANSACTION_LABELS, TRANSACTION_TYPES } from "@config";
-import CrudRuleModal from "@components/rules/CrudRuleModal.jsx";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
+import AddKeywordToRuleModal from "./AddKeywordToRuleModal.jsx";
 import StatsView from "./stats/StatsView.jsx";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil.js";
@@ -28,14 +28,10 @@ class TransactionsView extends React.Component {
         this.setState({ showRulesModal: !this.state.showRulesModal, selectedTransaction });
     }
 
-    handleRuleSave = (rule) => {
-        this.toggleRulesModal();
-    }
-
     getCrudRuleModal() {
         const { showRulesModal, selectedTransaction } = this.state;
-        return <CrudRuleModal show={showRulesModal} rule={{ contains: selectedTransaction?.description }}
-            onSave={this.handleRuleSave} onClose={() => this.toggleRulesModal()} />;
+        return <AddKeywordToRuleModal show={showRulesModal} transaction={selectedTransaction}
+            onClose={() => this.toggleRulesModal()} />;
     }
 
     toggleTransactionModal = (selectedTransaction) => {
@@ -45,7 +41,9 @@ class TransactionsView extends React.Component {
     getCrudTransactionModal() {
         const { showTransactionModal, selectedTransaction } = this.state;
         return <CrudTransactionModal show={showTransactionModal}
-            transaction={selectedTransaction} onSave={this.props.updateTransaction} isDraft={this.props.isDraft} onClose={() => this.toggleTransactionModal()} />;
+            transaction={selectedTransaction} onSave={this.props.updateTransaction}
+            isDraft={this.props.isDraft} draftId={this.props.draftId}
+            onClose={() => this.toggleTransactionModal()} />;
     }
 
     removeTransactionTag(transaction, rule_id) {
@@ -77,7 +75,7 @@ class TransactionsView extends React.Component {
         const usedRules = _.keys(_.pickBy(transaction.appliedRules, v => v == 1));
         return <div className="d-flex ">
             <div className="d-flex flex-wrap">
-                {this.getDefaultTag(transaction.type, this.getTransactionTypeBg(transaction.type))}
+
                 {transaction.excludeFromTotals == 1 && this.getDefaultTag("Excluded", "secondary")}
                 {usedRules.length == 0 && this.getDefaultTag("Others", "dark")}
                 {usedRules.map((rule_id) => this.getTag(transaction, rule_id))}
@@ -87,7 +85,7 @@ class TransactionsView extends React.Component {
                     className="badge bg-secondary mb-2 me-1 cursor-pointer"
                     onClick={() => this.toggleRulesModal(transaction)}
                 >
-                    +
+                    <i className="bi bi-tag"></i>
                 </span>
                 <span className="badge bg-secondary cursor-pointer mb-2 me-1" onClick={() => this.toggleTransactionModal(transaction)}><i className="bi bi-pencil"></i></span>
                 <span className="badge bg-secondary cursor-pointer mb-2 me-1" onClick={() => this.props.deleteTransaction(transaction)}><i className="bi bi-trash"></i></span>
@@ -129,8 +127,9 @@ class TransactionsView extends React.Component {
     }
 
     getTransaction = (transaction, transactionIndex) => {
+        const borderColor = transaction.type == TRANSACTION_TYPES.CREDIT ? "#198754" : "#dc3545";
         return <div key={transactionIndex} className="col-md-6 col-lg-4 mb-2">
-            <div className="card shadow-sm">
+            <div className="card shadow-sm" style={{ borderLeft: `2px solid ${borderColor}`, background: `linear-gradient(to right, ${borderColor}10, transparent)` }}>
                 <div className="card-body">
                     {this.getTags(transaction)}
                     {this.getTransactionDate(transaction)}
@@ -160,7 +159,7 @@ class TransactionsView extends React.Component {
     getTransactions(filteredTransactions) {
         return this.props.transactions.length > 0 && <div>
             <StatsView filteredTransactions={filteredTransactions} />
-            <SummaryTable transactions={filteredTransactions} accounts={this.props.accounts} />
+            <SummaryTable transactions={this.props.transactions} accounts={this.props.accounts} />
             {this.getTransactionsCountLabel(filteredTransactions)}
             {this.getDraftActions(filteredTransactions)}
             <div className="row mt-2">{filteredTransactions.slice().reverse().map(this.getTransaction)}</div>
@@ -177,14 +176,14 @@ class TransactionsView extends React.Component {
     }
 
     saveDrafts = () => {
-        transactionService.saveDrafts().then(() => {
+        transactionService.saveDrafts(this.props.draftId).then(() => {
             toast.info("Draft transactions saved ✅");
             this.props.fetchTransactions();
         });
     }
 
     deleteDrafts = () => {
-        transactionService.deleteDrafts().then(() => {
+        transactionService.deleteDrafts(this.props.draftId).then(() => {
             toast.info("Draft transactions deleted ✅");
             this.props.fetchTransactions();
         });

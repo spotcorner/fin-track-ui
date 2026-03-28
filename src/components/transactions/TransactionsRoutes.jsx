@@ -17,11 +17,7 @@ const routes = [
     },
     {
         path: '/transactions/drafts',
-        component: () => import("./TransactionsLayout.jsx"),
-        props: {
-            isDraft: 1,
-            sortByDate: 1,
-        }
+        component: () => import('./DraftsLayout.jsx'),
     },
     {
         path: '/transactions/upload-statement',

@@ -14,6 +14,7 @@ class Upload extends React.Component {
     state = {
         accountId: "",
         extractor: "",
+        draftName: "",
         file: null,
         extractionStatus: false,
         extracted: 0,
@@ -38,7 +39,7 @@ class Upload extends React.Component {
         e.preventDefault();
 
         this.setState({ extractionStatus: true, extracted: 0 });
-        transactionService.extract(this.state.accountId, this.state.extractor, this.state.file).then(data => {
+        transactionService.extract(this.state.accountId, this.state.extractor, this.state.file, this.state.draftName).then(data => {
             this.setState({ transactionsCount: data.transactionsCount, extractionStatus: false, extracted: 1 });
         }).catch(err => {
             this.setState({ extractionStatus: false, extracted: 0 });
@@ -50,6 +51,10 @@ class Upload extends React.Component {
         const { accountId, extractor } = this.state;
         return <form className="p-3 shadow mb-3" onSubmit={this.getTransactions}>
             <h3 className="mb-3">Upload Statement</h3>
+            <div className="mb-3">
+                <label className="form-label">Draft Name</label>
+                <input type="text" className="form-control" name="draftName" value={this.state.draftName} onChange={this.handleChange} required />
+            </div>
             <div className="mb-3">
                 <label className="form-label">Select Account</label>
                 <div className="d-flex">

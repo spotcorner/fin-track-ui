@@ -21,6 +21,7 @@ function getDerivedStateFromProps(props) {
         appliedRules: props.transaction?.appliedRules || {},
         comments: props.transaction?.comments || "",
         isDraft: props.isDraft,
+        draftId: props.transaction?.draftId || props.draftId || "",
     };
 }
 

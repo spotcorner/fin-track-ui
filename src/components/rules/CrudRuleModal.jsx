@@ -10,7 +10,7 @@ function getDerivedStateFromProps(props) {
     return {
         _id: props.rule?._id || "",
         tag: props.rule?.tag || "",
-        keywords: props.rule?.keywords || "",
+        keywords: props.rule?.keywords || [],
         description: props.rule?.description || "",
     };
 }
@@ -32,11 +32,40 @@ class CrudRuleModal extends React.Component {
         this.setState({ [e.target.name]: e.target.value });
     };
 
+    addKeyword = () => {
+        this.setState(prev => ({
+            keywords: [...prev.keywords, { value: "", caseSensitive: false }],
+        }));
+    };
+
+    removeKeyword = (index) => {
+        this.setState(prev => ({
+            keywords: prev.keywords.filter((_, i) => i !== index),
+        }));
+    };
+
+    toggleCaseSensitive = (index) => {
+        this.setState(prev => ({
+            keywords: prev.keywords.map((kw, i) =>
+                i === index ? { ...kw, caseSensitive: !kw.caseSensitive } : kw
+            ),
+        }));
+    };
+
     handleSubmit = (e) => {
         e.preventDefault();
-
-        this.state.tag = this.state.tag || this.state.name;
-        this.props.dispatch(upsertRuleRequest(this.state)).then(data => {
+        const keywords = this.state.keywords.filter(kw => kw.value.trim());
+        if (keywords.length === 0) {
+            toast.error("At least one keyword is required");
+            return;
+        }
+        const payload = {
+            _id: this.state._id,
+            tag: this.state.tag,
+            keywords,
+            description: this.state.description,
+        };
+        this.props.dispatch(upsertRuleRequest(payload)).then(data => {
             toast.info("Rule saved ✅");
             const onSave = this.props.onSave || this.props.onClose || (() => { });
             onSave(data.payload);
@@ -53,17 +82,45 @@ class CrudRuleModal extends React.Component {
         }
     }
 
+    handleKeywordChange = (index, value) => {
+        this.setState(prev => ({
+            keywords: prev.keywords.map((kw, i) =>
+                i === index ? { ...kw, value } : kw
+            ),
+        }));
+    };
+
+    getKeywordRows() {
+        return this.state.keywords.map((kw, index) => (
+            <div key={index} className="mb-2">
+                <div className="input-group">
+                    <input type="text" className="form-control" value={kw.value}
+                        onChange={(e) => this.handleKeywordChange(index, e.target.value)} />
+                    <button type="button" className="btn btn-outline-danger" onClick={() => this.removeKeyword(index)}>&times;</button>
+                </div>
+                <div className="form-check mt-1">
+                    <input type="checkbox" className="form-check-input" id={`cs-${index}`}
+                        checked={kw.caseSensitive} onChange={() => this.toggleCaseSensitive(index)} />
+                    <label className="form-check-label" htmlFor={`cs-${index}`}>Case sensitive</label>
+                </div>
+            </div>
+        ));
+    }
+
     getModalBody() {
-        const { name, keywords, tag } = this.state;
+        const { tag } = this.state;
         return (
             <form ref={this.formRef} onSubmit={this.handleSubmit}>
                 <div className="mb-2">
                     <label className="form-label">Tag</label>
-                    <input type="text" className="form-control" name="tag" value={tag || name} onChange={this.handleChange} placeholder="Tag" required />
+                    <input type="text" className="form-control" name="tag" value={tag} onChange={this.handleChange} placeholder="Tag" required />
                 </div>
                 <div className="mb-2">
-                    <label className="form-label">Keywords</label>
-                    <textarea className="form-control" name="keywords" value={keywords} onChange={this.handleChange} placeholder="Keywords (eg: Keyword1, Keyword2)" required />
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label className="form-label mb-0">Keywords</label>
+                        <button type="button" className="btn btn-outline-dark btn-sm" onClick={this.addKeyword}>+</button>
+                    </div>
+                    {this.getKeywordRows()}
                 </div>
             </form>
         );

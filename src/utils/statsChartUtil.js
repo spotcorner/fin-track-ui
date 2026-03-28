@@ -155,6 +155,7 @@ export const charts = [
         filters: { "account.type": "bank" },
         groupBy: [],
         className: "col-sm-12 col-md-6 col-lg-4 mb-3",
+        showDatalabels: true,
     },
     {
         title: "Transaction Count by Amount Range",
@@ -169,6 +170,7 @@ export const charts = [
         filters: { "account.type": "bank" },
         groupBy: [],
         className: "col-sm-12 col-md-6 col-lg-4 mb-3",
+        showDatalabels: true,
     },
     {
         title: "Total Amount by Transaction Range",
@@ -197,6 +199,7 @@ export const charts = [
         filters: { "account.type": "bank" },
         groupBy: [],
         className: "col-sm-12 col-md-6 col-lg-4 mb-3",
+        showDatalabels: true,
     },
     {
         title: "Total Amount by Tags",
