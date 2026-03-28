@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sangamapps/fin-track-ui.git"
+    "url": "git+https://github.com/spotcorner/fin-track-ui.git"
   },
   "keywords": [],
   "author": "Sangameswaran A",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sangamapps/fin-track-ui/issues"
+    "url": "https://github.com/spotcorner/fin-track-ui/issues"
   },
-  "homepage": "https://github.com/sangamapps/fin-track-ui#readme",
+  "homepage": "https://github.com/spotcorner/fin-track-ui#readme",
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/plugin-transform-runtime": "^7.16.0",

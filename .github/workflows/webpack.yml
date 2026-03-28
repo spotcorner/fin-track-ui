@@ -26,13 +26,13 @@ jobs:
       run: |
         npm install --dev
         npm run build
-        git clone https://github.com/sangamapps/fin-track-cdn.git
+        git clone https://github.com/spotcorner/fin-track-cdn.git
         cp -r assets/ fin-track-cdn/
         git log -1 > commit.txt
         cd fin-track-cdn
         git config --local user.email "sangameswaran.a.tech@gmail.com"
-        git config --local user.name "sangamapps"
-        git remote set-url origin https://${{ secrets.FIN_TRACK_PUSH_TO_CDN_SECRET }}@github.com/sangamapps/fin-track-cdn.git
+        git config --local user.name "spotcorner"
+        git remote set-url origin https://${{ secrets.FIN_TRACK_PUSH_TO_CDN_SECRET }}@github.com/spotcorner/fin-track-cdn.git
         git add .
         git commit -m "Created assets for fin-track-ui $(cat ../commit.txt)"
         git push
