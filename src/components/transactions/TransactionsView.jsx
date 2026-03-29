@@ -163,9 +163,11 @@ class TransactionsView extends React.Component {
         </div>;
     }
 
-    getViewToggle() {
+    getViewToggle(filteredTransactions) {
         const { viewMode } = this.state;
-        return <div className="d-flex justify-content-end mb-2">
+        return <div className="d-flex justify-content-between align-items-center mb-2">
+            <div></div>
+            <span className="text-muted">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
             <div className="btn-group btn-group-sm">
                 <button className={"btn btn-" + (viewMode == VIEW_LIST ? "dark" : "outline-dark")} onClick={() => this.setState({ viewMode: VIEW_LIST })}>
                     <i className="bi bi-list"></i>
@@ -174,12 +176,6 @@ class TransactionsView extends React.Component {
                     <i className="bi bi-grid"></i>
                 </button>
             </div>
-        </div>;
-    }
-
-    getTransactionsCountLabel(filteredTransactions) {
-        return <div className="d-flex justify-content-center">
-            <span className="text-muted">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
         </div>;
     }
 
@@ -202,9 +198,8 @@ class TransactionsView extends React.Component {
         return this.props.transactions.length > 0 && <div>
             <StatsView filteredTransactions={filteredTransactions} />
             <SummaryTable transactions={this.props.transactions} accounts={this.props.accounts} />
-            {this.getTransactionsCountLabel(filteredTransactions)}
             {this.getDraftActions(filteredTransactions)}
-            {this.getViewToggle()}
+            {this.getViewToggle(filteredTransactions)}
             {this.getTransactionsList(filteredTransactions)}
             {this.getDraftActions(filteredTransactions)}
         </div>;
