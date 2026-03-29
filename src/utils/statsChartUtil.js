@@ -69,14 +69,14 @@ const getTransactionAmountSumTrendData = (filteredTransactions, accountsMap, tim
     return { labels, data };
 };
 
-const getTransactionTagCountTrendData = (filteredTransactions, accountsMap, timeFilter, rules) => {
-    let counts = rules.map(({ _id, tag }) => {
-        const txns = filteredTransactions.filter(txn => txn.appliedRules[_id] == 1);
-        return { label: tag, count: txns.length };
+const getTransactionTagCountTrendData = (filteredTransactions, accountsMap, timeFilter, tags) => {
+    let counts = tags.map(({ _id, name }) => {
+        const txns = filteredTransactions.filter(txn => txn.appliedTags[_id] == 1);
+        return { label: name, count: txns.length };
     });
     counts.push({
         label: "Untagged",
-        count: filteredTransactions.filter(txn => txn.tags.length == 0).length,
+        count: filteredTransactions.filter(txn => txn.tagNames.length == 0).length,
     });
     counts = counts.filter(c => c.count > 0);
     const labels = counts.map(g => g.label);
@@ -84,14 +84,14 @@ const getTransactionTagCountTrendData = (filteredTransactions, accountsMap, time
     return { labels, data };
 };
 
-const getTransactionTagAmountSumTrendData = (filteredTransactions, accountsMap, timeFilter, rules) => {
-    let sums = rules.map(({ _id, tag }) => {
-        const txns = filteredTransactions.filter(txn => txn.appliedRules[_id] == 1);
-        return { label: tag, sum: _.sumBy(txns, "amount") };
+const getTransactionTagAmountSumTrendData = (filteredTransactions, accountsMap, timeFilter, tags) => {
+    let sums = tags.map(({ _id, name }) => {
+        const txns = filteredTransactions.filter(txn => txn.appliedTags[_id] == 1);
+        return { label: name, sum: _.sumBy(txns, "amount") };
     });
     sums.push({
         label: "Untagged",
-        sum: _.sumBy(filteredTransactions.filter(txn => txn.tags.length == 0), "amount"),
+        sum: _.sumBy(filteredTransactions.filter(txn => txn.tagNames.length == 0), "amount"),
     });
     sums = sums.filter(c => c.sum > 0);
     const labels = sums.map(g => g.label);

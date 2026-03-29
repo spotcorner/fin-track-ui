@@ -103,7 +103,7 @@ class TransactionsLayout extends React.Component {
     }
 
     getFilteredTransactions() {
-        return transactionUtil.applyFilters(this.state.transactions, this.getFilters(), this.props.accountsMap, this.props.rules);
+        return transactionUtil.applyFilters(this.state.transactions, this.getFilters(), this.props.accountsMap, this.props.tags);
     }
 
     updateTransaction = (transaction) => {
@@ -155,4 +155,4 @@ class TransactionsLayout extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accountsMap", "rules"]))(TransactionsLayout);
+export default connect(state => _.pick(state.user, ["accountsMap", "tags"]))(TransactionsLayout);

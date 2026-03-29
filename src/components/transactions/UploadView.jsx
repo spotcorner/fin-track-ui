@@ -99,7 +99,7 @@ class Upload extends React.Component {
         return;
     }
 
-    getCrudRuleModal() {
+    getCrudAccountModal() {
         return <CrudAccountModal show={this.state.showAccountModal} onSave={(data) => this.toggleAccountModal(data.account._id)} onClose={() => this.toggleAccountModal()} />;
     }
 
@@ -107,7 +107,7 @@ class Upload extends React.Component {
         return (
             <div className="mb-3">
                 {this.getUploadCard()}
-                {this.getCrudRuleModal()}
+                {this.getCrudAccountModal()}
                 {this.getResult()}
             </div>
         );

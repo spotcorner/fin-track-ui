@@ -52,10 +52,10 @@ class StatsView extends React.Component {
     }
 
     getChartCard = (chart, index) => {
-        const { statsGroupByPeriod, filteredTransactions, accountsMap, rules } = this.props;
+        const { statsGroupByPeriod, filteredTransactions, accountsMap, tags } = this.props;
         const applicableTransactions = this.getApplicableTransactions(filteredTransactions, chart.filters);
         if (applicableTransactions.length == 0) return null;
-        const { labels, data } = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, rules);
+        const { labels, data } = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags);
         const datasets = chart.getDatasets(data);
         const chartCollapsed = this.state.collapsedCharts[index];
         return <div key={index} className={chart.className}>
@@ -102,4 +102,4 @@ class StatsView extends React.Component {
     }
 };
 
-export default connect(state => _.pick(state.user, ["statsGroupByPeriod", "accountsMap", "rules"]))(StatsView);
+export default connect(state => _.pick(state.user, ["statsGroupByPeriod", "accountsMap", "tags"]))(StatsView);

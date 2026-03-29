@@ -3,7 +3,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
-import { fetchAccountsRequest, fetchRulesRequest } from "@store";
+import { fetchAccountsRequest, fetchTagsRequest } from "@store";
 
 class HomeLayout extends React.Component {
 
@@ -49,7 +49,7 @@ class HomeLayout extends React.Component {
                                 {this.getNavLink("/accounts", "Accounts")}
                             </li>
                             <li className="nav-item">
-                                {this.getNavLink("/rules", "Rules")}
+                                {this.getNavLink("/tags", "Tags")}
                             </li>
                             <li className="nav-item d-lg-none">
                                 {this.getProfileLink()}
@@ -69,7 +69,7 @@ class HomeLayout extends React.Component {
 
     componentDidMount() {
         this.props.dispatch(fetchAccountsRequest());
-        this.props.dispatch(fetchRulesRequest());
+        this.props.dispatch(fetchTagsRequest());
     }
 }
 

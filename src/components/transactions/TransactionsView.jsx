@@ -7,7 +7,7 @@ import transactionService from "@services/transactionService";
 import SummaryTable from "./SummaryTable.jsx";
 import { TRANSACTION_LABELS, TRANSACTION_TYPES } from "@config";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
-import AddKeywordToRuleModal from "./AddKeywordToRuleModal.jsx";
+import AddKeywordToTagModal from "./AddKeywordToTagModal.jsx";
 import StatsView from "./stats/StatsView.jsx";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil.js";
@@ -24,14 +24,14 @@ class TransactionsView extends React.Component {
         selectedTransaction: null,
     }
 
-    toggleRulesModal = (selectedTransaction) => {
+    toggleTagModal = (selectedTransaction) => {
         this.setState({ showRulesModal: !this.state.showRulesModal, selectedTransaction });
     }
 
-    getCrudRuleModal() {
+    getAddKeywordToTagModal() {
         const { showRulesModal, selectedTransaction } = this.state;
-        return <AddKeywordToRuleModal show={showRulesModal} transaction={selectedTransaction}
-            onClose={() => this.toggleRulesModal()} />;
+        return <AddKeywordToTagModal show={showRulesModal} transaction={selectedTransaction}
+            onClose={() => this.toggleTagModal()} />;
     }
 
     toggleTransactionModal = (selectedTransaction) => {
@@ -46,8 +46,8 @@ class TransactionsView extends React.Component {
             onClose={() => this.toggleTransactionModal()} />;
     }
 
-    removeTransactionTag(transaction, rule_id) {
-        transaction.appliedRules[rule_id] = 0;
+    removeTransactionTag(transaction, tag_id) {
+        transaction.appliedTags[tag_id] = 0;
         transactionService.upsert(transaction).then(this.props.updateTransaction);
     }
 
@@ -57,11 +57,11 @@ class TransactionsView extends React.Component {
         </span>
     }
 
-    getTag(transaction, rule_id) {
-        const { rulesMap } = this.props;
-        return <div key={rule_id} className="badge bg-primary mb-2 me-1">
-            {rulesMap[rule_id]?.tag}
-            <span className="ms-1 cursor-pointer" onClick={() => this.removeTransactionTag(transaction, rule_id)}>
+    getTag(transaction, tag_id) {
+        const { tagsMap } = this.props;
+        return <div key={tag_id} className="badge bg-primary mb-2 me-1">
+            {tagsMap[tag_id]?.name}
+            <span className="ms-1 cursor-pointer" onClick={() => this.removeTransactionTag(transaction, tag_id)}>
                 &times;
             </span>
         </div>;
@@ -72,18 +72,18 @@ class TransactionsView extends React.Component {
     }
 
     getTags(transaction) {
-        const usedRules = _.keys(_.pickBy(transaction.appliedRules, v => v == 1));
+        const usedTags = _.keys(_.pickBy(transaction.appliedTags, v => v == 1));
         return <div className="d-flex ">
             <div className="d-flex flex-wrap">
 
                 {transaction.excludeFromTotals == 1 && this.getDefaultTag("Excluded", "secondary")}
-                {usedRules.length == 0 && this.getDefaultTag("Others", "dark")}
-                {usedRules.map((rule_id) => this.getTag(transaction, rule_id))}
+                {usedTags.length == 0 && this.getDefaultTag("Others", "dark")}
+                {usedTags.map((tag_id) => this.getTag(transaction, tag_id))}
             </div>
             <div className="ms-auto d-flex flex-wrap justify-content-end">
                 <span
                     className="badge bg-secondary mb-2 me-1 cursor-pointer"
-                    onClick={() => this.toggleRulesModal(transaction)}
+                    onClick={() => this.toggleTagModal(transaction)}
                 >
                     <i className="bi bi-tag"></i>
                 </span>
@@ -195,11 +195,11 @@ class TransactionsView extends React.Component {
             <div className="mb-2">
                 {this.getTransactions(filteredTransactions)}
                 {this.getAddButton()}
-                {this.getCrudRuleModal()}
+                {this.getAddKeywordToTagModal()}
                 {this.getCrudTransactionModal()}
             </div>
         );
     }
 }
 
-export default connect(state => _.pick(state.user, ["accountsMap", "accounts", "rulesMap"]))(TransactionsView);
+export default connect(state => _.pick(state.user, ["accountsMap", "accounts", "tagsMap"]))(TransactionsView);

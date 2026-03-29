@@ -36,7 +36,7 @@ class FiltersView extends React.Component {
 
     getFilters() {
         if (!this.state.showFiltersView) return this.getFiltersButton();
-        const { accountsMap, rulesMap, filters } = this.props;
+        const { accountsMap, tagsMap, filters } = this.props;
         return <div className="p-3 bg-dark rounded-end-1" style={{ maxWidth: "500px" }}>
             <div className="row">
                 <div className="col-12 mb-2">
@@ -81,7 +81,7 @@ class FiltersView extends React.Component {
                         <select name="tagFilter" value={filters.tagFilter} className="form-control" onChange={this.handleFilterChange}>
                             <option value="">All</option>
                             <option value={"__NONE__"}>Others</option>
-                            {_.values(rulesMap).map((rule, index) => <option key={index} value={rule._id}>{rule.tag}</option>)}
+                            {_.values(tagsMap).map((tag, index) => <option key={index} value={tag._id}>{tag.name}</option>)}
                         </select>
                     </div>
                 </div>
@@ -129,4 +129,4 @@ class FiltersView extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accountsMap", "rulesMap"]))(FiltersView);
+export default connect(state => _.pick(state.user, ["accountsMap", "tagsMap"]))(FiltersView);

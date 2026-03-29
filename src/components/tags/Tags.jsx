@@ -3,56 +3,56 @@
 import React from "react";
 import { connect } from "react-redux";
 import { toast } from 'react-toastify';
-import CrudRuleModal from "./CrudRuleModal.jsx";
-import { deleteRuleRequest } from "@store";
+import CrudTagModal from "./CrudTagModal.jsx";
+import { deleteTagRequest } from "@store";
 import uiUtil from "@utils/uiUtil.js";
 
-class Rules extends React.Component {
+class Tags extends React.Component {
     state = {
-        selectedRule: null,
+        selectedTag: null,
         showModal: false,
     };
 
-    toggleModal = (selectedRule = null) => {
-        this.setState({ showModal: !this.state.showModal, selectedRule });
+    toggleModal = (selectedTag = null) => {
+        this.setState({ showModal: !this.state.showModal, selectedTag });
     };
 
     handleDelete = (_id) => {
-        this.props.dispatch(deleteRuleRequest(_id)).then(() => {
-            toast.success("Rule deleted ✅");
+        this.props.dispatch(deleteTagRequest(_id)).then(() => {
+            toast.success("Tag deleted ✅");
         });
     };
 
-    getRulesContainer() {
-        const { rules, loadingRules } = this.props;
+    getTagsContainer() {
+        const { tags, loadingTags } = this.props;
 
-        if (loadingRules) {
+        if (loadingTags) {
             return uiUtil.spinnerLoader("mt-4");
         }
 
-        if (rules.length === 0) {
+        if (tags.length === 0) {
             return <div className="mt-4">
-                <span className="text-muted">No rules found.</span>
+                <span className="text-muted">No tags found.</span>
             </div>
         }
 
         return (
             <div className="row">
-                {rules.map((rule, index) => (
+                {tags.map((tag, index) => (
                     <div key={index} className="col-md-4 mb-3">
                         <div className="card shadow-sm">
                             <div className="card-body">
-                                <strong>{rule.tag}</strong>
-                                <div className="mt-1 text-muted"><small>Keywords: {rule.keywords.map((kw, i) => (
+                                <strong>{tag.name}</strong>
+                                <div className="mt-1 text-muted"><small>Keywords: {tag.keywords.map((kw, i) => (
                                     <span key={i} className={"badge me-1 " + (kw.caseSensitive ? "bg-warning text-dark" : "bg-secondary")}>
                                         {kw.value}
                                     </span>
                                 ))}</small></div>
                                 <div className="mt-3 d-flex justify-content-between">
-                                    <button className="btn btn-warning btn-sm" onClick={() => this.toggleModal(rule)}>
+                                    <button className="btn btn-warning btn-sm" onClick={() => this.toggleModal(tag)}>
                                         <i className="bi bi-pencil"></i> Edit
                                     </button>
-                                    <button className="btn btn-danger btn-sm" onClick={() => this.handleDelete(rule._id)}>
+                                    <button className="btn btn-danger btn-sm" onClick={() => this.handleDelete(tag._id)}>
                                         <i className="bi bi-trash"></i> Delete
                                     </button>
                                 </div>
@@ -65,8 +65,8 @@ class Rules extends React.Component {
     }
 
 
-    getCrudRuleModal() {
-        return <CrudRuleModal show={this.state.showModal} rule={this.state.selectedRule} onClose={() => this.toggleModal()} />;
+    getCrudTagModal() {
+        return <CrudTagModal show={this.state.showModal} tag={this.state.selectedTag} onClose={() => this.toggleModal()} />;
     }
 
     getAddButton() {
@@ -80,13 +80,13 @@ class Rules extends React.Component {
     render() {
         return (
             <div className="container mt-3">
-                <h1>Rules</h1>
-                {this.getRulesContainer()}
-                {this.getCrudRuleModal()}
+                <h1>Tags</h1>
+                {this.getTagsContainer()}
+                {this.getCrudTagModal()}
                 {this.getAddButton()}
             </div>
         );
     }
 }
 
-export default connect(state => _.pick(state.user, ["rules", "loadingRules"]))(Rules);
+export default connect(state => _.pick(state.user, ["tags", "loadingTags"]))(Tags);

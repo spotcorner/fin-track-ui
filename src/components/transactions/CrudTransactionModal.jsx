@@ -18,7 +18,7 @@ function getDerivedStateFromProps(props) {
         excludeFromTotals: props.transaction?.excludeFromTotals || 0,
         balance: props.transaction?.balance || 0,
         description: props.transaction?.description || "",
-        appliedRules: props.transaction?.appliedRules || {},
+        appliedTags: props.transaction?.appliedTags || {},
         comments: props.transaction?.comments || "",
         isDraft: props.isDraft,
         draftId: props.transaction?.draftId || props.draftId || "",

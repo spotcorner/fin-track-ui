@@ -1,7 +1,7 @@
-import ruleUtil from "./ruleUtil";
+import tagUtil from "./tagUtil";
 
 export default {
-    applyFilters: (transactions, filters, accountsMap, rules) => {
+    applyFilters: (transactions, filters, accountsMap, tags) => {
         return _.filter(transactions, (transaction) => {
             if (!_.isEmpty(filters.minAmountFilter) && transaction.amount < filters.minAmountFilter) return false;
             if (!_.isEmpty(filters.maxAmountFilter) && transaction.amount > filters.maxAmountFilter) return false;
@@ -11,13 +11,13 @@ export default {
             if (!_.isEmpty(filters.accountTypeFilter) && account.type != filters.accountTypeFilter) return false;
             if (!_.isEmpty(filters.accountIdFilter) && transaction.accountId != filters.accountIdFilter) return false;
             if (!_.isEmpty(filters.transactionTypeFilter) && transaction.type != filters.transactionTypeFilter) return false;
-            ruleUtil.applyRules(transaction, rules);
+            tagUtil.applyTags(transaction, tags);
             if (!_.isEmpty(filters.tagFilter)) {
                 if (filters.tagFilter == "__NONE__") {
-                    if (transaction.tags.length > 0) {
+                    if (transaction.tagNames.length > 0) {
                         return false;
                     }
-                } else if (!transaction.appliedRules[filters.tagFilter]) {
+                } else if (!transaction.appliedTags[filters.tagFilter]) {
                     return false;
                 }
             }

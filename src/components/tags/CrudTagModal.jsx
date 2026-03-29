@@ -4,18 +4,18 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import Modal from "@modal/Modal.jsx";
-import { upsertRuleRequest } from "@store";
+import { upsertTagRequest } from "@store";
 
 function getDerivedStateFromProps(props) {
     return {
-        _id: props.rule?._id || "",
-        tag: props.rule?.tag || "",
-        keywords: props.rule?.keywords || [],
-        description: props.rule?.description || "",
+        _id: props.tag?._id || "",
+        name: props.tag?.name || "",
+        keywords: props.tag?.keywords || [],
+        description: props.tag?.description || "",
     };
 }
 
-class CrudRuleModal extends React.Component {
+class CrudTagModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = getDerivedStateFromProps(props);
@@ -23,7 +23,7 @@ class CrudRuleModal extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.rule !== this.props.rule) {
+        if (prevProps.tag !== this.props.tag) {
             this.setState(getDerivedStateFromProps(this.props));
         }
     }
@@ -61,19 +61,19 @@ class CrudRuleModal extends React.Component {
         }
         const payload = {
             _id: this.state._id,
-            tag: this.state.tag,
+            name: this.state.name,
             keywords,
             description: this.state.description,
         };
-        this.props.dispatch(upsertRuleRequest(payload)).then(data => {
-            toast.info("Rule saved ✅");
+        this.props.dispatch(upsertTagRequest(payload)).then(data => {
+            toast.info("Tag saved ✅");
             const onSave = this.props.onSave || this.props.onClose || (() => { });
             onSave(data.payload);
         });
     };
 
     getModalTitle() {
-        return this.props.rule?._id ? "Edit Rule" : "Add Rule";
+        return this.props.tag?._id ? "Edit Tag" : "Add Tag";
     }
 
     onSubmitClick = () => {
@@ -108,12 +108,12 @@ class CrudRuleModal extends React.Component {
     }
 
     getModalBody() {
-        const { tag } = this.state;
+        const { name } = this.state;
         return (
             <form ref={this.formRef} onSubmit={this.handleSubmit}>
                 <div className="mb-2">
-                    <label className="form-label">Tag</label>
-                    <input type="text" className="form-control" name="tag" value={tag} onChange={this.handleChange} placeholder="Tag" required />
+                    <label className="form-label">Name</label>
+                    <input type="text" className="form-control" name="name" value={name} onChange={this.handleChange} placeholder="Tag name" required />
                 </div>
                 <div className="mb-2">
                     <div className="d-flex justify-content-between align-items-center mb-1">
@@ -131,4 +131,4 @@ class CrudRuleModal extends React.Component {
     }
 }
 
-export default connect()(CrudRuleModal);
+export default connect()(CrudTagModal);

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import accountService from "@services/accountService";
-import ruleService from "@services/ruleService";
+import tagService from "@services/tagService";
 
 let info = null;
 try {
@@ -16,11 +16,11 @@ try {
 const initialState = {
     info,
     loadingAccounts: false,
-    loadingRules: false,
+    loadingTags: false,
     accounts: [],
-    rules: [],
+    tags: [],
     accountsMap: {},
-    rulesMap: {},
+    tagsMap: {},
     statsGroupByPeriod: "weekly",
 }
 
@@ -31,10 +31,10 @@ export const fetchAccountsRequest = createAsyncThunk(
     }
 );
 
-export const fetchRulesRequest = createAsyncThunk(
-    "user/fetchRulesRequest",
+export const fetchTagsRequest = createAsyncThunk(
+    "user/fetchTagsRequest",
     async () => {
-        return await ruleService.getAll();
+        return await tagService.getAll();
     }
 );
 
@@ -45,10 +45,10 @@ export const upsertAccountRequest = createAsyncThunk(
     }
 );
 
-export const upsertRuleRequest = createAsyncThunk(
-    "user/upsertRuleRequest",
-    async (rule) => {
-        return await ruleService.upsert(rule);
+export const upsertTagRequest = createAsyncThunk(
+    "user/upsertTagRequest",
+    async (tag) => {
+        return await tagService.upsert(tag);
     }
 );
 
@@ -59,10 +59,10 @@ export const deleteAccountRequest = createAsyncThunk(
     }
 );
 
-export const deleteRuleRequest = createAsyncThunk(
-    "user/deleteRuleRequest",
+export const deleteTagRequest = createAsyncThunk(
+    "user/deleteTagRequest",
     async (_id) => {
-        return await ruleService.delete(_id);
+        return await tagService.delete(_id);
     }
 );
 
@@ -83,33 +83,33 @@ const reducers = {
         }
         user.accountsMap[account._id] = account;
     },
-    upsertRule: (user, action) => {
-        const { rule } = action.payload;
-        const index = _.findIndex(user.rules, a => a._id == rule._id);
+    upsertTag: (user, action) => {
+        const { tag } = action.payload;
+        const index = _.findIndex(user.tags, a => a._id == tag._id);
         if (index >= 0) {
-            user.rules[index] = rule;
+            user.tags[index] = tag;
         } else {
-            user.rules.push(rule);
+            user.tags.push(tag);
         }
-        user.rulesMap[rule._id] = rule;
+        user.tagsMap[tag._id] = tag;
     },
     deleteAccount: (user, action) => {
         const index = _.findIndex(user.accounts, a => a._id == action.payload._id);
         user.accounts.splice(index, 1);
     },
-    deleteRule: (user, action) => {
-        const index = _.findIndex(user.rules, a => a._id == action.payload._id);
-        user.rules.splice(index, 1);
+    deleteTag: (user, action) => {
+        const index = _.findIndex(user.tags, a => a._id == action.payload._id);
+        user.tags.splice(index, 1);
     },
     updateAccounts: (user, action) => {
         user.accounts = action.payload.accounts;
         user.accountsMap = _.keyBy(user.accounts, "_id");
         user.loadingAccounts = false;
     },
-    updateRules: (user, action) => {
-        user.rules = action.payload.rules;
-        user.rulesMap = _.keyBy(user.rules, "_id");
-        user.loadingRules = false;
+    updateTags: (user, action) => {
+        user.tags = action.payload.tags;
+        user.tagsMap = _.keyBy(user.tags, "_id");
+        user.loadingTags = false;
     },
 }
 
@@ -122,21 +122,21 @@ const userSlice = createSlice({
             .addCase(fetchAccountsRequest.pending, (user) => {
                 user.loadingAccounts = true;
             })
-            .addCase(fetchRulesRequest.pending, (user) => {
-                user.loadingRules = true;
+            .addCase(fetchTagsRequest.pending, (user) => {
+                user.loadingTags = true;
             })
             .addCase(fetchAccountsRequest.fulfilled, reducers.updateAccounts)
-            .addCase(fetchRulesRequest.fulfilled, reducers.updateRules)
+            .addCase(fetchTagsRequest.fulfilled, reducers.updateTags)
             .addCase(fetchAccountsRequest.rejected, (user) => {
                 user.loadingAccounts = false;
             })
-            .addCase(fetchRulesRequest.rejected, (user) => {
-                user.loadingRules = false;
+            .addCase(fetchTagsRequest.rejected, (user) => {
+                user.loadingTags = false;
             })
             .addCase(upsertAccountRequest.fulfilled, reducers.upsertAccount)
-            .addCase(upsertRuleRequest.fulfilled, reducers.upsertRule)
+            .addCase(upsertTagRequest.fulfilled, reducers.upsertTag)
             .addCase(deleteAccountRequest.fulfilled, reducers.deleteAccount)
-            .addCase(deleteRuleRequest.fulfilled, reducers.deleteRule);
+            .addCase(deleteTagRequest.fulfilled, reducers.deleteTag);
     }
 });
 
@@ -144,11 +144,11 @@ export const {
     setUserDetails,
     setStatsGroupByPeriod,
     upsertAccount,
-    upsertRule,
+    upsertTag,
     deleteAccount,
-    deleteRule,
+    deleteTag,
     updateAccounts,
-    updateRules,
+    updateTags,
 } = userSlice.actions;
 
 export default userSlice.reducer;

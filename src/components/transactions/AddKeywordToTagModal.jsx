@@ -3,55 +3,55 @@
 import React from "react";
 import { connect } from "react-redux";
 import Modal from "@modal/Modal.jsx";
-import CrudRuleModal from "@components/rules/CrudRuleModal.jsx";
+import CrudTagModal from "@components/tags/CrudTagModal.jsx";
 
 const CREATE_NEW = "__CREATE_NEW__";
 
-class AddKeywordToRuleModal extends React.Component {
-    state = { selectedRuleId: "" };
+class AddKeywordToTagModal extends React.Component {
+    state = { selectedTagId: "" };
 
     componentDidUpdate(prevProps) {
         if (prevProps.transaction !== this.props.transaction) {
-            this.setState({ selectedRuleId: "" });
+            this.setState({ selectedTagId: "" });
         }
     }
 
     handleSelect = (e) => {
-        this.setState({ selectedRuleId: e.target.value });
+        this.setState({ selectedTagId: e.target.value });
     };
 
-    getRule() {
-        const { selectedRuleId } = this.state;
+    getTag() {
+        const { selectedTagId } = this.state;
         const description = this.props.transaction?.description || "";
         const newKeyword = description ? { value: description, caseSensitive: false } : null;
 
-        if (selectedRuleId === CREATE_NEW) {
+        if (selectedTagId === CREATE_NEW) {
             return { keywords: newKeyword ? [newKeyword] : [] };
         }
 
-        const rule = _.find(this.props.rules, r => r._id === selectedRuleId);
-        if (!rule) return null;
-        return { ...rule, keywords: [...rule.keywords, ...(newKeyword ? [newKeyword] : [])] };
+        const tag = _.find(this.props.tags, t => t._id === selectedTagId);
+        if (!tag) return null;
+        return { ...tag, keywords: [...tag.keywords, ...(newKeyword ? [newKeyword] : [])] };
     }
 
     render() {
         if (!this.props.show) return null;
-        const { selectedRuleId } = this.state;
+        const { selectedTagId } = this.state;
 
-        if (selectedRuleId) {
-            return <CrudRuleModal show={true} rule={this.getRule()}
-                onSave={this.props.onClose} onClose={() => this.setState({ selectedRuleId: "" })} />;
+        if (selectedTagId) {
+            return <CrudTagModal show={true} tag={this.getTag()}
+                onSave={this.props.onClose} onClose={() => this.setState({ selectedTagId: "" })} />;
         }
 
         const body = (
             <div>
-                <label className="form-label">Select a rule or create new</label>
+                <label className="form-label">Select a tag or create new</label>
                 <select className="form-select" value="" onChange={this.handleSelect}>
-                    <option value="">Select a rule</option>
-                    {this.props.rules.map(rule => (
-                        <option key={rule._id} value={rule._id}>{rule.tag}</option>
+                    <option value="">Select a tag</option>
+                    {this.props.tags.map(tag => (
+                        <option key={tag._id} value={tag._id}>{tag.name}</option>
                     ))}
-                    <option value={CREATE_NEW}>+ Create New Rule</option>
+                    <option value={CREATE_NEW}>+ Create New Tag</option>
                 </select>
             </div>
         );
@@ -60,4 +60,4 @@ class AddKeywordToRuleModal extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["rules"]))(AddKeywordToRuleModal);
+export default connect(state => _.pick(state.user, ["tags"]))(AddKeywordToTagModal);

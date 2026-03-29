@@ -8,7 +8,7 @@ import HomeLayout from "@components/layout/HomeLayout.jsx";
 
 const routes = [
     { path: '/accounts', component: () => import('@components/accounts/Accounts.jsx') },
-    { path: '/rules', component: () => import('@components/rules/Rules.jsx') },
+    { path: '/tags', component: () => import('@components/tags/Tags.jsx') },
     { path: '/profile', component: () => import('@components/profile/Profile.jsx') },
     { path: '/', component: () => import('@components/transactions/TransactionsRoutes.jsx') },
 ];
