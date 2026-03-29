@@ -43,9 +43,9 @@ class Tags extends React.Component {
                         <div className="card shadow-sm">
                             <div className="card-body">
                                 <strong>{tag.name}</strong>
-                                <div className="mt-1 text-muted"><small>Keywords: {tag.keywords.map((kw, i) => (
-                                    <span key={i} className={"badge me-1 " + (kw.caseSensitive ? "bg-warning text-dark" : "bg-secondary")}>
-                                        {kw.value}
+                                <div className="mt-1 text-muted"><small>Rules: {tag.rules.map((rule, i) => (
+                                    <span key={i} className={"badge me-1 " + (rule.type === "keyword" && rule.caseSensitive ? "bg-warning text-dark" : "bg-secondary")}>
+                                        {rule.value}
                                     </span>
                                 ))}</small></div>
                                 <div className="mt-3 d-flex justify-content-between">

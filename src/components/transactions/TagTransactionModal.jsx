@@ -4,45 +4,75 @@ import React from "react";
 import { connect } from "react-redux";
 import Modal from "@modal/Modal.jsx";
 import CrudTagModal from "@components/tags/CrudTagModal.jsx";
+import transactionService from "@services/transactionService";
+import { toast } from "react-toastify";
 
 const CREATE_NEW = "__CREATE_NEW__";
+const STEP_SELECT = "select";
+const STEP_ACTION = "action";
 
-class AddKeywordToTagModal extends React.Component {
-    state = { selectedTagId: "" };
+class TagTransactionModal extends React.Component {
+    state = { selectedTagId: "", step: STEP_SELECT };
 
     componentDidUpdate(prevProps) {
         if (prevProps.transaction !== this.props.transaction) {
-            this.setState({ selectedTagId: "" });
+            this.setState({ selectedTagId: "", step: STEP_SELECT });
         }
     }
 
     handleSelect = (e) => {
-        this.setState({ selectedTagId: e.target.value });
+        const selectedTagId = e.target.value;
+        if (!selectedTagId) return;
+        this.setState({
+            selectedTagId,
+            step: selectedTagId === CREATE_NEW ? STEP_SELECT : STEP_ACTION,
+        });
     };
 
-    getTag() {
+    getTagForCrud() {
         const { selectedTagId } = this.state;
         const description = this.props.transaction?.description || "";
-        const newKeyword = description ? { value: description, caseSensitive: false } : null;
+        const newRule = description ? { type: "keyword", value: description, caseSensitive: false } : null;
 
         if (selectedTagId === CREATE_NEW) {
-            return { keywords: newKeyword ? [newKeyword] : [] };
+            return { rules: newRule ? [newRule] : [] };
         }
 
         const tag = _.find(this.props.tags, t => t._id === selectedTagId);
         if (!tag) return null;
-        return { ...tag, keywords: [...tag.keywords, ...(newKeyword ? [newKeyword] : [])] };
+        return { ...tag, rules: [...tag.rules, ...(newRule ? [newRule] : [])] };
     }
 
-    render() {
-        if (!this.props.show) return null;
-        const { selectedTagId } = this.state;
+    applyDirectTag = () => {
+        const transaction = this.props.transaction;
+        transaction.appliedTags = transaction.appliedTags || {};
+        transaction.appliedTags[this.state.selectedTagId] = 1;
+        transactionService.upsert(transaction).then(() => {
+            toast.info("Tag applied ✅");
+            this.props.onClose();
+        });
+    };
 
-        if (selectedTagId) {
-            return <CrudTagModal show={true} tag={this.getTag()}
-                onSave={this.props.onClose} onClose={() => this.setState({ selectedTagId: "" })} />;
-        }
+    goBack = () => {
+        this.setState({ selectedTagId: "", step: STEP_SELECT });
+    };
 
+    renderActionStep() {
+        const tag = _.find(this.props.tags, t => t._id === this.state.selectedTagId);
+        const body = (
+            <div className="d-flex flex-column gap-2">
+                <button className="btn btn-primary" onClick={this.applyDirectTag}>
+                    <i className="bi bi-tag me-1"></i>Tag as "{tag?.name}"
+                </button>
+                <button className="btn btn-outline-dark" onClick={() => this.setState({ step: "addRule" })}>
+                    <i className="bi bi-plus-circle me-1"></i>Add Rule
+                </button>
+            </div>
+        );
+        return <Modal show={true} title="Tag Transaction" body={body} onClose={this.goBack} />;
+    }
+
+    renderSelectStep() {
         const body = (
             <div>
                 <label className="form-label">Select a tag or create new</label>
@@ -55,9 +85,24 @@ class AddKeywordToTagModal extends React.Component {
                 </select>
             </div>
         );
-
         return <Modal show={true} title="Tag Transaction" body={body} onClose={this.props.onClose} />;
+    }
+
+    render() {
+        if (!this.props.show) return null;
+        const { selectedTagId, step } = this.state;
+
+        if (selectedTagId === CREATE_NEW || step === "addRule") {
+            return <CrudTagModal show={true} tag={this.getTagForCrud()}
+                onSave={this.props.onClose} onClose={this.goBack} />;
+        }
+
+        if (step === STEP_ACTION) {
+            return this.renderActionStep();
+        }
+
+        return this.renderSelectStep();
     }
 }
 
-export default connect(state => _.pick(state.user, ["tags"]))(AddKeywordToTagModal);
+export default connect(state => _.pick(state.user, ["tags"]))(TagTransactionModal);

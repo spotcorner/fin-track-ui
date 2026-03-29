@@ -7,7 +7,7 @@ import transactionService from "@services/transactionService";
 import SummaryTable from "./SummaryTable.jsx";
 import { TRANSACTION_LABELS, TRANSACTION_TYPES } from "@config";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
-import AddKeywordToTagModal from "./AddKeywordToTagModal.jsx";
+import TagTransactionModal from "./TagTransactionModal.jsx";
 import StatsView from "./stats/StatsView.jsx";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil.js";
@@ -28,9 +28,9 @@ class TransactionsView extends React.Component {
         this.setState({ showRulesModal: !this.state.showRulesModal, selectedTransaction });
     }
 
-    getAddKeywordToTagModal() {
+    getTagTransactionModal() {
         const { showRulesModal, selectedTransaction } = this.state;
-        return <AddKeywordToTagModal show={showRulesModal} transaction={selectedTransaction}
+        return <TagTransactionModal show={showRulesModal} transaction={selectedTransaction}
             onClose={() => this.toggleTagModal()} />;
     }
 
@@ -195,7 +195,7 @@ class TransactionsView extends React.Component {
             <div className="mb-2">
                 {this.getTransactions(filteredTransactions)}
                 {this.getAddButton()}
-                {this.getAddKeywordToTagModal()}
+                {this.getTagTransactionModal()}
                 {this.getCrudTransactionModal()}
             </div>
         );

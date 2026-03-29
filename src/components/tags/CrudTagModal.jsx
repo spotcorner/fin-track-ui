@@ -10,7 +10,7 @@ function getDerivedStateFromProps(props) {
     return {
         _id: props.tag?._id || "",
         name: props.tag?.name || "",
-        keywords: props.tag?.keywords || [],
+        rules: props.tag?.rules || [],
         description: props.tag?.description || "",
     };
 }
@@ -32,37 +32,33 @@ class CrudTagModal extends React.Component {
         this.setState({ [e.target.name]: e.target.value });
     };
 
-    addKeyword = () => {
+    addRule = () => {
         this.setState(prev => ({
-            keywords: [...prev.keywords, { value: "", caseSensitive: false }],
+            rules: [...prev.rules, { type: "keyword", value: "", caseSensitive: false }],
         }));
     };
 
-    removeKeyword = (index) => {
+    removeRule = (index) => {
         this.setState(prev => ({
-            keywords: prev.keywords.filter((_, i) => i !== index),
+            rules: prev.rules.filter((_, i) => i !== index),
         }));
     };
 
-    toggleCaseSensitive = (index) => {
+    handleRuleChange = (index, field, value) => {
         this.setState(prev => ({
-            keywords: prev.keywords.map((kw, i) =>
-                i === index ? { ...kw, caseSensitive: !kw.caseSensitive } : kw
+            rules: prev.rules.map((rule, i) =>
+                i === index ? { ...rule, [field]: value } : rule
             ),
         }));
     };
 
     handleSubmit = (e) => {
         e.preventDefault();
-        const keywords = this.state.keywords.filter(kw => kw.value.trim());
-        if (keywords.length === 0) {
-            toast.error("At least one keyword is required");
-            return;
-        }
+        const rules = this.state.rules.filter(r => r.type !== "keyword" || r.value.trim());
         const payload = {
             _id: this.state._id,
             name: this.state.name,
-            keywords,
+            rules,
             description: this.state.description,
         };
         this.props.dispatch(upsertTagRequest(payload)).then(data => {
@@ -82,26 +78,28 @@ class CrudTagModal extends React.Component {
         }
     }
 
-    handleKeywordChange = (index, value) => {
-        this.setState(prev => ({
-            keywords: prev.keywords.map((kw, i) =>
-                i === index ? { ...kw, value } : kw
-            ),
-        }));
-    };
+    getKeywordFields(rule, index) {
+        return <>
+            <input type="text" className="form-control" value={rule.value}
+                onChange={(e) => this.handleRuleChange(index, "value", e.target.value)} placeholder="Keyword" />
+            <div className="form-check mt-1">
+                <input type="checkbox" className="form-check-input" id={`cs-${index}`}
+                    checked={rule.caseSensitive} onChange={() => this.handleRuleChange(index, "caseSensitive", !rule.caseSensitive)} />
+                <label className="form-check-label" htmlFor={`cs-${index}`}>Case sensitive</label>
+            </div>
+        </>;
+    }
 
-    getKeywordRows() {
-        return this.state.keywords.map((kw, index) => (
+    getRuleRows() {
+        return this.state.rules.map((rule, index) => (
             <div key={index} className="mb-2">
                 <div className="input-group">
-                    <input type="text" className="form-control" value={kw.value}
-                        onChange={(e) => this.handleKeywordChange(index, e.target.value)} />
-                    <button type="button" className="btn btn-outline-danger" onClick={() => this.removeKeyword(index)}>&times;</button>
-                </div>
-                <div className="form-check mt-1">
-                    <input type="checkbox" className="form-check-input" id={`cs-${index}`}
-                        checked={kw.caseSensitive} onChange={() => this.toggleCaseSensitive(index)} />
-                    <label className="form-check-label" htmlFor={`cs-${index}`}>Case sensitive</label>
+                    <select className="form-select" style={{ maxWidth: "120px" }} value={rule.type}
+                        onChange={(e) => this.handleRuleChange(index, "type", e.target.value)}>
+                        <option value="keyword">Keyword</option>
+                    </select>
+                    {rule.type === "keyword" && this.getKeywordFields(rule, index)}
+                    <button type="button" className="btn btn-outline-danger" onClick={() => this.removeRule(index)}>&times;</button>
                 </div>
             </div>
         ));
@@ -117,10 +115,10 @@ class CrudTagModal extends React.Component {
                 </div>
                 <div className="mb-2">
                     <div className="d-flex justify-content-between align-items-center mb-1">
-                        <label className="form-label mb-0">Keywords</label>
-                        <button type="button" className="btn btn-outline-dark btn-sm" onClick={this.addKeyword}>+</button>
+                        <label className="form-label mb-0">Rules</label>
+                        <button type="button" className="btn btn-outline-dark btn-sm" onClick={this.addRule}>+</button>
                     </div>
-                    {this.getKeywordRows()}
+                    {this.getRuleRows()}
                 </div>
             </form>
         );
