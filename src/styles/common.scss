@@ -5,6 +5,19 @@
     cursor: pointer;
 }
 
-.chart-container {
-    height: 200px;
+.tag-status-0 { // excluded
+    --bs-badge-color: #fff;
+    background-color: var(--bs-dark);
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.tag-status-1 { // direct tag
+    --bs-badge-color: #fff;
+    background-color: var(--bs-primary);
+}
+
+.tag-status-2 { // keyword match
+    --bs-badge-color: #000;
+    background-color: var(--bs-info);
 }

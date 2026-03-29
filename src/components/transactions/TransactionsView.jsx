@@ -31,6 +31,7 @@ class TransactionsView extends React.Component {
     getTagTransactionModal() {
         const { showRulesModal, selectedTransaction } = this.state;
         return <TagTransactionModal show={showRulesModal} transaction={selectedTransaction}
+            onSave={(t) => { this.props.updateTransaction(t); this.toggleTagModal(); }}
             onClose={() => this.toggleTagModal()} />;
     }
 
@@ -47,8 +48,13 @@ class TransactionsView extends React.Component {
     }
 
     removeTransactionTag(transaction, tag_id) {
-        transaction.appliedTags = { ...transaction.appliedTags, [tag_id]: 0 };
-        transaction._appliedTags = { ...transaction._appliedTags, [tag_id]: 0 };
+        if (transaction._appliedTags[tag_id] == 1) {
+            transaction.appliedTags = _.omit(transaction.appliedTags, tag_id);
+            transaction._appliedTags = _.omit(transaction._appliedTags, tag_id);
+        } else {
+            transaction.appliedTags = { ...transaction.appliedTags, [tag_id]: 0 };
+            transaction._appliedTags = { ...transaction._appliedTags, [tag_id]: 0 };
+        }
         transactionService.upsert(transaction).then(this.props.updateTransaction);
     }
 
@@ -66,7 +72,7 @@ class TransactionsView extends React.Component {
 
     getTag(transaction, tag_id) {
         const { tagsMap } = this.props;
-        return <div key={tag_id} className="badge bg-primary mb-2 me-1">
+        return <div key={tag_id} className={"badge tag-status-" + transaction.appliedTags[tag_id] + " mb-2 me-1"}>
             {tagsMap[tag_id]?.name}
             <span className="ms-1 cursor-pointer" onClick={() => this.removeTransactionTag(transaction, tag_id)}>
                 &times;
@@ -76,7 +82,7 @@ class TransactionsView extends React.Component {
 
     getExcludedTag(transaction, tag_id) {
         const { tagsMap } = this.props;
-        return <div key={tag_id} className="badge bg-dark mb-2 me-1" style={{ textDecoration: "line-through", opacity: 0.6 }}>
+        return <div key={tag_id} className="badge tag-status-0 mb-2 me-1">
             {tagsMap[tag_id]?.name}
             <span className="ms-1 cursor-pointer" onClick={() => this.restoreTransactionTag(transaction, tag_id)}>
                 <i className="bi bi-arrow-counterclockwise"></i>
@@ -89,7 +95,7 @@ class TransactionsView extends React.Component {
     }
 
     getTags(transaction) {
-        const usedTags = _.keys(_.pickBy(transaction.appliedTags, v => v == 1));
+        const usedTags = _.keys(_.pickBy(transaction.appliedTags, v => v >= 1));
         const excludedTags = _.keys(_.pickBy(transaction._appliedTags, v => v == 0));
         return <div className="d-flex ">
             <div className="d-flex flex-wrap">

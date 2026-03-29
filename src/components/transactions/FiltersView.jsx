@@ -80,7 +80,7 @@ class FiltersView extends React.Component {
                         <span className="input-group-text">Tag</span>
                         <select name="tagFilter" value={filters.tagFilter} className="form-control" onChange={this.handleFilterChange}>
                             <option value="">All</option>
-                            <option value={"__NONE__"}>Others</option>
+                            <option value={"__NONE__"}>Untagged</option>
                             {_.values(tagsMap).map((tag, index) => <option key={index} value={tag._id}>{tag.name}</option>)}
                         </select>
                     </div>

@@ -16,7 +16,7 @@ export default {
                 return _.toLower(description).includes(_.toLower(rule.value));
             });
             if (matched) {
-                transaction.appliedTags[_id] = 1;
+                transaction.appliedTags[_id] = 2;
                 tagNames.push(name);
             }
         });

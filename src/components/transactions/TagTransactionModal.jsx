@@ -45,11 +45,11 @@ class TagTransactionModal extends React.Component {
 
     applyDirectTag = () => {
         const transaction = this.props.transaction;
-        transaction.appliedTags = transaction.appliedTags || {};
-        transaction.appliedTags[this.state.selectedTagId] = 1;
+        transaction.appliedTags = { ...transaction.appliedTags, [this.state.selectedTagId]: 1 };
+        transaction._appliedTags = { ...transaction._appliedTags, [this.state.selectedTagId]: 1 };
         transactionService.upsert(transaction).then(() => {
             toast.info("Tag applied ✅");
-            this.props.onClose();
+            this.props.onSave(transaction);
         });
     };
 

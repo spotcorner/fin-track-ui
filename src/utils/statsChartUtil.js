@@ -71,7 +71,7 @@ const getTransactionAmountSumTrendData = (filteredTransactions, accountsMap, tim
 
 const getTransactionTagCountTrendData = (filteredTransactions, accountsMap, timeFilter, tags) => {
     let counts = tags.map(({ _id, name }) => {
-        const txns = filteredTransactions.filter(txn => txn.appliedTags[_id] == 1);
+        const txns = filteredTransactions.filter(txn => txn.appliedTags[_id] >= 1);
         return { label: name, count: txns.length };
     });
     counts.push({
@@ -86,7 +86,7 @@ const getTransactionTagCountTrendData = (filteredTransactions, accountsMap, time
 
 const getTransactionTagAmountSumTrendData = (filteredTransactions, accountsMap, timeFilter, tags) => {
     let sums = tags.map(({ _id, name }) => {
-        const txns = filteredTransactions.filter(txn => txn.appliedTags[_id] == 1);
+        const txns = filteredTransactions.filter(txn => txn.appliedTags[_id] >= 1);
         return { label: name, sum: _.sumBy(txns, "amount") };
     });
     sums.push({
