@@ -44,7 +44,7 @@ class Tags extends React.Component {
                             <div className="card-body">
                                 <strong>{tag.name}</strong>
                                 <div className="mt-1 text-muted"><small>Rules: {tag.rules.map((rule, i) => (
-                                    <span key={i} className={"badge me-1 " + (rule.type === "keyword" && rule.caseSensitive ? "bg-warning text-dark" : "bg-secondary")}>
+                                    <span key={i} className={"badge me-1 text-truncate " + (rule.type === "keyword" && rule.caseSensitive ? "bg-warning text-dark" : "bg-secondary")} style={{ maxWidth: "150px" }}>
                                         {rule.value}
                                     </span>
                                 ))}</small></div>
