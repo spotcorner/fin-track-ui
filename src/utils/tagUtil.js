@@ -1,9 +1,12 @@
 export default {
     applyTags: (transaction, tags) => {
+        if (!transaction._appliedTags) {
+            transaction._appliedTags = { ...transaction.appliedTags };
+        }
+        transaction.appliedTags = { ...transaction._appliedTags };
         const tagNames = [];
         tags.forEach(tag => {
             const { _id, rules, name } = tag;
-            transaction.appliedTags = transaction.appliedTags || {};
             if (transaction.appliedTags[_id] == 0) return;
             if (transaction.appliedTags[_id] == 1) { tagNames.push(name); return; }
             const description = transaction.description || "";
