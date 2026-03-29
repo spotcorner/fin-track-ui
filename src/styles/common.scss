@@ -21,3 +21,14 @@
     --bs-badge-color: #000;
     background-color: var(--bs-info);
 }
+
+.desc-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &.expanded {
+        white-space: normal;
+    }
+}

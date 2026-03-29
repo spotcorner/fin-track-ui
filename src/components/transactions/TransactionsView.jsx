@@ -5,16 +5,17 @@ import { connect } from "react-redux";
 import { toast } from "react-toastify";
 import transactionService from "@services/transactionService";
 import SummaryTable from "./SummaryTable.jsx";
-import { TRANSACTION_LABELS, TRANSACTION_TYPES } from "@config";
+import { TRANSACTION_TYPES } from "@config";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
 import TagTransactionModal from "./TagTransactionModal.jsx";
 import StatsView from "./stats/StatsView.jsx";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil.js";
 
-const momentDate = (date) => {
-    return moment(date, "YYYY-MM-DD");
-}
+const VIEW_CARD = "card";
+const VIEW_LIST = "list";
+
+const TAG_ICONS = { 1: "bi-tag", 2: "bi-key" };
 
 class TransactionsView extends React.Component {
 
@@ -22,6 +23,8 @@ class TransactionsView extends React.Component {
         showRulesModal: false,
         showTransactionModal: false,
         selectedTransaction: null,
+        viewMode: VIEW_LIST,
+        expandedDescs: {},
     }
 
     toggleTagModal = (selectedTransaction) => {
@@ -64,105 +67,112 @@ class TransactionsView extends React.Component {
         transactionService.upsert(transaction).then(this.props.updateTransaction);
     }
 
-    getDefaultTag(tag, bg) {
-        return <span className={"badge bg-" + bg + " mb-2 me-1"}>
-            {tag}
-        </span>
-    }
-
     getTag(transaction, tag_id) {
         const { tagsMap } = this.props;
-        return <div key={tag_id} className={"badge tag-status-" + transaction.appliedTags[tag_id] + " mb-2 me-1"}>
+        const status = transaction.appliedTags[tag_id];
+        return <span key={tag_id} className={"badge tag-status-" + status + " mb-1 me-1"}>
+            <i className={"bi " + TAG_ICONS[status] + " me-1"}></i>
             {tagsMap[tag_id]?.name}
-            <span className="ms-1 cursor-pointer" onClick={() => this.removeTransactionTag(transaction, tag_id)}>
-                &times;
-            </span>
-        </div>;
+            <span className="ms-1 cursor-pointer" onClick={() => this.removeTransactionTag(transaction, tag_id)}>&times;</span>
+        </span>;
     }
 
     getExcludedTag(transaction, tag_id) {
         const { tagsMap } = this.props;
-        return <div key={tag_id} className="badge tag-status-0 mb-2 me-1">
+        return <span key={tag_id} className="badge tag-status-0 mb-1 me-1">
             {tagsMap[tag_id]?.name}
             <span className="ms-1 cursor-pointer" onClick={() => this.restoreTransactionTag(transaction, tag_id)}>
                 <i className="bi bi-arrow-counterclockwise"></i>
             </span>
-        </div>;
+        </span>;
     }
 
-    getTransactionTypeBg(transactionType) {
-        return transactionType == TRANSACTION_TYPES.CREDIT ? "success" : "danger";
-    }
-
-    getTags(transaction) {
+    getTagBadges(transaction) {
         const usedTags = _.keys(_.pickBy(transaction.appliedTags, v => v >= 1));
         const excludedTags = _.keys(_.pickBy(transaction._appliedTags, v => v == 0));
-        return <div className="d-flex ">
-            <div className="d-flex flex-wrap">
-
-                {transaction.excludeFromTotals == 1 && this.getDefaultTag("Excluded", "secondary")}
-                {usedTags.length == 0 && this.getDefaultTag("Untagged", "dark")}
-                {usedTags.map((tag_id) => this.getTag(transaction, tag_id))}
-                {excludedTags.map((tag_id) => this.getExcludedTag(transaction, tag_id))}
-            </div>
-            <div className="ms-auto d-flex flex-wrap justify-content-end">
-                <span
-                    className="badge bg-secondary mb-2 me-1 cursor-pointer"
-                    onClick={() => this.toggleTagModal(transaction)}
-                >
-                    <i className="bi bi-tag"></i>
-                </span>
-                <span className="badge bg-secondary cursor-pointer mb-2 me-1" onClick={() => this.toggleTransactionModal(transaction)}><i className="bi bi-pencil"></i></span>
-                <span className="badge bg-secondary cursor-pointer mb-2 me-1" onClick={() => this.props.deleteTransaction(transaction)}><i className="bi bi-trash"></i></span>
-            </div>
+        return <div className="d-flex flex-wrap">
+            {transaction.excludeFromTotals == 1 && <span className="badge bg-secondary mb-1 me-1">Excluded</span>}
+            {usedTags.length == 0 && <span className="badge bg-dark mb-1 me-1">Untagged</span>}
+            {usedTags.map((tag_id) => this.getTag(transaction, tag_id))}
+            {excludedTags.map((tag_id) => this.getExcludedTag(transaction, tag_id))}
         </div>;
     }
 
-    getTransactionDate(transaction) {
-        return <div className="mb-1">
-            <strong>{TRANSACTION_LABELS.DATE}:</strong> {momentDate(transaction.date).format("MMMM D, YYYY (dddd)")}
+    getActionButtons(transaction) {
+        return <div className="d-flex gap-1 flex-nowrap">
+            <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleTagModal(transaction)}><i className="bi bi-tag"></i></span>
+            <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleTransactionModal(transaction)}><i className="bi bi-pencil"></i></span>
+            <span className="badge bg-secondary cursor-pointer" onClick={() => this.props.deleteTransaction(transaction)}><i className="bi bi-trash"></i></span>
         </div>;
     }
 
-    getTransactionAccount(transaction) {
-        return transaction.account && <div className="mb-1">
-            <strong>{TRANSACTION_LABELS.ACCOUNT}:</strong> {labelUtil.getAccountLabel(transaction.account)}
-        </div>;
+    getAmountColor(transaction) {
+        return transaction.type == TRANSACTION_TYPES.CREDIT ? "success" : "danger";
     }
 
-    getTransactionAmount(transaction) {
-        return <div className="mb-1">
-            <strong>{TRANSACTION_LABELS.AMOUNT}: </strong>
-            <span className={"badge bg-" + this.getTransactionTypeBg(transaction.type)}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
-        </div>
+    getBorderColor(transaction) {
+        return transaction.type == TRANSACTION_TYPES.CREDIT ? "#198754" : "#dc3545";
     }
 
-    getTransactionDescription(transaction) {
-        const description = transaction.description;
-        return !_.isEmpty(description) && <div className="mb-1">
-            <strong>{TRANSACTION_LABELS.DESCRIPTION}:</strong> {description}
-        </div>;
+    toggleDesc = (id) => {
+        this.setState(prev => ({ expandedDescs: { ...prev.expandedDescs, [id]: !prev.expandedDescs[id] } }));
     }
 
-    getTransactionComments(transaction) {
-        const comments = transaction.comments;
-        return !_.isEmpty(comments) && <div className="mb-1">
-            <strong>{TRANSACTION_LABELS.COMMENTS}:</strong> {comments}
-        </div>;
-    }
-
-    getTransaction = (transaction, transactionIndex) => {
-        const borderColor = transaction.type == TRANSACTION_TYPES.CREDIT ? "#198754" : "#dc3545";
+    // Card view (Option A)
+    getCardTransaction = (transaction, transactionIndex) => {
+        const borderColor = this.getBorderColor(transaction);
+        const amountColor = this.getAmountColor(transaction);
+        const accountLabel = transaction.account && labelUtil.getAccountLabel(transaction.account);
+        const descExpanded = this.state.expandedDescs[transaction._id];
         return <div key={transactionIndex} className="col-md-6 col-lg-4 mb-2">
             <div className="card shadow-sm" style={{ borderLeft: `2px solid ${borderColor}`, background: `linear-gradient(to right, ${borderColor}10, transparent)` }}>
                 <div className="card-body">
-                    {this.getTags(transaction)}
-                    {this.getTransactionDate(transaction)}
-                    {this.getTransactionAccount(transaction)}
-                    {this.getTransactionAmount(transaction)}
-                    {this.getTransactionDescription(transaction)}
-                    {this.getTransactionComments(transaction)}
+                    <div className="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                        <span className={"fs-5 fw-bold text-" + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
+                        {this.getActionButtons(transaction)}
+                    </div>
+                    <div className="mb-2">{this.getTagBadges(transaction)}</div>
+                    <div className="text-muted small mb-1">
+                        {moment(transaction.date, "YYYY-MM-DD").format("MMMM D, YYYY (dddd)")}
+                        {accountLabel && <span> · {accountLabel}</span>}
+                    </div>
+                    {!_.isEmpty(transaction.description) && <div
+                        className={"small desc-truncate" + (descExpanded ? " expanded" : "")}
+                        onClick={() => this.toggleDesc(transaction._id)}
+                    >{transaction.description}</div>}
+                    {!_.isEmpty(transaction.comments) && <div className="small text-muted mt-1">{transaction.comments}</div>}
                 </div>
+            </div>
+        </div>;
+    }
+
+    // List view (Option B)
+    getListTransaction = (transaction, transactionIndex) => {
+        const borderColor = this.getBorderColor(transaction);
+        const amountColor = this.getAmountColor(transaction);
+        const accountLabel = transaction.account && labelUtil.getAccountLabel(transaction.account);
+        return <div key={transactionIndex} className="list-group-item" style={{ borderLeft: `3px solid ${borderColor}` }}>
+            <div className="d-flex align-items-center gap-3">
+                {this.getTagBadges(transaction)}
+                <div className="text-muted small text-nowrap">{moment(transaction.date, "YYYY-MM-DD").format("MMM D, YYYY")}</div>
+                {accountLabel && <div className="text-muted small text-nowrap">{accountLabel}</div>}
+                <span className={"fw-bold text-nowrap text-" + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
+                <div className="flex-grow-1 text-truncate small">{transaction.description}</div>
+                {this.getActionButtons(transaction)}
+            </div>
+        </div>;
+    }
+
+    getViewToggle() {
+        const { viewMode } = this.state;
+        return <div className="d-flex justify-content-end mb-2">
+            <div className="btn-group btn-group-sm">
+                <button className={"btn btn-" + (viewMode == VIEW_LIST ? "dark" : "outline-dark")} onClick={() => this.setState({ viewMode: VIEW_LIST })}>
+                    <i className="bi bi-list"></i>
+                </button>
+                <button className={"btn btn-" + (viewMode == VIEW_CARD ? "dark" : "outline-dark")} onClick={() => this.setState({ viewMode: VIEW_CARD })}>
+                    <i className="bi bi-grid"></i>
+                </button>
             </div>
         </div>;
     }
@@ -174,11 +184,18 @@ class TransactionsView extends React.Component {
     }
 
     getDraftActions(filteredTransactions) {
-        // const isFiltered = filteredTransactions.length < this.props.transactions.length;
         return this.props.isDraft == 1 && this.props.transactions.length > 0 && <div className="mt-2 d-flex justify-content-center">
             <button className="btn btn-primary me-2" onClick={this.saveDrafts}>Save All</button>
             <button className="btn btn-danger" onClick={this.deleteDrafts}>Delete All</button>
         </div>;
+    }
+
+    getTransactionsList(filteredTransactions) {
+        const reversed = filteredTransactions.slice().reverse();
+        if (this.state.viewMode == VIEW_LIST) {
+            return <div className="mt-2" style={{ overflowX: "auto" }}><div className="list-group" style={{ minWidth: "700px" }}>{reversed.map(this.getListTransaction)}</div></div>;
+        }
+        return <div className="row mt-2">{reversed.map(this.getCardTransaction)}</div>;
     }
 
     getTransactions(filteredTransactions) {
@@ -187,7 +204,8 @@ class TransactionsView extends React.Component {
             <SummaryTable transactions={this.props.transactions} accounts={this.props.accounts} />
             {this.getTransactionsCountLabel(filteredTransactions)}
             {this.getDraftActions(filteredTransactions)}
-            <div className="row mt-2">{filteredTransactions.slice().reverse().map(this.getTransaction)}</div>
+            {this.getViewToggle()}
+            {this.getTransactionsList(filteredTransactions)}
             {this.getDraftActions(filteredTransactions)}
         </div>;
     }
