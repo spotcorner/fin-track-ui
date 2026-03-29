@@ -78,18 +78,6 @@ class CrudTagModal extends React.Component {
         }
     }
 
-    getKeywordFields(rule, index) {
-        return <>
-            <input type="text" className="form-control" value={rule.value}
-                onChange={(e) => this.handleRuleChange(index, "value", e.target.value)} placeholder="Keyword" />
-            <div className="form-check mt-1">
-                <input type="checkbox" className="form-check-input" id={`cs-${index}`}
-                    checked={rule.caseSensitive} onChange={() => this.handleRuleChange(index, "caseSensitive", !rule.caseSensitive)} />
-                <label className="form-check-label" htmlFor={`cs-${index}`}>Case sensitive</label>
-            </div>
-        </>;
-    }
-
     getRuleRows() {
         return this.state.rules.map((rule, index) => (
             <div key={index} className="mb-2">
@@ -98,9 +86,15 @@ class CrudTagModal extends React.Component {
                         onChange={(e) => this.handleRuleChange(index, "type", e.target.value)}>
                         <option value="keyword">Keyword</option>
                     </select>
-                    {rule.type === "keyword" && this.getKeywordFields(rule, index)}
+                    {rule.type === "keyword" && <input type="text" className="form-control" value={rule.value}
+                        onChange={(e) => this.handleRuleChange(index, "value", e.target.value)} placeholder="Keyword" />}
                     <button type="button" className="btn btn-outline-danger" onClick={() => this.removeRule(index)}>&times;</button>
                 </div>
+                {rule.type === "keyword" && <div className="form-check mt-1">
+                    <input type="checkbox" className="form-check-input" id={`cs-${index}`}
+                        checked={rule.caseSensitive} onChange={() => this.handleRuleChange(index, "caseSensitive", !rule.caseSensitive)} />
+                    <label className="form-check-label" htmlFor={`cs-${index}`}>Case sensitive</label>
+                </div>}
             </div>
         ));
     }
