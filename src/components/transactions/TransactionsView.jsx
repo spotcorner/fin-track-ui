@@ -47,7 +47,14 @@ class TransactionsView extends React.Component {
     }
 
     removeTransactionTag(transaction, tag_id) {
-        transaction.appliedTags[tag_id] = 0;
+        transaction.appliedTags = { ...transaction.appliedTags, [tag_id]: 0 };
+        transaction._appliedTags = { ...transaction._appliedTags, [tag_id]: 0 };
+        transactionService.upsert(transaction).then(this.props.updateTransaction);
+    }
+
+    restoreTransactionTag(transaction, tag_id) {
+        transaction.appliedTags = _.omit(transaction.appliedTags, tag_id);
+        transaction._appliedTags = _.omit(transaction._appliedTags, tag_id);
         transactionService.upsert(transaction).then(this.props.updateTransaction);
     }
 
@@ -67,18 +74,30 @@ class TransactionsView extends React.Component {
         </div>;
     }
 
+    getExcludedTag(transaction, tag_id) {
+        const { tagsMap } = this.props;
+        return <div key={tag_id} className="badge bg-dark mb-2 me-1" style={{ textDecoration: "line-through", opacity: 0.6 }}>
+            {tagsMap[tag_id]?.name}
+            <span className="ms-1 cursor-pointer" onClick={() => this.restoreTransactionTag(transaction, tag_id)}>
+                <i className="bi bi-arrow-counterclockwise"></i>
+            </span>
+        </div>;
+    }
+
     getTransactionTypeBg(transactionType) {
         return transactionType == TRANSACTION_TYPES.CREDIT ? "success" : "danger";
     }
 
     getTags(transaction) {
         const usedTags = _.keys(_.pickBy(transaction.appliedTags, v => v == 1));
+        const excludedTags = _.keys(_.pickBy(transaction._appliedTags, v => v == 0));
         return <div className="d-flex ">
             <div className="d-flex flex-wrap">
 
                 {transaction.excludeFromTotals == 1 && this.getDefaultTag("Excluded", "secondary")}
                 {usedTags.length == 0 && this.getDefaultTag("Others", "dark")}
                 {usedTags.map((tag_id) => this.getTag(transaction, tag_id))}
+                {excludedTags.map((tag_id) => this.getExcludedTag(transaction, tag_id))}
             </div>
             <div className="ms-auto d-flex flex-wrap justify-content-end">
                 <span
