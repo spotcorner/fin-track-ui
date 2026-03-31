@@ -6,7 +6,7 @@ let info = null;
 try {
     info = document.querySelector("meta[name='user-info']").content;
     info = JSON.parse(info);
-    console.log("info::", info);
+    // console.log("info::", info);
 } catch (e) {
     console.log("info::", info);
     info = null;

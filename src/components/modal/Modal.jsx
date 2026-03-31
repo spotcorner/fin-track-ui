@@ -32,7 +32,7 @@ export default class Modal extends React.Component {
     }
 
     getSubmitButton() {
-        return this.props.onSubmitClick && <button type="submit" className="btn btn-dark" onClick={this.props.onSubmitClick}>Submit</button>;
+        return this.props.onSubmitClick && <button type="submit" className="btn btn-dark" onClick={this.props.onSubmitClick}>{this.props.submitLabel || "Submit"}</button>;
     }
 
     getModalFooter() {

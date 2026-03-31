@@ -69,7 +69,7 @@ class CrudTagModal extends React.Component {
     };
 
     getModalTitle() {
-        return this.props.tag?._id ? "Edit Tag" : "Add Tag";
+        return this.props.tag?._id ? "Edit Tag" : "Create Tag";
     }
 
     onSubmitClick = () => {
@@ -119,7 +119,7 @@ class CrudTagModal extends React.Component {
     }
 
     render() {
-        return <Modal show={this.props.show} title={this.getModalTitle()} body={this.getModalBody()} onClose={this.props.onClose} onSubmitClick={this.onSubmitClick} />;
+        return <Modal show={this.props.show} title={this.getModalTitle()} body={this.getModalBody()} onClose={this.props.onClose} onSubmitClick={this.onSubmitClick} submitLabel={this.props.submitLabel} />;
     }
 }
 

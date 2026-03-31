@@ -46,7 +46,7 @@ class CrudAccountModal extends React.Component {
     };
 
     getModalTitle() {
-        return this.props.account ? "Edit Account" : "Add Account";
+        return this.props.account ? "Edit Account" : "Create Account";
     }
 
     onSubmitClick = () => {

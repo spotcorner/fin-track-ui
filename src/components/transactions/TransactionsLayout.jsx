@@ -111,11 +111,25 @@ class TransactionsLayout extends React.Component {
             const transactions = [...prevState.transactions];
             const index = _.findIndex(transactions, (a) => a._id === transaction._id);
             if (index >= 0) {
-                transactions[index] = transaction;
+                transactions[index] = { ...transaction };
             } else {
                 transactions.push(transaction);
             }
             return { transactions, showTransactionModal: false, };
+        });
+    }
+
+    updateTransactionTags = (_id, delta) => {
+        return transactionService.updateTags(_id, delta).then((data) => {
+            this.setState((prevState) => {
+                const transactions = [...prevState.transactions];
+                const index = _.findIndex(transactions, (a) => a._id === _id);
+                if (index >= 0) {
+                    transactions[index] = { ...transactions[index], appliedTags: data.appliedTags, _appliedTags: { ...data.appliedTags } };
+                }
+                return { transactions };
+            });
+            return data;
         });
     }
 
@@ -131,7 +145,8 @@ class TransactionsLayout extends React.Component {
         const filteredTransactions = this.getFilteredTransactions();
         return <TransactionsView isDraft={this.props.isDraft} draftId={this.props.draftId}
             transactions={this.state.transactions} filteredTransactions={filteredTransactions}
-            updateTransaction={this.updateTransaction} deleteTransaction={this.deleteTransaction}
+            updateTransaction={this.updateTransaction} updateTransactionTags={this.updateTransactionTags}
+            deleteTransaction={this.deleteTransaction}
             fetchTransactions={this.fetchTransactions} />;
     }
 

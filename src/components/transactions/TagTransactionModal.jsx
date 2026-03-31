@@ -4,30 +4,21 @@ import React from "react";
 import { connect } from "react-redux";
 import Modal from "@modal/Modal.jsx";
 import CrudTagModal from "@components/tags/CrudTagModal.jsx";
-import transactionService from "@services/transactionService";
-import { toast } from "react-toastify";
+import TagBadges from "@components/tags/TagBadges.jsx";
+import { TRANSACTION_TYPES } from "@config";
+import amountUtil from "@utils/amountUtil.js";
+import labelUtil from "@utils/labelUtil.js";
 
 const CREATE_NEW = "__CREATE_NEW__";
-const STEP_SELECT = "select";
-const STEP_ACTION = "action";
 
 class TagTransactionModal extends React.Component {
-    state = { selectedTagId: "", step: STEP_SELECT };
+    state = { selectedTagId: "", searchText: "" };
 
     componentDidUpdate(prevProps) {
         if (prevProps.transaction !== this.props.transaction) {
-            this.setState({ selectedTagId: "", step: STEP_SELECT });
+            this.setState({ selectedTagId: "", searchText: "" });
         }
     }
-
-    handleSelect = (e) => {
-        const selectedTagId = e.target.value;
-        if (!selectedTagId) return;
-        this.setState({
-            selectedTagId,
-            step: selectedTagId === CREATE_NEW ? STEP_SELECT : STEP_ACTION,
-        });
-    };
 
     getTagForCrud() {
         const { selectedTagId } = this.state;
@@ -38,51 +29,83 @@ class TagTransactionModal extends React.Component {
             return { rules: newRule ? [newRule] : [] };
         }
 
-        const tag = _.find(this.props.tags, t => t._id === selectedTagId);
-        if (!tag) return null;
+        const tag = this.props.tagsMap[selectedTagId];
+        if (!tag) return [];
         return { ...tag, rules: [...tag.rules, ...(newRule ? [newRule] : [])] };
     }
 
-    applyDirectTag = () => {
-        const transaction = this.props.transaction;
-        transaction.appliedTags = { ...transaction.appliedTags, [this.state.selectedTagId]: 1 };
-        transaction._appliedTags = { ...transaction._appliedTags, [this.state.selectedTagId]: 1 };
-        transactionService.upsert(transaction).then(() => {
-            toast.info("Tag applied ✅");
-            this.props.onSave(transaction);
+    applyDirectTag = (tagId, callback) => {
+        this.props.updateTransactionTags(this.props.transaction._id, { [tagId]: 1 }).then(() => {
+            if (callback) callback();
         });
     };
 
-    goBack = () => {
-        this.setState({ selectedTagId: "", step: STEP_SELECT });
+    getTransactionCard() {
+        const { transaction } = this.props;
+        if (!transaction) return null;
+        const typeClass = transaction.type == TRANSACTION_TYPES.CREDIT ? "transaction-credit" : "transaction-debit";
+        const amountColor = transaction.type == TRANSACTION_TYPES.CREDIT ? "text-success" : "text-danger";
+        const accountLabel = transaction.account && labelUtil.getAccountLabel(transaction.account);
+        return <div className={"card mb-3 " + typeClass}>
+            <div className="card-body py-2 px-3">
+                <div className="d-flex justify-content-between align-items-center">
+                    <small className="text-muted">{moment(transaction.date, "YYYY-MM-DD").format("MMM D, YYYY")}{accountLabel && " · " + accountLabel}</small>
+                    <span className={"fw-bold " + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
+                </div>
+                <div className="small mt-1">{transaction.description}</div>
+            </div>
+        </div>;
+    }
+
+    resetSelection = () => {
+        this.setState({ selectedTagId: "" });
     };
 
-    renderActionStep() {
-        const tag = _.find(this.props.tags, t => t._id === this.state.selectedTagId);
-        const body = (
-            <div className="d-flex flex-column gap-2">
-                <button className="btn btn-primary" onClick={this.applyDirectTag}>
-                    <i className="bi bi-tag me-1"></i>Tag as "{tag?.name}"
-                </button>
-                <button className="btn btn-outline-dark" onClick={() => this.setState({ step: "addRule" })}>
-                    <i className="bi bi-plus-circle me-1"></i>Add Rule
-                </button>
-            </div>
-        );
-        return <Modal show={true} title="Tag Transaction" body={body} onClose={this.goBack} />;
+    onCrudSave = (data) => {
+        if (data?.tag?._id && (!data.tag.rules || !data.tag.rules.length)) {
+            this.applyDirectTag(data.tag._id, this.resetSelection);
+        } else {
+            this.resetSelection();
+        }
+    };
+
+    getSearchBar() {
+        return <div className="d-flex mb-2">
+            <input type="text" className="form-control me-2" placeholder="Search tags..."
+                value={this.state.searchText} onChange={(e) => this.setState({ searchText: e.target.value })} />
+            <button className="btn btn-dark" onClick={() => this.setState({ selectedTagId: CREATE_NEW })}>+</button>
+        </div>;
+    }
+
+    getTagList(filtered, appliedTags) {
+        return <div className="list-group" style={{ maxHeight: "200px", overflowY: "auto" }}>
+            {filtered.map(tag => {
+                const status = appliedTags[tag._id];
+                const statusClass = status !== undefined ? " tag-applied-" + status : "";
+                return <div key={tag._id} className={"list-group-item d-flex justify-content-between align-items-center" + statusClass}>
+                    <span>{tag.name}</span>
+                    <div className="d-flex gap-1">
+                        {status === undefined && <span className="badge bg-secondary cursor-pointer" onClick={() => this.applyDirectTag(tag._id)}><i className="bi bi-tag"></i></span>}
+                        <span className="badge bg-secondary cursor-pointer" onClick={() => this.setState({ selectedTagId: tag._id })}><i className="bi bi-pencil"></i></span>
+                    </div>
+                </div>;
+            })}
+            {filtered.length === 0 && <div className="list-group-item text-muted">No tags found</div>}
+        </div>;
     }
 
     renderSelectStep() {
+        const appliedTags = this.props.transaction?.appliedTags || {};
+        const filtered = this.props.tags.filter(t => t.name.toLowerCase().includes(this.state.searchText.toLowerCase()));
         const body = (
             <div>
-                <label className="form-label">Select a tag or create new</label>
-                <select className="form-select" value="" onChange={this.handleSelect}>
-                    <option value="">Select a tag</option>
-                    {this.props.tags.map(tag => (
-                        <option key={tag._id} value={tag._id}>{tag.name}</option>
-                    ))}
-                    <option value={CREATE_NEW}>+ Create New Tag</option>
-                </select>
+                {this.getTransactionCard()}
+                <div className="mb-3">
+                    <TagBadges transaction={this.props.transaction} showExcluded
+                        updateTransactionTags={this.props.updateTransactionTags} />
+                </div>
+                {this.getSearchBar()}
+                {this.getTagList(filtered, appliedTags)}
             </div>
         );
         return <Modal show={true} title="Tag Transaction" body={body} onClose={this.props.onClose} />;
@@ -90,19 +113,15 @@ class TagTransactionModal extends React.Component {
 
     render() {
         if (!this.props.show) return null;
-        const { selectedTagId, step } = this.state;
+        const { selectedTagId } = this.state;
 
-        if (selectedTagId === CREATE_NEW || step === "addRule") {
+        if (selectedTagId) {
             return <CrudTagModal show={true} tag={this.getTagForCrud()}
-                onSave={this.props.onClose} onClose={this.goBack} />;
-        }
-
-        if (step === STEP_ACTION) {
-            return this.renderActionStep();
+                submitLabel="Save & Tag" onSave={this.onCrudSave} onClose={this.resetSelection} />;
         }
 
         return this.renderSelectStep();
     }
 }
 
-export default connect(state => _.pick(state.user, ["tags"]))(TagTransactionModal);
+export default connect(state => _.pick(state.user, ["tags", "tagsMap"]))(TagTransactionModal);

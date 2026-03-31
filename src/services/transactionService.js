@@ -16,5 +16,6 @@ export default {
     deleteDrafts: (draftId) => http.post("/api/v1/transactions/delete-drafts", { draftId }),
     getAll: (startDate, endDate, isDraft, sortByDate, draftId) => http.get("/api/v1/transactions", {startDate, endDate, isDraft, sortByDate, draftId}),
     upsert: (transaction) => http.post("/api/v1/transaction", transaction),
+    updateTags: (_id, appliedTags) => http.patch(`/api/v1/transaction/${_id}/tags`, { appliedTags }),
     delete: (transactionId) => http.delete(`/api/v1/transaction/${transactionId}`),
 }
