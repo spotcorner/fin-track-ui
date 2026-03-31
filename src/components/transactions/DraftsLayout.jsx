@@ -50,6 +50,7 @@ export default class DraftsLayout extends React.Component {
         }
 
         return <div>
+            <div className="text-muted small mb-2 page-header">Drafts</div>
             <div className="mb-2 d-flex gap-2 align-items-center">
                 <select className="form-select" value={selectedDraftId} onChange={this.handleDraftChange}>
                     {drafts.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}

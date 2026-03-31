@@ -5,6 +5,11 @@
     cursor: pointer;
 }
 
+.page-header { // Tags, Accounts, Dashboard, UploadView, TransactionsLayout, DraftsLayout, SummaryTable, StatsView
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 .tag-status-0 { // excluded
     --bs-badge-color: #fff;
     background-color: var(--bs-dark);

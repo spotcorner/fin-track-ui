@@ -73,7 +73,7 @@ class Tags extends React.Component {
     render() {
         return (
             <div className="container mt-3">
-                <h1>Tags</h1>
+                <div className="text-muted small mb-2 page-header">Tags</div>
                 {this.getTagsContainer()}
                 {this.getCrudTagModal()}
                 {this.getAddButton()}

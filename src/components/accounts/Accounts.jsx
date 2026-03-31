@@ -99,7 +99,7 @@ class Accounts extends React.Component {
     render() {
         return (
             <div className="container mt-3">
-                <h1>Accounts</h1>
+                <div className="text-muted small mb-2 page-header">Accounts</div>
                 {this.getAccountsContainer()}
                 {this.getCrudAccountModal()}
                 {this.getAddButton()}

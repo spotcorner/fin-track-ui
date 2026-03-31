@@ -10,6 +10,7 @@ const routes = [
         component: () => import("./TransactionsLayout.jsx"),
         props: {
             isDraft: 0,
+            title: "Transactions",
             startDateFilter: moment().startOf("year").format("YYYY-MM-DD"),
             endDateFilter: moment().format("YYYY-MM-DD"),
             sortByDate: 1,

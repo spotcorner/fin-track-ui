@@ -85,7 +85,7 @@ class StatsView extends React.Component {
             <div className="">
                 <div className="mb-2 d-flex align-items-center cursor-pointer"
                     onClick={() => this.setState({ collapsed: !collapsed })}>
-                    <h3 className="mb-0">Stats</h3>
+                    <div className="text-muted small page-header mb-0">Stats</div>
                     <i className={"bi ms-2 " + (collapsed ? "bi-plus-square" : "bi-dash-square")}></i>
                     {!collapsed && <select className="form-select w-auto ms-auto" value={statsGroupByPeriod}
                         onChange={this.handleChange} onClick={e => e.stopPropagation()}>

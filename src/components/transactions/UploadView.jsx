@@ -50,7 +50,6 @@ class Upload extends React.Component {
     getUploadCard() {
         const { accountId, extractor } = this.state;
         return <form className="p-3 shadow mb-3" onSubmit={this.getTransactions}>
-            <h3 className="mb-3">Upload Statement</h3>
             <div className="mb-3">
                 <label className="form-label">Draft Name</label>
                 <input type="text" className="form-control" name="draftName" value={this.state.draftName} onChange={this.handleChange} required />
@@ -106,6 +105,7 @@ class Upload extends React.Component {
     render() {
         return (
             <div className="mb-3">
+                <div className="text-muted small mb-2 page-header">Upload Statement</div>
                 {this.getUploadCard()}
                 {this.getCrudAccountModal()}
                 {this.getResult()}

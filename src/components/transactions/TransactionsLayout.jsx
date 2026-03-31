@@ -152,6 +152,7 @@ class TransactionsLayout extends React.Component {
 
     render() {
         return <div className="">
+            {this.props.title !== undefined && <div className="text-muted small mb-2 page-header">{this.props.title}</div>}
             {this.getFiltersView()}
             {this.getLoader()}
             {this.getLayoutBody()}

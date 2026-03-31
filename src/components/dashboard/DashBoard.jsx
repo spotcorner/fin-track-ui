@@ -6,7 +6,7 @@ export default class Dashboard extends React.Component {
 
     render() {
         return <div className="">
-            <h1>Dashboard</h1>
+            <div className="text-muted small mb-2 page-header">Dashboard</div>
         </div>;
     }
 }
