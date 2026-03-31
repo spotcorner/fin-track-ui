@@ -99,7 +99,7 @@ class TransactionsView extends React.Component {
             <StatsView filteredTransactions={filteredTransactions} />
             <SummaryTable transactions={this.props.transactions} accounts={this.props.accounts} />
             {this.getToolbar(filteredTransactions, isDraft)}
-            <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped" style={{ minWidth: "700px" }}>{reversed.map(this.getListTransaction)}</div></div>
+            <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>{reversed.map(this.getListTransaction)}</div></div>
             {this.getToolbar(filteredTransactions, isDraft)}
         </div>;
     }
