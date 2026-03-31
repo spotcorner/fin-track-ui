@@ -3,7 +3,7 @@
 import React from "react";
 import { connect } from "react-redux";
 
-const TAG_ICONS = { 1: "bi-tag", 2: "bi-key" };
+const TAG_ICONS = { 1: "bi-tag", 2: "bi-robot" };
 
 class TagBadges extends React.Component {
 

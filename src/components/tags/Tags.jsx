@@ -30,10 +30,11 @@ class Tags extends React.Component {
         </div>;
     }
 
-    getRuleBadge(rule, i) {
-        return <span key={i} className={"badge text-truncate " + (rule.type === "keyword" && rule.caseSensitive ? "bg-warning text-dark" : "bg-secondary")} style={{ maxWidth: "150px" }}>
-            {rule.value}
-        </span>;
+    getRuleText(rule, i) {
+        if (rule.type === "keyword") {
+            return <small key={i} className="text-muted">{rule.value}{rule.caseSensitive ? " (Aa)" : ""}</small>;
+        }
+        return null;
     }
 
     getTagItem = (tag, index) => {
@@ -41,7 +42,7 @@ class Tags extends React.Component {
             <div className="d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                     <span className="fw-bold">{tag.name}</span>
-                    {tag.rules.map((rule, i) => this.getRuleBadge(rule, i))}
+                    {tag.rules.map((rule, i) => this.getRuleText(rule, i))}
                 </div>
                 {this.getActionButtons(tag)}
             </div>
