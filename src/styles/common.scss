@@ -22,36 +22,6 @@
     background-color: var(--bs-info);
 }
 
-.desc-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-
-    &.expanded {
-        white-space: normal;
-    }
-}
-
-.summary-bar {
-    height: 8px;
-    border-radius: 4px;
-    background: #e9ecef;
-    overflow: hidden;
-}
-
-.summary-bar-debit {
-    height: 100%;
-    border-radius: 4px;
-    background: var(--bs-danger);
-}
-
-.summary-bar-credit {
-    height: 100%;
-    border-radius: 4px;
-    background: var(--bs-success);
-}
-
 .summary-table th {
     border: none;
     font-weight: 600;

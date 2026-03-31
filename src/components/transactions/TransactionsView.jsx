@@ -12,9 +12,6 @@ import StatsView from "./stats/StatsView.jsx";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil.js";
 
-const VIEW_CARD = "card";
-const VIEW_LIST = "list";
-
 const TAG_ICONS = { 1: "bi-tag", 2: "bi-key" };
 
 class TransactionsView extends React.Component {
@@ -23,8 +20,6 @@ class TransactionsView extends React.Component {
         showRulesModal: false,
         showTransactionModal: false,
         selectedTransaction: null,
-        viewMode: VIEW_LIST,
-        expandedDescs: {},
     }
 
     toggleTagModal = (selectedTransaction) => {
@@ -114,94 +109,44 @@ class TransactionsView extends React.Component {
         return transaction.type == TRANSACTION_TYPES.CREDIT ? "#198754" : "#dc3545";
     }
 
-    toggleDesc = (id) => {
-        this.setState(prev => ({ expandedDescs: { ...prev.expandedDescs, [id]: !prev.expandedDescs[id] } }));
-    }
-
-    // Card view (Option A)
-    getCardTransaction = (transaction, transactionIndex) => {
-        const borderColor = this.getBorderColor(transaction);
-        const amountColor = this.getAmountColor(transaction);
-        const accountLabel = transaction.account && labelUtil.getAccountLabel(transaction.account);
-        const descExpanded = this.state.expandedDescs[transaction._id];
-        return <div key={transactionIndex} className="col-md-6 col-lg-4 mb-2">
-            <div className="card shadow-sm" style={{ borderLeft: `2px solid ${borderColor}`, background: `linear-gradient(to right, ${borderColor}10, transparent)` }}>
-                <div className="card-body">
-                    <div className="d-flex flex-wrap justify-content-between align-items-center mb-2">
-                        <span className={"fs-5 fw-bold text-" + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
-                        {this.getActionButtons(transaction)}
-                    </div>
-                    <div className="mb-2">{this.getTagBadges(transaction)}</div>
-                    <div className="text-muted small mb-1">
-                        {moment(transaction.date, "YYYY-MM-DD").format("MMMM D, YYYY (dddd)")}
-                        {accountLabel && <span> · {accountLabel}</span>}
-                    </div>
-                    {!_.isEmpty(transaction.description) && <div
-                        className={"small desc-truncate" + (descExpanded ? " expanded" : "")}
-                        onClick={() => this.toggleDesc(transaction._id)}
-                    >{transaction.description}</div>}
-                    {!_.isEmpty(transaction.comments) && <div className="small text-muted mt-1">{transaction.comments}</div>}
-                </div>
-            </div>
-        </div>;
-    }
-
-    // List view (Option B)
     getListTransaction = (transaction, transactionIndex) => {
         const borderColor = this.getBorderColor(transaction);
         const amountColor = this.getAmountColor(transaction);
         const accountLabel = transaction.account && labelUtil.getAccountLabel(transaction.account);
         return <div key={transactionIndex} className="list-group-item" style={{ borderLeft: `3px solid ${borderColor}` }}>
             <div className="d-flex align-items-center gap-3">
-                {this.getTagBadges(transaction)}
                 <div className="text-muted small text-nowrap">{moment(transaction.date, "YYYY-MM-DD").format("MMM D, YYYY")}</div>
                 {accountLabel && <div className="text-muted small text-nowrap">{accountLabel}</div>}
                 <span className={"fw-bold text-nowrap text-" + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
                 <div className="flex-grow-1 text-truncate small">{transaction.description}</div>
+                {this.getTagBadges(transaction)}
                 {this.getActionButtons(transaction)}
             </div>
         </div>;
     }
 
-    getViewToggle(filteredTransactions) {
-        const { viewMode } = this.state;
+    getToolbar(filteredTransactions, isDraft) {
         return <div className="d-flex justify-content-between align-items-center mb-2">
             <div></div>
             <span className="text-muted">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
-            <div className="btn-group btn-group-sm">
-                <button className={"btn btn-" + (viewMode == VIEW_LIST ? "dark" : "outline-dark")} onClick={() => this.setState({ viewMode: VIEW_LIST })}>
-                    <i className="bi bi-list"></i>
-                </button>
-                <button className={"btn btn-" + (viewMode == VIEW_CARD ? "dark" : "outline-dark")} onClick={() => this.setState({ viewMode: VIEW_CARD })}>
-                    <i className="bi bi-grid"></i>
-                </button>
+            <div>
+                {isDraft && <>
+                    <button className="btn btn-primary btn-sm me-2" onClick={this.saveDrafts}>Save All</button>
+                    <button className="btn btn-danger btn-sm" onClick={this.deleteDrafts}>Delete All</button>
+                </>}
             </div>
         </div>;
     }
 
-    getDraftActions(filteredTransactions) {
-        return this.props.isDraft == 1 && this.props.transactions.length > 0 && <div className="mt-2 d-flex justify-content-center">
-            <button className="btn btn-primary me-2" onClick={this.saveDrafts}>Save All</button>
-            <button className="btn btn-danger" onClick={this.deleteDrafts}>Delete All</button>
-        </div>;
-    }
-
-    getTransactionsList(filteredTransactions) {
-        const reversed = filteredTransactions.slice().reverse();
-        if (this.state.viewMode == VIEW_LIST) {
-            return <div className="mt-2" style={{ overflowX: "auto" }}><div className="list-group" style={{ minWidth: "700px" }}>{reversed.map(this.getListTransaction)}</div></div>;
-        }
-        return <div className="row mt-2">{reversed.map(this.getCardTransaction)}</div>;
-    }
-
     getTransactions(filteredTransactions) {
+        const reversed = filteredTransactions.slice().reverse();
+        const isDraft = this.props.isDraft == 1 && this.props.transactions.length > 0;
         return this.props.transactions.length > 0 && <div>
             <StatsView filteredTransactions={filteredTransactions} />
             <SummaryTable transactions={this.props.transactions} accounts={this.props.accounts} />
-            {this.getDraftActions(filteredTransactions)}
-            {this.getViewToggle(filteredTransactions)}
-            {this.getTransactionsList(filteredTransactions)}
-            {this.getDraftActions(filteredTransactions)}
+            {this.getToolbar(filteredTransactions, isDraft)}
+            <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped" style={{ minWidth: "700px" }}>{reversed.map(this.getListTransaction)}</div></div>
+            {this.getToolbar(filteredTransactions, isDraft)}
         </div>;
     }
 
