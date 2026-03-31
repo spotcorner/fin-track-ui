@@ -54,7 +54,7 @@ class CrudTagModal extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        const rules = this.state.rules.filter(r => r.type !== "keyword" || r.value.trim());
+        const rules = this.state.rules.filter(r => (r.type === "keyword" || r.type === "pattern") ? r.value.trim() : true);
         const payload = {
             _id: this.state._id,
             name: this.state.name,
@@ -85,12 +85,13 @@ class CrudTagModal extends React.Component {
                     <select className="form-select" style={{ maxWidth: "120px" }} value={rule.type}
                         onChange={(e) => this.handleRuleChange(index, "type", e.target.value)}>
                         <option value="keyword">Keyword</option>
+                        <option value="pattern">Pattern</option>
                     </select>
-                    {rule.type === "keyword" && <input type="text" className="form-control" value={rule.value}
-                        onChange={(e) => this.handleRuleChange(index, "value", e.target.value)} placeholder="Keyword" />}
+                    {(rule.type === "keyword" || rule.type === "pattern") && <input type="text" className="form-control" value={rule.value}
+                        onChange={(e) => this.handleRuleChange(index, "value", e.target.value)} placeholder={rule.type === "keyword" ? "Keyword" : "Regex pattern"} />}
                     <button type="button" className="btn btn-outline-danger" onClick={() => this.removeRule(index)}>&times;</button>
                 </div>
-                {rule.type === "keyword" && <div className="form-check mt-1">
+                {(rule.type === "keyword" || rule.type === "pattern") && <div className="form-check mt-1">
                     <input type="checkbox" className="form-check-input" id={`cs-${index}`}
                         checked={rule.caseSensitive} onChange={() => this.handleRuleChange(index, "caseSensitive", !rule.caseSensitive)} />
                     <label className="form-check-label" htmlFor={`cs-${index}`}>Case sensitive</label>

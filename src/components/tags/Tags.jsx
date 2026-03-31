@@ -34,6 +34,9 @@ class Tags extends React.Component {
         if (rule.type === "keyword") {
             return <small key={i} className="text-muted">{rule.value}{rule.caseSensitive ? " (Aa)" : ""}</small>;
         }
+        if (rule.type === "pattern") {
+            return <small key={i} className="text-muted">/{rule.value}/{rule.caseSensitive ? "" : "i"}</small>;
+        }
         return null;
     }
 
