@@ -62,11 +62,11 @@
 
 .quick-apply-tag { // TransactionsView - hover to show last applied tag on untagged transactions
     display: none;
+    animation: zoom-out 0.3s ease-out, glow-border 1.5s ease-in-out infinite;
 }
 
 .list-group-item:hover .quick-apply-tag {
     display: inline-flex;
-    animation: zoom-out 0.3s ease-out;
 }
 
 .transaction-credit { // TransactionsView list, TagTransactionModal card

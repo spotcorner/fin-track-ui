@@ -4,8 +4,7 @@
     }
 }
 
-@keyframes zoom-in {
-    100% {
-        transform: scale(0);
-    }
+@keyframes glow-border {
+    0%, 100% { box-shadow: 0 0 4px 1px rgba(13, 110, 253, 0.5); }
+    50% { box-shadow: 0 0 10px 3px rgba(13, 110, 253, 1); }
 }
