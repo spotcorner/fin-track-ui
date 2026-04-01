@@ -97,7 +97,7 @@ class CrudTransactionModal extends React.Component {
                 </div>
                 <div className="mb-2">
                     <label className="form-label">Split Amount ({type === TRANSACTION_TYPES.DEBIT ? "owed by others" : "settled by others"})</label>
-                    <input type="number" className="form-control" name="splitAmount" value={this.state.splitAmount} onChange={this.handleChange} min="0" />
+                    <input type="number" className="form-control" name="splitAmount" value={this.state.splitAmount} onChange={this.handleChange} />
                 </div>
                 <div className="mb-2">
                     <label className="form-label">Exclude from Totals</label>
