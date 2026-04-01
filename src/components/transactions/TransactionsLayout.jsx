@@ -120,6 +120,7 @@ class TransactionsLayout extends React.Component {
     }
 
     updateTransactionTags = (_id, delta) => {
+        const directTagId = _.findKey(delta, v => v === 1);
         return transactionService.updateTags(_id, delta).then((data) => {
             this.setState((prevState) => {
                 const transactions = [...prevState.transactions];
@@ -127,7 +128,7 @@ class TransactionsLayout extends React.Component {
                 if (index >= 0) {
                     transactions[index] = { ...transactions[index], appliedTags: data.appliedTags, _appliedTags: { ...data.appliedTags } };
                 }
-                return { transactions };
+                return { transactions, ...(directTagId ? { lastAppliedTagId: directTagId } : {}) };
             });
             return data;
         });
@@ -147,7 +148,8 @@ class TransactionsLayout extends React.Component {
             transactions={this.state.transactions} filteredTransactions={filteredTransactions}
             updateTransaction={this.updateTransaction} updateTransactionTags={this.updateTransactionTags}
             deleteTransaction={this.deleteTransaction}
-            fetchTransactions={this.fetchTransactions} />;
+            fetchTransactions={this.fetchTransactions}
+            lastAppliedTagId={this.state.lastAppliedTagId} />;
     }
 
     render() {

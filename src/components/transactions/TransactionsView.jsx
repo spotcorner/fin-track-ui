@@ -46,6 +46,10 @@ class TransactionsView extends React.Component {
             onClose={() => this.toggleTransactionModal()} />;
     }
 
+    quickApplyTag = (transaction) => {
+        this.props.updateTransactionTags(transaction._id, { [this.props.lastAppliedTagId]: 1 });
+    }
+
     removeTag = (transaction, tagId) => {
         const status = transaction._appliedTags[tagId] == 1 ? -1 : 0;
         this.props.updateTransactionTags(transaction._id, { [tagId]: status });
@@ -63,6 +67,10 @@ class TransactionsView extends React.Component {
                 {transaction.type === TRANSACTION_TYPES.DEBIT ? "Owed" : "Settled"} ₹{amountUtil.getFormattedAmount(transaction.splitAmount)}
             </span>}
             {!hasAppliedTags && <span className="badge bg-dark">Untagged</span>}
+            {!hasAppliedTags && this.props.lastAppliedTagId && this.props.tagsMap[this.props.lastAppliedTagId] &&
+                <span className="badge tag-status-1 cursor-pointer quick-apply-tag" onClick={() => this.quickApplyTag(transaction)}>
+                    <i className="bi bi-check me-1"></i>{this.props.tagsMap[this.props.lastAppliedTagId].name}
+                </span>}
             <TagBadges appliedTags={transaction.appliedTags}
                 onRemove={(tagId) => this.removeTag(transaction, tagId)} />
         </div>;
@@ -152,4 +160,4 @@ class TransactionsView extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accountsMap", "accounts"]))(TransactionsView);
+export default connect(state => _.pick(state.user, ["accountsMap", "accounts", "tagsMap"]))(TransactionsView);

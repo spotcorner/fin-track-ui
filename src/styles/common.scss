@@ -60,6 +60,15 @@
     background-color: #f8f9fa;
 }
 
+.quick-apply-tag { // TransactionsView - hover to show last applied tag on untagged transactions
+    display: none;
+}
+
+.list-group-item:hover .quick-apply-tag {
+    display: inline-flex;
+    animation: zoom-out 0.3s ease-out;
+}
+
 .transaction-credit { // TransactionsView list, TagTransactionModal card
     border-left: 3px solid #198754;
 }
