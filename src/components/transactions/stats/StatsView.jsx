@@ -56,6 +56,7 @@ class StatsView extends React.Component {
         const applicableTransactions = this.getApplicableTransactions(filteredTransactions, chart.filters);
         if (applicableTransactions.length == 0) return null;
         const { labels, data } = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags);
+        if (labels.length == 0) return null;
         const datasets = chart.getDatasets(data);
         const chartCollapsed = this.state.collapsedCharts[index];
         return <div key={index} className={chart.className}>

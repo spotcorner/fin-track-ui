@@ -15,6 +15,7 @@ function getDerivedStateFromProps(props) {
         type: props.transaction?.type || TRANSACTION_TYPES.DEBIT,
         accountId: props.transaction?.accountId || "",
         amount: props.transaction?.amount || 0,
+        splitAmount: props.transaction?.splitAmount || "",
         excludeFromTotals: props.transaction?.excludeFromTotals || 0,
         balance: props.transaction?.balance || 0,
         description: props.transaction?.description || "",
@@ -46,6 +47,7 @@ class CrudTransactionModal extends React.Component {
         e.preventDefault();
 
         this.state.amount = parseFloat(this.state.amount);
+        this.state.splitAmount = this.state.splitAmount ? parseFloat(this.state.splitAmount) : null;
         this.state.excludeFromTotals = parseInt(this.state.excludeFromTotals);
         transactionService.upsert(this.state).then(data => {
             toast.info("Transaction saved ✅");
@@ -92,6 +94,10 @@ class CrudTransactionModal extends React.Component {
                 <div className="mb-2">
                     <label className="form-label">Amount</label>
                     <input type="number" className="form-control" name="amount" value={amount} onChange={this.handleChange} required />
+                </div>
+                <div className="mb-2">
+                    <label className="form-label">Split Amount ({type === TRANSACTION_TYPES.DEBIT ? "owed by others" : "settled by others"})</label>
+                    <input type="number" className="form-control" name="splitAmount" value={this.state.splitAmount} onChange={this.handleChange} min="0" max={amount} />
                 </div>
                 <div className="mb-2">
                     <label className="form-label">Exclude from Totals</label>

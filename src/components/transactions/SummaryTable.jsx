@@ -13,6 +13,18 @@ export default class SummaryTable extends React.Component {
         collapsed: false,
     }
 
+    getSplitSummary() {
+        const { transactions } = this.props;
+        let owed = 0, settled = 0;
+        transactions.forEach(tx => {
+            if (!tx.splitAmount) return;
+            if (tx.type === TRANSACTION_TYPES.DEBIT) owed += tx.splitAmount;
+            else settled += tx.splitAmount;
+        });
+        if (owed === 0 && settled === 0) return null;
+        return { owed, settled, pending: owed - settled };
+    }
+
     getSummaries() {
         const { transactions, accounts } = this.props;
         const transactionAccountIds = _.uniq(transactions.map(tx => tx.accountId));
@@ -39,6 +51,17 @@ export default class SummaryTable extends React.Component {
         cumulative.closingBalance = cumulative.openingBalance + cumulative.totalCredit - cumulative.totalDebit;
 
         return { accountSummaries, cumulative };
+    }
+
+    renderSplitSummary() {
+        const split = this.getSplitSummary();
+        if (!split) return null;
+        return <div className="text-muted small">
+            Split:
+            <span className="badge bg-danger bg-opacity-10 text-danger ms-1">Owed ₹{fmt(split.owed)}</span>
+            <span className="badge bg-success bg-opacity-10 text-success ms-1">Settled ₹{fmt(split.settled)}</span>
+            <span className="badge bg-warning text-dark ms-1">Pending ₹{fmt(split.pending)}</span>
+        </div>;
     }
 
     render() {
@@ -84,6 +107,7 @@ export default class SummaryTable extends React.Component {
                         </tbody>
                     </table>
                 </div>}
+                {!collapsed && this.renderSplitSummary()}
             </div>
         );
     }

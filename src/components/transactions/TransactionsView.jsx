@@ -50,6 +50,9 @@ class TransactionsView extends React.Component {
         const hasAppliedTags = _.some(transaction.appliedTags, v => v >= 1);
         return <div className="d-flex flex-wrap align-items-center gap-1">
             {transaction.excludeFromTotals == 1 && <span className="badge bg-secondary">Excluded</span>}
+            {transaction.splitAmount > 0 && <span className="badge bg-warning text-dark">
+                {transaction.type === TRANSACTION_TYPES.DEBIT ? "Owed" : "Settled"} ₹{amountUtil.getFormattedAmount(transaction.splitAmount)}
+            </span>}
             {!hasAppliedTags && <span className="badge bg-dark">Untagged</span>}
             <TagBadges transaction={transaction} updateTransactionTags={this.props.updateTransactionTags} />
         </div>;
