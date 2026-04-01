@@ -40,12 +40,22 @@ class Tags extends React.Component {
         return null;
     }
 
+    getLinkedTagNames(tag) {
+        const { tagsMap } = this.props;
+        if (!tag.linkedTags?.length) return null;
+        return tag.linkedTags.map((id, i) => {
+            const linked = tagsMap[id];
+            return linked ? <small key={i} className="text-muted"><i className="bi bi-link-45deg"></i>{linked.name}</small> : null;
+        });
+    }
+
     getTagItem = (tag, index) => {
         return <div key={index} className="list-group-item">
             <div className="d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                     <span className="fw-bold">{tag.name}</span>
                     {tag.rules.map((rule, i) => this.getRuleText(rule, i))}
+                    {this.getLinkedTagNames(tag)}
                 </div>
                 {this.getActionButtons(tag)}
             </div>
@@ -85,4 +95,4 @@ class Tags extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["tags", "loadingTags"]))(Tags);
+export default connect(state => _.pick(state.user, ["tags", "loadingTags", "tagsMap"]))(Tags);

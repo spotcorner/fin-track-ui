@@ -27,6 +27,11 @@
     background-color: var(--bs-info);
 }
 
+.tag-status-3 { // linked tag
+    --bs-badge-color: #fff;
+    background-color: var(--bs-purple, #6f42c1);
+}
+
 .summary-table th {
     border: none;
     font-weight: 600;
@@ -81,4 +86,9 @@
 .tag-applied-2 { // TagTransactionModal list - keyword match
     border-left: 3px solid var(--bs-info);
     background-color: #e8f8f8;
+}
+
+.tag-applied-3 { // TagTransactionModal list - linked tag
+    border-left: 3px solid var(--bs-purple, #6f42c1);
+    background-color: #f0e8fe;
 }

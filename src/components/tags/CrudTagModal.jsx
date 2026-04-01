@@ -11,6 +11,7 @@ function getDerivedStateFromProps(props) {
         _id: props.tag?._id || "",
         name: props.tag?.name || "",
         rules: props.tag?.rules || [],
+        linkedTags: props.tag?.linkedTags || [],
         description: props.tag?.description || "",
     };
 }
@@ -59,6 +60,7 @@ class CrudTagModal extends React.Component {
             _id: this.state._id,
             name: this.state.name,
             rules,
+            linkedTags: this.state.linkedTags,
             description: this.state.description,
         };
         this.props.dispatch(upsertTagRequest(payload)).then(data => {
@@ -100,6 +102,41 @@ class CrudTagModal extends React.Component {
         ));
     }
 
+    toggleLinkedTag = (tagId) => {
+        this.setState(prev => ({
+            linkedTags: prev.linkedTags.includes(tagId)
+                ? prev.linkedTags.filter(id => id !== tagId)
+                : [...prev.linkedTags, tagId],
+        }));
+    }
+
+    getLinkedTagsSection() {
+        const { tags } = this.props;
+        const { linkedTags, linkSearch = "" } = this.state;
+        const available = tags.filter(t => t._id !== this.state._id && t.name.toLowerCase().includes(linkSearch.toLowerCase()));
+        return <div className="mb-2">
+            <label className="form-label">Linked Tags</label>
+            {linkedTags.length > 0 && <div className="d-flex flex-wrap gap-1 mb-2">
+                {linkedTags.map(id => {
+                    const tag = tags.find(t => t._id === id);
+                    return tag ? <span key={id} className="badge bg-primary cursor-pointer" onClick={() => this.toggleLinkedTag(id)}>{tag.name} &times;</span> : null;
+                })}
+            </div>}
+            <input type="text" className="form-control form-control-sm mb-1" placeholder="Search tags..."
+                value={linkSearch} onChange={(e) => this.setState({ linkSearch: e.target.value })} />
+            <div className="list-group" style={{ maxHeight: "150px", overflowY: "auto" }}>
+                {available.map(tag => {
+                    const selected = linkedTags.includes(tag._id);
+                    return <div key={tag._id} className={"list-group-item list-group-item-action d-flex justify-content-between align-items-center py-1 cursor-pointer" + (selected ? " active" : "")}
+                        onClick={() => this.toggleLinkedTag(tag._id)}>
+                        <small>{tag.name}</small>
+                        {selected && <i className="bi bi-check"></i>}
+                    </div>;
+                })}
+            </div>
+        </div>;
+    }
+
     getModalBody() {
         const { name } = this.state;
         return (
@@ -115,6 +152,7 @@ class CrudTagModal extends React.Component {
                     </div>
                     {this.getRuleRows()}
                 </div>
+                {this.getLinkedTagsSection()}
             </form>
         );
     }
@@ -124,4 +162,4 @@ class CrudTagModal extends React.Component {
     }
 }
 
-export default connect()(CrudTagModal);
+export default connect(state => _.pick(state.user, ["tags"]))(CrudTagModal);
