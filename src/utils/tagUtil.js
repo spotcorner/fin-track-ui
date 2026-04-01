@@ -1,12 +1,12 @@
-const resolveLinkedTags = (matchedIds, tags, appliedTags) => {
+const resolveLinkedTags = (matchedIds, tags, ruleResult) => {
     const visited = new Set(matchedIds);
     const queue = [...matchedIds];
     while (queue.length > 0) {
         const id = queue.shift();
         tags.forEach(tag => {
-            if (!visited.has(tag._id) && tag.linkedTags?.includes(id) && appliedTags[tag._id] !== 0) {
+            if (!visited.has(tag._id) && tag.linkedTags?.includes(id)) {
                 visited.add(tag._id);
-                appliedTags[tag._id] = 3;
+                ruleResult[tag._id] = 3;
                 queue.push(tag._id);
             }
         });
@@ -18,12 +18,11 @@ export default {
         if (!transaction._appliedTags) {
             transaction._appliedTags = { ...transaction.appliedTags };
         }
-        transaction.appliedTags = { ...transaction._appliedTags };
+        const ruleResult = {};
         const matchedIds = [];
         tags.forEach(tag => {
             const { _id, rules } = tag;
-            if (transaction.appliedTags[_id] == 0) return;
-            if (transaction.appliedTags[_id] == 1) { matchedIds.push(_id); return; }
+            if (transaction._appliedTags[_id] == 1) { matchedIds.push(_id); return; }
             const matched = _.some(rules, (rule) => {
                 const description = transaction.description || "";
                 if (rule.type === "keyword") {
@@ -39,10 +38,12 @@ export default {
                 return false;
             });
             if (matched) {
-                transaction.appliedTags[_id] = 2;
+                ruleResult[_id] = 2;
                 matchedIds.push(_id);
             }
         });
-        resolveLinkedTags(matchedIds, tags, transaction.appliedTags);
+        resolveLinkedTags(matchedIds, tags, ruleResult);
+        transaction.ruleResult = ruleResult;
+        transaction.appliedTags = { ...ruleResult, ...transaction._appliedTags };
     },
 }

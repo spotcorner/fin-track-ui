@@ -44,19 +44,25 @@ class TagTransactionModal extends React.Component {
     };
 
     removeTag = (tagId) => {
-        const { transaction } = this.props;
-        const status = transaction._appliedTags[tagId] == 1 ? -1 : 0;
-        this.setState(prev => ({
-            localAppliedTags: { ...prev.localAppliedTags, [tagId]: status },
-        }));
+        const status = this.props.transaction.appliedTags[tagId];
+        if (status >= 2) {
+            this.setState(prev => ({
+                localAppliedTags: { ...prev.localAppliedTags, [tagId]: 0 },
+            }));
+        } else {
+            this.setState(prev => {
+                const updated = { ...prev.localAppliedTags };
+                delete updated[tagId];
+                return { localAppliedTags: updated };
+            });
+        }
     };
 
     restoreTag = (tagId) => {
-        this.setState(prev => {
-            const updated = { ...prev.localAppliedTags };
-            delete updated[tagId];
-            return { localAppliedTags: updated };
-        });
+        const status = this.props.transaction.ruleResult[tagId];
+        this.setState(prev => ({
+            localAppliedTags: { ...prev.localAppliedTags, [tagId]: status },
+        }));
     };
 
     handleSave = () => {
@@ -65,7 +71,8 @@ class TagTransactionModal extends React.Component {
         const local = this.state.localAppliedTags;
         const delta = {};
         _.forEach(local, (status, tagId) => {
-            if (original[tagId] !== status) delta[tagId] = status;
+            if (status <= 1 && original[tagId] !== status) delta[tagId] = status;
+            else if (status >= 2 && original[tagId] === 0) delta[tagId] = -1;
         });
         _.forEach(original, (status, tagId) => {
             if (!(tagId in local)) delta[tagId] = -1;
