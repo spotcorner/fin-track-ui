@@ -74,6 +74,10 @@
     background-color: #e8f0fe;
 }
 
+.chart-expanded { // StatsView - expanded chart
+    height: 500px;
+}
+
 .tag-applied-2 { // TagTransactionModal list - keyword match
     border-left: 3px solid var(--bs-info);
     background-color: #e8f8f8;
