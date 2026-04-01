@@ -14,9 +14,9 @@ export default class SummaryTable extends React.Component {
     }
 
     getSplitSummary() {
-        const { transactions } = this.props;
+        const { filteredTransactions } = this.props;
         let owed = 0, settled = 0;
-        transactions.forEach(tx => {
+        filteredTransactions.forEach(tx => {
             if (!tx.splitAmount) return;
             if (tx.type === TRANSACTION_TYPES.DEBIT) owed += tx.splitAmount;
             else settled += tx.splitAmount;
