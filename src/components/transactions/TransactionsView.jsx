@@ -70,6 +70,7 @@ class TransactionsView extends React.Component {
             {!hasAppliedTags && this.props.lastAppliedTagId && this.props.tagsMap[this.props.lastAppliedTagId] &&
                 <span className="badge tag-status-1 cursor-pointer quick-apply-tag" onClick={() => this.quickApplyTag(transaction)}>
                     <i className="bi bi-check me-1"></i>{this.props.tagsMap[this.props.lastAppliedTagId].name}
+                    <span className="ms-1" onClick={(e) => { e.stopPropagation(); this.props.clearLastAppliedTag(); }}>&times;</span>
                 </span>}
             <TagBadges appliedTags={transaction.appliedTags}
                 onRemove={(tagId) => this.removeTag(transaction, tagId)} />

@@ -128,7 +128,7 @@ class TransactionsLayout extends React.Component {
                 if (index >= 0) {
                     transactions[index] = { ...transactions[index], appliedTags: data.appliedTags, _appliedTags: { ...data.appliedTags } };
                 }
-                return { transactions, ...(directTagId ? { lastAppliedTagId: directTagId } : {}) };
+                return { transactions, lastAppliedTagId: directTagId  };
             });
             return data;
         });
@@ -149,7 +149,8 @@ class TransactionsLayout extends React.Component {
             updateTransaction={this.updateTransaction} updateTransactionTags={this.updateTransactionTags}
             deleteTransaction={this.deleteTransaction}
             fetchTransactions={this.fetchTransactions}
-            lastAppliedTagId={this.state.lastAppliedTagId} />;
+            lastAppliedTagId={this.state.lastAppliedTagId}
+            clearLastAppliedTag={() => this.setState({ lastAppliedTagId: null })} />;
     }
 
     render() {
