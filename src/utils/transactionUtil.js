@@ -14,7 +14,7 @@ export default {
             tagUtil.applyTags(transaction, tags);
             if (!_.isEmpty(filters.tagFilter)) {
                 if (filters.tagFilter == "__NONE__") {
-                    if (transaction.tagNames.length > 0) {
+                    if (_.some(transaction.appliedTags, v => v >= 1)) {
                         return false;
                     }
                 } else if (!transaction.appliedTags[filters.tagFilter]) {

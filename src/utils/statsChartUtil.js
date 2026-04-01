@@ -76,7 +76,7 @@ const getTransactionTagCountTrendData = (filteredTransactions, accountsMap, time
     });
     counts.push({
         label: "Untagged",
-        count: filteredTransactions.filter(txn => txn.tagNames.length == 0).length,
+        count: filteredTransactions.filter(txn => !_.some(txn.appliedTags, v => v >= 1)).length,
     });
     counts = counts.filter(c => c.count > 0);
     const labels = counts.map(g => g.label);
@@ -91,7 +91,7 @@ const getTransactionTagAmountSumTrendData = (filteredTransactions, accountsMap, 
     });
     sums.push({
         label: "Untagged",
-        sum: _.sumBy(filteredTransactions.filter(txn => txn.tagNames.length == 0), "amount"),
+        sum: _.sumBy(filteredTransactions.filter(txn => !_.some(txn.appliedTags, v => v >= 1)), "amount"),
     });
     sums = sums.filter(c => c.sum > 0);
     const labels = sums.map(g => g.label);
