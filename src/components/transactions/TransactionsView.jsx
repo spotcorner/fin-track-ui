@@ -46,6 +46,15 @@ class TransactionsView extends React.Component {
             onClose={() => this.toggleTransactionModal()} />;
     }
 
+    removeTag = (transaction, tagId) => {
+        const status = transaction._appliedTags[tagId] == 1 ? -1 : 0;
+        this.props.updateTransactionTags(transaction._id, { [tagId]: status });
+    }
+
+    restoreTag = (transaction, tagId) => {
+        this.props.updateTransactionTags(transaction._id, { [tagId]: -1 });
+    }
+
     getTagBadges(transaction) {
         const hasAppliedTags = _.some(transaction.appliedTags, v => v >= 1);
         return <div className="d-flex flex-wrap align-items-center gap-1">
@@ -54,7 +63,8 @@ class TransactionsView extends React.Component {
                 {transaction.type === TRANSACTION_TYPES.DEBIT ? "Owed" : "Settled"} ₹{amountUtil.getFormattedAmount(transaction.splitAmount)}
             </span>}
             {!hasAppliedTags && <span className="badge bg-dark">Untagged</span>}
-            <TagBadges transaction={transaction} updateTransactionTags={this.props.updateTransactionTags} />
+            <TagBadges appliedTags={transaction.appliedTags}
+                onRemove={(tagId) => this.removeTag(transaction, tagId)} />
         </div>;
     }
 

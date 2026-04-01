@@ -12,11 +12,14 @@ import labelUtil from "@utils/labelUtil.js";
 const CREATE_NEW = "__CREATE_NEW__";
 
 class TagTransactionModal extends React.Component {
-    state = { selectedTagId: "", searchText: "" };
+    state = { selectedTagId: "", searchText: "", localAppliedTags: {} };
 
     componentDidUpdate(prevProps) {
         if (prevProps.transaction !== this.props.transaction) {
-            this.setState({ selectedTagId: "", searchText: "" });
+            this.setState({
+                selectedTagId: "", searchText: "",
+                localAppliedTags: { ...this.props.transaction?.appliedTags },
+            });
         }
     }
 
@@ -35,9 +38,40 @@ class TagTransactionModal extends React.Component {
     }
 
     applyDirectTag = (tagId, callback) => {
-        this.props.updateTransactionTags(this.props.transaction._id, { [tagId]: 1 }).then(() => {
-            if (callback) callback();
+        this.setState(prev => ({
+            localAppliedTags: { ...prev.localAppliedTags, [tagId]: 1 },
+        }), callback);
+    };
+
+    removeTag = (tagId) => {
+        const { transaction } = this.props;
+        const status = transaction._appliedTags[tagId] == 1 ? -1 : 0;
+        this.setState(prev => ({
+            localAppliedTags: { ...prev.localAppliedTags, [tagId]: status },
+        }));
+    };
+
+    restoreTag = (tagId) => {
+        this.setState(prev => {
+            const updated = { ...prev.localAppliedTags };
+            delete updated[tagId];
+            return { localAppliedTags: updated };
         });
+    };
+
+    handleSave = () => {
+        const { transaction } = this.props;
+        const original = transaction._appliedTags || {};
+        const local = this.state.localAppliedTags;
+        const delta = {};
+        _.forEach(local, (status, tagId) => {
+            if (original[tagId] !== status) delta[tagId] = status;
+        });
+        _.forEach(original, (status, tagId) => {
+            if (!(tagId in local)) delta[tagId] = -1;
+        });
+        if (_.isEmpty(delta)) { this.props.onClose(); return; }
+        this.props.updateTransactionTags(transaction._id, delta).then(() => this.props.onClose());
     };
 
     getTransactionCard() {
@@ -77,10 +111,11 @@ class TagTransactionModal extends React.Component {
         </div>;
     }
 
-    getTagList(filtered, appliedTags) {
+    getTagList(filtered) {
+        const { localAppliedTags } = this.state;
         return <div className="list-group" style={{ maxHeight: "200px", overflowY: "auto" }}>
             {filtered.map(tag => {
-                const status = appliedTags[tag._id];
+                const status = localAppliedTags[tag._id];
                 const statusClass = status !== undefined ? " tag-applied-" + status : "";
                 return <div key={tag._id} className={"list-group-item d-flex justify-content-between align-items-center" + statusClass}>
                     <span>{tag.name}</span>
@@ -95,20 +130,20 @@ class TagTransactionModal extends React.Component {
     }
 
     renderSelectStep() {
-        const appliedTags = this.props.transaction?.appliedTags || {};
         const filtered = this.props.tags.filter(t => t.name.toLowerCase().includes(this.state.searchText.toLowerCase()));
         const body = (
             <div>
                 {this.getTransactionCard()}
                 <div className="mb-3">
-                    <TagBadges transaction={this.props.transaction} showExcluded
-                        updateTransactionTags={this.props.updateTransactionTags} />
+                    <TagBadges appliedTags={this.state.localAppliedTags}
+                        showExcluded onRemove={this.removeTag} onRestore={this.restoreTag} />
                 </div>
                 {this.getSearchBar()}
-                {this.getTagList(filtered, appliedTags)}
+                {this.getTagList(filtered)}
             </div>
         );
-        return <Modal show={true} title="Tag Transaction" body={body} onClose={this.props.onClose} />;
+        return <Modal show={true} title="Tag Transaction" body={body}
+            onClose={this.props.onClose} onSubmitClick={this.handleSave} />;
     }
 
     render() {
