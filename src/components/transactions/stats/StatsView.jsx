@@ -6,6 +6,7 @@ import { setStatsGroupByPeriod } from "@store";
 import { charts } from "@utils/statsChartUtilV2"
 import { connect } from "react-redux";
 import CheckDropdown from "@components/ui/CheckDropdown.jsx";
+import SortDropdown from "@components/ui/SortDropdown.jsx";
 
 class StatsView extends React.Component {
 
@@ -13,6 +14,7 @@ class StatsView extends React.Component {
         collapsed: this.props.isDraft == 1,
         visibleCharts: ["tags"],
         expandedCharts: { tags: true },
+        sortBy: {},
     }
 
     handleChange = (e) => {
@@ -35,12 +37,17 @@ class StatsView extends React.Component {
         }));
     }
 
+    handleSortChange = (key, field, direction) => {
+        this.setState(prev => ({ sortBy: { ...prev.sortBy, [key]: { field, direction } } }));
+    }
+
     getChartCard = (chart) => {
         const { statsGroupByPeriod, filteredTransactions, accountsMap, tags } = this.props;
         if (!this.state.visibleCharts.includes(chart.key)) return null;
         const applicableTransactions = this.getApplicableTransactions(filteredTransactions, chart.filters);
         if (applicableTransactions.length == 0) return null;
-        const chartData = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags);
+        const sortBy = this.state.sortBy[chart.key];
+        const chartData = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags, sortBy);
         if (chartData.labels.length == 0) return null;
         const chartExpanded = this.state.expandedCharts[chart.key];
         return <div key={chart.key} className={chartExpanded ? "col-12 mb-3" : chart.className}>
@@ -55,7 +62,11 @@ class StatsView extends React.Component {
                         <option value="yearly">Yearly</option>
                         <option value="overall">Overall</option>
                     </select>}
-                    <i className={"bi ms-auto " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
+                    {chart.sortOptions && <div className="ms-auto"><SortDropdown
+                        options={chart.sortOptions}
+                        selected={this.state.sortBy[chart.key] || chart.defaultSort}
+                        onChange={(field, direction) => this.handleSortChange(chart.key, field, direction)} /></div>}
+                    <i className={"bi " + (chart.sortOptions ? "ms-2" : "ms-auto") + " " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
                         onClick={(e) => this.toggleExpand(chart.key, e)}></i>
                 </h5>
                 <div className={"chart-container" + (chartExpanded ? " chart-expanded" : "")} key={chartExpanded}>

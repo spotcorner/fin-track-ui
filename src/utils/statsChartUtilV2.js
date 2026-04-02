@@ -47,7 +47,7 @@ const getAmountByRangeData = (filteredTransactions) => {
     };
 };
 
-const getAmountByTagData = (filteredTransactions, accountsMap, timeFilter, tags) => {
+const getAmountByTagData = (filteredTransactions, accountsMap, timeFilter, tags, sortBy) => {
     let results = tags.map(({ _id, name }) => {
         const txns = filteredTransactions.filter(t => t.appliedTags[_id] >= 1);
         return { label: name, count: txns.length, sum: _.sumBy(txns, "amount") };
@@ -55,6 +55,7 @@ const getAmountByTagData = (filteredTransactions, accountsMap, timeFilter, tags)
     const untagged = filteredTransactions.filter(t => !_.some(t.appliedTags, v => v >= 1));
     results.push({ label: "Untagged", count: untagged.length, sum: _.sumBy(untagged, "amount") });
     results = results.filter(r => r.count > 0);
+    if (sortBy) results = _.orderBy(results, sortBy.field === "name" ? [r => r.label.toLowerCase()] : ["sum"], [sortBy.direction]);
     return {
         labels: results.map(r => r.label),
         datasets: [{ data: results.map(r => r.sum), backgroundColor: COLORS.slice(0, results.length), _counts: results.map(r => r.count) }],
@@ -87,7 +88,7 @@ const horizontalBarDatalabelsPlugin = {
 const getHorizontalBarOptions = (labelCount) => ({
     indexAxis: "y",
     aspectRatio: Math.max(0.5, 2 - labelCount * 0.05),
-    layout: { padding: { right: 50 } },
+    layout: { padding: { right: 100 } },
     plugins: {
         tooltip: {
             callbacks: {
@@ -113,6 +114,8 @@ export const charts = [
         className: "col-sm-12 col-md-6 mb-3",
         getOptions: (data) => getHorizontalBarOptions(data.labels.length),
         plugins: [horizontalBarDatalabelsPlugin],
+        sortOptions: [{ field: "sum", label: "Amount" }, { field: "name", label: "Name" }],
+        defaultSort: { field: "sum", direction: "desc" },
     },
     {
         key: "range",
