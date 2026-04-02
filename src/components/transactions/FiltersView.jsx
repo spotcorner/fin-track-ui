@@ -3,8 +3,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { ACCOUNT_TYPE_LABELS, TRANSACTION_TYPES } from "@config";
-import CheckDropdown from "./CheckDropdown.jsx";
-import SortDropdown from "./SortDropdown.jsx";
+import CheckDropdown from "@components/ui/CheckDropdown.jsx";
+import SortDropdown from "@components/ui/SortDropdown.jsx";
 import labelUtil from "@utils/labelUtil";
 import "@styles/filtersView.scss";
 
