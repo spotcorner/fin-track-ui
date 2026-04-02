@@ -66,6 +66,22 @@
     padding: 5px 10px;
     font-size: 0.85rem;
     outline: none;
+    box-sizing: border-box;
+}
+
+.check-dropdown-select-all {
+    padding: 5px 10px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #dee2e6;
+    color: #495057;
+
+    &:hover {
+        background: #f8f9fa;
+    }
 }
 
 .check-dropdown-inline {

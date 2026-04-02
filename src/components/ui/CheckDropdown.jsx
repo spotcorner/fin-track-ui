@@ -27,6 +27,11 @@ class CheckDropdown extends React.Component {
         this.props.onChange(updated);
     };
 
+    toggleAll = (filteredValues, allSelected) => {
+        const selected = this.props.selected || [];
+        this.props.onChange(allSelected ? selected.filter(v => !filteredValues.includes(v)) : [...new Set([...selected, ...filteredValues])]);
+    };
+
     render() {
         const { label, options, selected = [], sortByLabel, searchable, inline, pinSelected } = this.props;
         const { open, search } = this.state;
@@ -54,6 +59,14 @@ class CheckDropdown extends React.Component {
             {open && <div className={"check-dropdown-menu" + (inline ? " check-dropdown-inline" : "")}>
                 {searchable && <input type="text" className="check-dropdown-search" placeholder="Search..."
                     value={search} onChange={e => this.setState({ search: e.target.value })} onClick={e => e.stopPropagation()} />}
+                {searchable && (() => {
+                    const values = filtered.filter(o => !o.separator).map(o => o.value);
+                    const allSelected = values.length > 0 && values.every(v => selected.includes(v));
+                    return <div className="check-dropdown-select-all" onClick={() => this.toggleAll(values, allSelected)}>
+                        <input type="checkbox" checked={allSelected} readOnly />
+                        Select all ({values.length})
+                    </div>;
+                })()}
                 {filtered.map(opt => <div key={opt.value} className={"check-dropdown-item" + (opt.separator ? " check-dropdown-separator" : "")}
                     onClick={() => this.toggle(opt.value)}>
                     <input type="checkbox" checked={selected.includes(opt.value)} readOnly />
