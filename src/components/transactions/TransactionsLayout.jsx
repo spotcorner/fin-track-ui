@@ -38,6 +38,8 @@ class TransactionsLayout extends React.Component {
             transactionTypeFilter: this.state.transactionTypeFilter,
             tagFilter: this.state.tagFilter,
             searchFilter: this.state.searchFilter,
+            searchCaseSensitive: this.state.searchCaseSensitive,
+            searchRegex: this.state.searchRegex,
         };
     }
 
@@ -45,12 +47,14 @@ class TransactionsLayout extends React.Component {
         return {
             minAmountFilter: "",
             maxAmountFilter: "",
-            accountTypeFilter: "",
-            accountIdFilter: "",
-            transactionTypeFilter: "",
-            tagFilter: "",
-            excludeFromTotalsFilter: "0",
+            accountTypeFilter: [],
+            accountIdFilter: [],
+            transactionTypeFilter: [],
+            tagFilter: [],
+            excludeFromTotalsFilter: ["0"],
             searchFilter: "",
+            searchCaseSensitive: false,
+            searchRegex: false,
         };
     }
 

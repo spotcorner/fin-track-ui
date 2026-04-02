@@ -1,0 +1,61 @@
+// CheckDropdown.jsx
+.check-dropdown {
+    position: relative;
+}
+
+.check-dropdown-toggle {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 31px;
+    color: #6c757d;
+}
+
+.check-dropdown-toggle.has-selection {
+    color: #212529;
+    font-weight: 500;
+}
+
+.check-dropdown-toggle.open {
+    border-radius: 4px 4px 0 0;
+    border-bottom: none;
+}
+
+.check-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.check-dropdown-item {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.check-dropdown-item:hover {
+    background: #f8f9fa;
+}
+
+.check-dropdown-separator {
+    border-bottom: 1px solid #eee;
+    font-style: italic;
+}
