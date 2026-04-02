@@ -137,7 +137,7 @@ class TagTransactionModal extends React.Component {
     }
 
     renderSelectStep() {
-        const filtered = this.props.tags.filter(t => t.name.toLowerCase().includes(this.state.searchText.toLowerCase()));
+        const filtered = _.sortBy(this.props.tags.filter(t => t.name.toLowerCase().includes(this.state.searchText.toLowerCase())), t => t.name.toLowerCase());
         const body = (
             <div>
                 {this.getTransactionCard()}

@@ -9,7 +9,7 @@ class TagBadges extends React.Component {
 
     getAppliedTags() {
         const { appliedTags, tagsMap, onRemove } = this.props;
-        return _.keys(_.pickBy(appliedTags, v => v >= 1)).map(id => <span key={id} className={"badge tag-status-" + appliedTags[id]}>
+        return _.sortBy(_.keys(_.pickBy(appliedTags, v => v >= 1)), id => tagsMap[id]?.name?.toLowerCase()).map(id => <span key={id} className={"badge tag-status-" + appliedTags[id]}>
             <i className={"bi " + TAG_ICONS[appliedTags[id]] + " me-1"}></i>{tagsMap[id]?.name}
             {onRemove && <span className="ms-1 cursor-pointer" onClick={() => onRemove(id)}>&times;</span>}
         </span>);
@@ -17,7 +17,7 @@ class TagBadges extends React.Component {
 
     getExcludedTags() {
         const { appliedTags, tagsMap, onRestore } = this.props;
-        return _.keys(_.pickBy(appliedTags, v => v == 0)).map(id => <span key={id} className="badge tag-status-0">
+        return _.sortBy(_.keys(_.pickBy(appliedTags, v => v == 0)), id => tagsMap[id]?.name?.toLowerCase()).map(id => <span key={id} className="badge tag-status-0">
             {tagsMap[id]?.name}
             {onRestore && <span className="ms-1 cursor-pointer" onClick={() => onRestore(id)}><i className="bi bi-arrow-counterclockwise"></i></span>}
         </span>);
