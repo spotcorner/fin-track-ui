@@ -4,6 +4,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import CrudAccountModal from "./CrudAccountModal.jsx";
+import SortDropdown from "@components/ui/SortDropdown.jsx";
 import { deleteAccountRequest } from "@store";
 import { ACCOUNT_TYPE_LABELS } from "@config";
 import uiUtil from "@utils/uiUtil.js";
@@ -15,7 +16,21 @@ class Accounts extends React.Component {
     state = {
         selectedAccount: null,
         showModal: false,
+        sortField: "name",
+        sortDirection: "asc",
     };
+
+    getSortOptions() {
+        return [
+            { field: "name", label: "Name" },
+            { field: "openingBalance", label: "Opening" },
+            { field: "closingBalance", label: "Closing" },
+            { field: "totalDebit", label: "Debit" },
+            { field: "totalCredit", label: "Credit" },
+            { field: "createdAt", label: "Created" },
+            { field: "updatedAt", label: "Updated" },
+        ];
+    }
 
     toggleModal = (selectedAccount = null) => {
         this.setState({ showModal: !this.state.showModal, selectedAccount });
@@ -62,13 +77,14 @@ class Accounts extends React.Component {
     }
 
     getGroupView(group, accounts) {
+        const sorted = _.orderBy(accounts, [this.state.sortField], [this.state.sortDirection]);
         const closingBalance = _.sumBy(accounts, "closingBalance");
         return <div key={group} className="mt-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h5 className="mb-0">{ACCOUNT_TYPE_LABELS[group]}</h5>
                 <span className="fw-bold">₹{fmt(closingBalance)}</span>
             </div>
-            <div className="row g-3">{accounts.map(this.getAccountCard)}</div>
+            <div className="row g-3">{sorted.map(this.getAccountCard)}</div>
         </div>;
     }
 
@@ -99,7 +115,12 @@ class Accounts extends React.Component {
     render() {
         return (
             <div className="container mt-3">
-                <div className="text-muted small mb-2 page-header">Accounts</div>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                    <div className="text-muted small page-header">Accounts</div>
+                    <SortDropdown options={this.getSortOptions()}
+                        selected={{ field: this.state.sortField, direction: this.state.sortDirection }}
+                        onChange={(field, direction) => this.setState({ sortField: field, sortDirection: direction })} />
+                </div>
                 {this.getAccountsContainer()}
                 {this.getCrudAccountModal()}
                 {this.getAddButton()}
