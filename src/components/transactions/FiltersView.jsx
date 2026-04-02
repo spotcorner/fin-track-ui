@@ -125,9 +125,58 @@ class FiltersView extends React.Component {
         </div>;
     }
 
+    matchesFilters(t, skip) {
+        const { filters, accountsMap } = this.props;
+        if (skip !== "amount") {
+            if (filters.minAmountFilter && t.amount < filters.minAmountFilter) return false;
+            if (filters.maxAmountFilter && t.amount > filters.maxAmountFilter) return false;
+        }
+        if (skip !== "excludeFromTotals" && filters.excludeFromTotalsFilter.length && !filters.excludeFromTotalsFilter.includes(String(t.excludeFromTotals ? 1 : 0))) return false;
+        const acc = accountsMap?.[t.accountId] || {};
+        if (skip !== "accountType" && filters.accountTypeFilter.length && !filters.accountTypeFilter.includes(acc.type)) return false;
+        if (skip !== "accountId" && filters.accountIdFilter.length && !filters.accountIdFilter.includes(t.accountId)) return false;
+        if (skip !== "transactionType" && filters.transactionTypeFilter.length && !filters.transactionTypeFilter.includes(t.type)) return false;
+        if (skip !== "tag" && filters.tagFilter.length) {
+            const hasUntagged = filters.tagFilter.includes("__NONE__");
+            const tagIds = filters.tagFilter.filter(id => id !== "__NONE__");
+            const isUntagged = !_.some(t.appliedTags, v => v >= 1);
+            const matchesTag = tagIds.length && _.some(tagIds, id => t.appliedTags[id] >= 1);
+            if (!(hasUntagged && isUntagged) && !matchesTag) return false;
+        }
+        if (skip !== "search" && filters.searchFilter) {
+            if (filters.searchRegex) {
+                try { if (!new RegExp(filters.searchFilter, filters.searchCaseSensitive ? "" : "i").test(t.description)) return false; }
+                catch (e) { return false; }
+            } else {
+                const match = filters.searchCaseSensitive ? _.includes(t.description, filters.searchFilter) : _.includes(_.toLower(t.description), _.toLower(filters.searchFilter));
+                if (!match) return false;
+            }
+        }
+        return true;
+    }
+
+    getCounts() {
+        const { transactions, accountsMap } = this.props;
+        const counts = { type: {}, totals: {}, accountType: {}, account: {}, tag: {} };
+        (transactions || []).forEach(t => {
+            if (this.matchesFilters(t, "transactionType")) counts.type[t.type] = (counts.type[t.type] || 0) + 1;
+            if (this.matchesFilters(t, "excludeFromTotals")) counts.totals[t.excludeFromTotals ? "1" : "0"] = (counts.totals[t.excludeFromTotals ? "1" : "0"] || 0) + 1;
+            const acc = accountsMap?.[t.accountId];
+            if (acc?.type && this.matchesFilters(t, "accountType")) counts.accountType[acc.type] = (counts.accountType[acc.type] || 0) + 1;
+            if (t.accountId && this.matchesFilters(t, "accountId")) counts.account[t.accountId] = (counts.account[t.accountId] || 0) + 1;
+            if (this.matchesFilters(t, "tag")) {
+                const hasTag = _.some(t.appliedTags, v => v >= 1);
+                if (!hasTag) counts.tag["__NONE__"] = (counts.tag["__NONE__"] || 0) + 1;
+                _.forEach(t.appliedTags, (v, id) => { if (v >= 1) counts.tag[id] = (counts.tag[id] || 0) + 1; });
+            }
+        });
+        return counts;
+    }
+
     getPanel() {
         if (!this.state.showPanel) return null;
         const { filters, accountsMap, tagsMap } = this.props;
+        const counts = this.getCounts();
         const accountTypeOptions = _.keys(_.groupBy(accountsMap, "type")).map(type => ({ value: type, label: ACCOUNT_TYPE_LABELS[type] || type }));
         const accountOptions = _.values(accountsMap).map(a => ({ value: a._id, label: labelUtil.getAccountLabel(a) }));
         const tagOptions = [
@@ -146,23 +195,23 @@ class FiltersView extends React.Component {
                 </div>
                 <div className="col-md-3">
                     <CheckDropdown label="Type" options={[{ value: TRANSACTION_TYPES.DEBIT, label: "Debit" }, { value: TRANSACTION_TYPES.CREDIT, label: "Credit" }]}
-                        selected={filters.transactionTypeFilter} onChange={v => this.props.handleFilterChange("transactionTypeFilter", v)} />
+                        selected={filters.transactionTypeFilter} onChange={v => this.props.handleFilterChange("transactionTypeFilter", v)} countMap={counts.type} />
                 </div>
                 <div className="col-md-3">
                     <CheckDropdown label="Totals" options={[{ value: "0", label: "Included" }, { value: "1", label: "Excluded" }]}
-                        selected={filters.excludeFromTotalsFilter} onChange={v => this.props.handleFilterChange("excludeFromTotalsFilter", v)} />
+                        selected={filters.excludeFromTotalsFilter} onChange={v => this.props.handleFilterChange("excludeFromTotalsFilter", v)} countMap={counts.totals} />
                 </div>
                 <div className="col-md-4">
                     <CheckDropdown label="Account Type" options={accountTypeOptions}
-                        selected={filters.accountTypeFilter} onChange={v => this.props.handleFilterChange("accountTypeFilter", v)} />
+                        selected={filters.accountTypeFilter} onChange={v => this.props.handleFilterChange("accountTypeFilter", v)} countMap={counts.accountType} />
                 </div>
                 <div className="col-md-4">
                     <CheckDropdown label="Account" options={accountOptions} searchable sortByLabel pinSelected
-                        selected={filters.accountIdFilter} onChange={v => this.props.handleFilterChange("accountIdFilter", v)} />
+                        selected={filters.accountIdFilter} onChange={v => this.props.handleFilterChange("accountIdFilter", v)} countMap={counts.account} />
                 </div>
                 <div className="col-md-4">
                     <CheckDropdown label="Tag" options={tagOptions} searchable sortByLabel pinSelected
-                        selected={filters.tagFilter} onChange={v => this.props.handleFilterChange("tagFilter", v)} />
+                        selected={filters.tagFilter} onChange={v => this.props.handleFilterChange("tagFilter", v)} countMap={counts.tag} />
                 </div>
             </div>
             <div className="mt-2 text-end">

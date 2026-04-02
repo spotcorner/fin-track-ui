@@ -51,6 +51,15 @@
     gap: 6px;
 }
 
+.check-dropdown-item-label {
+    flex: 1;
+}
+
+.check-dropdown-count {
+    font-size: 0.75rem;
+    color: #999;
+}
+
 .check-dropdown-item:hover {
     background: #f8f9fa;
 }

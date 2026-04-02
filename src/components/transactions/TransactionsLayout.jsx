@@ -83,7 +83,7 @@ class TransactionsLayout extends React.Component {
     }
 
     getFiltersView() {
-        return <FiltersView filters={this.getFilters()} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} resetDateFilter={this.resetDateFilter} />
+        return <FiltersView filters={this.getFilters()} transactions={this.state.transactions} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} resetDateFilter={this.resetDateFilter} />
     }
 
     getNoTransactionsLabel() {

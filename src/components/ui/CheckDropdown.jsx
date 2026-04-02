@@ -33,7 +33,7 @@ class CheckDropdown extends React.Component {
     };
 
     render() {
-        const { label, options, selected = [], sortByLabel, searchable, inline, pinSelected } = this.props;
+        const { label, options, selected = [], sortByLabel, searchable, inline, pinSelected, countMap } = this.props;
         const { open, search } = this.state;
         const hasSelection = selected.length > 0;
         const toggleLabel = !hasSelection ? label : selected.length === 1 ? `${label}: ${options.find(o => o.value === selected[0])?.label || selected[0]}` : `${label} (${selected.length})`;
@@ -70,7 +70,8 @@ class CheckDropdown extends React.Component {
                 {filtered.map(opt => <div key={opt.value} className={"check-dropdown-item" + (opt.separator ? " check-dropdown-separator" : "")}
                     onClick={() => this.toggle(opt.value)}>
                     <input type="checkbox" checked={selected.includes(opt.value)} readOnly />
-                    {opt.label}
+                    <span className="check-dropdown-item-label">{opt.label}</span>
+                    {countMap && <span className="check-dropdown-count">{countMap[opt.value] || 0}</span>}
                 </div>)}
             </div>}
         </div>;
