@@ -1,0 +1,31 @@
+// SortDropdown.jsx
+.sort-dropdown {
+    position: relative;
+}
+
+.sort-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+    margin-top: 4px;
+}
+
+.sort-dropdown-item {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sort-dropdown-item:first-child { border-radius: 6px 6px 0 0; }
+.sort-dropdown-item:last-child { border-radius: 0 0 6px 6px; }
+.sort-dropdown-item:hover { background: #f8f9fa; }
+.sort-dropdown-item.active { font-weight: 500; background: #e9ecef; }

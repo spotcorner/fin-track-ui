@@ -2,7 +2,7 @@ import tagUtil from "./tagUtil";
 
 export default {
     applyFilters: (transactions, filters, accountsMap, tags) => {
-        return _.filter(transactions, (transaction) => {
+        const filtered = _.filter(transactions, (transaction) => {
             if (!_.isEmpty(filters.minAmountFilter) && transaction.amount < filters.minAmountFilter) return false;
             if (!_.isEmpty(filters.maxAmountFilter) && transaction.amount > filters.maxAmountFilter) return false;
             if (filters.excludeFromTotalsFilter.length && !filters.excludeFromTotalsFilter.includes(String(transaction.excludeFromTotals ? 1 : 0))) return false;
@@ -30,5 +30,6 @@ export default {
             }
             return true;
         });
+        return _.orderBy(filtered, [filters.sortField], [filters.sortDirection]);
     }
 }

@@ -4,12 +4,13 @@ import React from "react";
 import { connect } from "react-redux";
 import { ACCOUNT_TYPE_LABELS, TRANSACTION_TYPES } from "@config";
 import CheckDropdown from "./CheckDropdown.jsx";
+import SortDropdown from "./SortDropdown.jsx";
 import labelUtil from "@utils/labelUtil";
 import "@styles/filtersView.scss";
 
 class FiltersView extends React.Component {
 
-    state = { showPanel: false }
+    state = { showPanel: false, collapsed: false }
 
     handleFilterChange = (e) => {
         this.props.handleFilterChange(e.target.name, e.target.value);
@@ -20,6 +21,51 @@ class FiltersView extends React.Component {
         return filters.minAmountFilter || filters.maxAmountFilter || filters.transactionTypeFilter.length
             || filters.excludeFromTotalsFilter.length || filters.accountTypeFilter.length
             || filters.accountIdFilter.length || filters.tagFilter.length || filters.searchFilter;
+    }
+
+    getSortOptions() {
+        return [{ field: "date", label: "Date" }, { field: "amount", label: "Amount" }, { field: "updatedAt", label: "Updated" }];
+    }
+
+    getSortSelected() {
+        return { field: this.props.filters.sortField, direction: this.props.filters.sortDirection };
+    }
+
+    handleSortChange = (field, direction) => {
+        this.props.handleFilterChange("sortField", field);
+        this.props.handleFilterChange("sortDirection", direction);
+    };
+
+    getCollapsedBar() {
+        const { filters } = this.props;
+        const hasFilters = this.hasActiveFilters();
+        const chips = this.getChipCount();
+        return <div className="filter-bar">
+            <div className="filter-row">
+                <span className="filter-collapsed-summary">
+                    {chips > 0 && <><i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i> {chips} filter{chips > 1 ? "s" : ""} · </>}
+                    <SortDropdown options={this.getSortOptions()} selected={this.getSortSelected()} onChange={this.handleSortChange} />
+                </span>
+                <div className="flex-grow-1"></div>
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => this.setState({ collapsed: false })}>
+                    <i className="bi bi-plus-lg"></i>
+                </button>
+            </div>
+        </div>;
+    }
+
+    getChipCount() {
+        const { filters } = this.props;
+        let count = 0;
+        count += filters.transactionTypeFilter.length;
+        count += filters.excludeFromTotalsFilter.length;
+        if (filters.minAmountFilter) count++;
+        if (filters.maxAmountFilter) count++;
+        count += filters.accountTypeFilter.length;
+        count += filters.accountIdFilter.length;
+        count += filters.tagFilter.length;
+        if (filters.searchFilter) count++;
+        return count;
     }
 
     getFilterBar() {
@@ -49,9 +95,13 @@ class FiltersView extends React.Component {
                         .*
                     </button>
                 </div>
+                <SortDropdown options={this.getSortOptions()} selected={this.getSortSelected()} onChange={this.handleSortChange} />
                 <button className={"btn btn-sm " + (hasFilters || this.state.showPanel ? "btn-dark" : "btn-outline-secondary")}
                     onClick={() => this.setState({ showPanel: !this.state.showPanel })}>
                     <i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i>
+                </button>
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => this.setState({ collapsed: true, showPanel: false })}>
+                    <i className="bi bi-dash-lg"></i>
                 </button>
             </div>
         </div>;
@@ -124,6 +174,7 @@ class FiltersView extends React.Component {
     }
 
     render() {
+        if (this.state.collapsed) return <div className="mb-2 filter-sticky">{this.getCollapsedBar()}</div>;
         return <div className="mb-2 filter-sticky">
             {this.getFilterBar()}
             {this.getChips()}
