@@ -9,9 +9,9 @@ import { connect } from "react-redux";
 class StatsView extends React.Component {
 
     state = {
-        collapsed: true,
+        collapsed: false,
         collapsedCharts: {},
-        expandedCharts: {},
+        expandedCharts: { tags: true },
     }
 
     handleChange = (e) => {
@@ -27,30 +27,30 @@ class StatsView extends React.Component {
         });
     }
 
-    toggleChart = (index) => {
+    toggleChart = (key) => {
         this.setState(prev => ({
-            collapsedCharts: { ...prev.collapsedCharts, [index]: !prev.collapsedCharts[index] },
+            collapsedCharts: { ...prev.collapsedCharts, [key]: !prev.collapsedCharts[key] },
         }));
     }
 
-    toggleExpand = (index, e) => {
+    toggleExpand = (key, e) => {
         e.stopPropagation();
         this.setState(prev => ({
-            expandedCharts: { ...prev.expandedCharts, [index]: !prev.expandedCharts[index] },
+            expandedCharts: { ...prev.expandedCharts, [key]: !prev.expandedCharts[key] },
         }));
     }
 
-    getChartCard = (chart, index) => {
+    getChartCard = (chart) => {
         const { statsGroupByPeriod, filteredTransactions, accountsMap, tags } = this.props;
         const applicableTransactions = this.getApplicableTransactions(filteredTransactions, chart.filters);
         if (applicableTransactions.length == 0) return null;
         const chartData = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags);
         if (chartData.labels.length == 0) return null;
-        const chartCollapsed = this.state.collapsedCharts[index];
-        const chartExpanded = this.state.expandedCharts[index];
-        return <div key={index} className={chartExpanded ? "col-12 mb-3" : chart.className}>
+        const chartCollapsed = this.state.collapsedCharts[chart.key];
+        const chartExpanded = this.state.expandedCharts[chart.key];
+        return <div key={chart.key} className={chartExpanded ? "col-12 mb-3" : chart.className}>
             <div className="card shadow-sm p-3">
-                <h5 className="card-title cursor-pointer d-flex align-items-center" onClick={() => this.toggleChart(index)}>
+                <h5 className="card-title cursor-pointer d-flex align-items-center" onClick={() => this.toggleChart(chart.key)}>
                     {chart.title}
                     {chart.hasTimeFilter && <select className="form-select form-select-sm w-auto ms-2" value={statsGroupByPeriod}
                         onChange={this.handleChange} onClick={e => e.stopPropagation()}>
@@ -61,12 +61,12 @@ class StatsView extends React.Component {
                         <option value="overall">Overall</option>
                     </select>}
                     <i className={"bi ms-auto " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
-                        onClick={(e) => this.toggleExpand(index, e)}></i>
+                        onClick={(e) => this.toggleExpand(chart.key, e)}></i>
                     <i className={"bi ms-2 " + (chartCollapsed ? "bi-plus-square" : "bi-dash-square")}></i>
                 </h5>
                 {!chartCollapsed && <div className={"chart-container" + (chartExpanded ? " chart-expanded" : "")} key={chartExpanded}>
                     <chart.Chart data={chartData}
-                        options={{ ...(chart.options || {}), ...(chartExpanded ? { maintainAspectRatio: false, responsive: true } : {}) }}
+                        options={{ ...(chart.getOptions ? chart.getOptions(chartData) : chart.options || {}), ...(chartExpanded ? { maintainAspectRatio: false, responsive: true } : {}) }}
                         plugins={chart.plugins || []} />
                 </div>}
             </div>

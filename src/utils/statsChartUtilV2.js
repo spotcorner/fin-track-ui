@@ -3,9 +3,10 @@ import statsUtil from "./statsUtil";
 import amountUtil from "./amountUtil";
 
 const getBalanceDebitCreditTrendData = (filteredTransactions, accountsMap, timeFilter) => {
-    let cumulativeBalance = statsUtil.getCummulativeBalance(filteredTransactions, accountsMap);
+    const sorted = _.sortBy(filteredTransactions, "date");
+    let cumulativeBalance = statsUtil.getCummulativeBalance(sorted, accountsMap);
     const trendData = {};
-    filteredTransactions.forEach(txn => {
+    sorted.forEach(txn => {
         const date = statsUtil.formatDate(timeFilter, txn.date);
         if (!trendData[date]) trendData[date] = { balance: cumulativeBalance, debit: 0, credit: 0 };
         if (txn.type === "CREDIT") {
@@ -83,8 +84,9 @@ const horizontalBarDatalabelsPlugin = {
     },
 };
 
-const horizontalBarOptions = {
+const getHorizontalBarOptions = (labelCount) => ({
     indexAxis: "y",
+    aspectRatio: Math.max(0.5, 2 - labelCount * 0.05),
     plugins: {
         tooltip: {
             callbacks: {
@@ -98,28 +100,31 @@ const horizontalBarOptions = {
         },
         legend: { display: false },
     },
-};
+});
 
 export const charts = [
     {
+        key: "tags",
         title: "Amount by Tags",
         Chart: Bar,
         getData: getAmountByTagData,
         filters: { "account.type": "bank" },
         className: "col-sm-12 col-md-6 mb-3",
-        options: horizontalBarOptions,
+        getOptions: (data) => getHorizontalBarOptions(data.labels.length),
         plugins: [horizontalBarDatalabelsPlugin],
     },
     {
+        key: "range",
         title: "Amount by Range",
         Chart: Bar,
         getData: getAmountByRangeData,
         filters: { "account.type": "bank" },
         className: "col-sm-12 col-md-6 mb-3",
-        options: horizontalBarOptions,
+        getOptions: (data) => getHorizontalBarOptions(data.labels.length),
         plugins: [horizontalBarDatalabelsPlugin],
     },
     {
+        key: "balance",
         title: "Balance, Debit & Credit Over Time",
         Chart: Line,
         getData: getBalanceDebitCreditTrendData,
