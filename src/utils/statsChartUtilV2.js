@@ -87,6 +87,7 @@ const horizontalBarDatalabelsPlugin = {
 const getHorizontalBarOptions = (labelCount) => ({
     indexAxis: "y",
     aspectRatio: Math.max(0.5, 2 - labelCount * 0.05),
+    layout: { padding: { right: 50 } },
     plugins: {
         tooltip: {
             callbacks: {
