@@ -46,7 +46,7 @@ class StatsView extends React.Component {
         if (!this.state.visibleCharts.includes(chart.key)) return null;
         const applicableTransactions = this.getApplicableTransactions(filteredTransactions, chart.filters);
         if (applicableTransactions.length == 0) return null;
-        const sortBy = this.state.sortBy[chart.key];
+        const sortBy = this.state.sortBy[chart.key] || chart.defaultSort;
         const chartData = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags, sortBy);
         if (chartData.labels.length == 0) return null;
         const chartExpanded = this.state.expandedCharts[chart.key];
@@ -64,7 +64,7 @@ class StatsView extends React.Component {
                     </select>}
                     {chart.sortOptions && <div className="ms-auto"><SortDropdown
                         options={chart.sortOptions}
-                        selected={this.state.sortBy[chart.key] || chart.defaultSort}
+                        selected={sortBy}
                         onChange={(field, direction) => this.handleSortChange(chart.key, field, direction)} /></div>}
                     <i className={"bi " + (chart.sortOptions ? "ms-2" : "ms-auto") + " " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
                         onClick={(e) => this.toggleExpand(chart.key, e)}></i>
