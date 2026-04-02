@@ -40,13 +40,16 @@ class SortDropdown extends React.Component {
                 {this.getLabel()}
             </button>
             {open && <div className="sort-dropdown-menu">
-                {options.map(opt => ["desc", "asc"].map(dir => {
-                    const active = selected.field === opt.field && selected.direction === dir;
-                    return <div key={opt.field + dir} className={"sort-dropdown-item" + (active ? " active" : "")}
-                        onClick={() => this.select(opt.field, dir)}>
-                        {opt.label} <i className={"bi bi-arrow-" + (dir === "asc" ? "up" : "down")}></i>
+                {options.map(opt => {
+                    const active = selected.field === opt.field;
+                    return <div key={opt.field} className={"sort-dropdown-item" + (active ? " active" : "")}>
+                        <span className="sort-dropdown-label" onClick={() => this.select(opt.field, selected.field === opt.field && selected.direction === "asc" ? "desc" : "asc")}>{opt.label}</span>
+                        <span className="sort-dropdown-arrows">
+                            <i className={"bi bi-arrow-up" + (active && selected.direction === "asc" ? " sort-active" : "")} onClick={() => this.select(opt.field, "asc")}></i>
+                            <i className={"bi bi-arrow-down" + (active && selected.direction === "desc" ? " sort-active" : "")} onClick={() => this.select(opt.field, "desc")}></i>
+                        </span>
                     </div>;
-                }))}
+                })}
             </div>}
         </div>;
     }
