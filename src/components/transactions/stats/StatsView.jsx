@@ -3,27 +3,8 @@
 import React from "react";
 import "chart.js/auto";
 import { setStatsGroupByPeriod } from "@store";
-import { charts } from "@utils/statsChartUtil"
+import { charts } from "@utils/statsChartUtilV2"
 import { connect } from "react-redux";
-import amountUtil from "@utils/amountUtil";
-
-const datalabelsPlugin = {
-    id: "datalabels",
-    afterDatasetsDraw(chart) {
-        const { ctx } = chart;
-        chart.data.datasets.forEach((dataset, i) => {
-            const meta = chart.getDatasetMeta(i);
-            meta.data.forEach((bar, index) => {
-                const value = dataset.data[index];
-                if (!value) return;
-                ctx.save();
-                ctx.textAlign = "center";
-                ctx.fillText(amountUtil.getFormattedAmount(value), bar.x, bar.y - 5);
-                ctx.restore();
-            });
-        });
-    },
-};
 
 class StatsView extends React.Component {
 
@@ -63,23 +44,30 @@ class StatsView extends React.Component {
         const { statsGroupByPeriod, filteredTransactions, accountsMap, tags } = this.props;
         const applicableTransactions = this.getApplicableTransactions(filteredTransactions, chart.filters);
         if (applicableTransactions.length == 0) return null;
-        const { labels, data } = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags);
-        if (labels.length == 0) return null;
-        const datasets = chart.getDatasets(data);
+        const chartData = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags);
+        if (chartData.labels.length == 0) return null;
         const chartCollapsed = this.state.collapsedCharts[index];
         const chartExpanded = this.state.expandedCharts[index];
         return <div key={index} className={chartExpanded ? "col-12 mb-3" : chart.className}>
             <div className="card shadow-sm p-3">
                 <h5 className="card-title cursor-pointer d-flex align-items-center" onClick={() => this.toggleChart(index)}>
                     {chart.title}
+                    {chart.hasTimeFilter && <select className="form-select form-select-sm w-auto ms-2" value={statsGroupByPeriod}
+                        onChange={this.handleChange} onClick={e => e.stopPropagation()}>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="overall">Overall</option>
+                    </select>}
                     <i className={"bi ms-auto " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
                         onClick={(e) => this.toggleExpand(index, e)}></i>
                     <i className={"bi ms-2 " + (chartCollapsed ? "bi-plus-square" : "bi-dash-square")}></i>
                 </h5>
                 {!chartCollapsed && <div className={"chart-container" + (chartExpanded ? " chart-expanded" : "")} key={chartExpanded}>
-                    <chart.Chart data={{ labels, datasets }}
-                        options={chartExpanded ? { maintainAspectRatio: false, responsive: true } : {}}
-                        plugins={chart.showDatalabels || chartExpanded ? [datalabelsPlugin] : []} />
+                    <chart.Chart data={chartData}
+                        options={{ ...(chart.options || {}), ...(chartExpanded ? { maintainAspectRatio: false, responsive: true } : {}) }}
+                        plugins={chart.plugins || []} />
                 </div>}
             </div>
         </div>;
@@ -90,7 +78,7 @@ class StatsView extends React.Component {
     }
 
     render() {
-        const { statsGroupByPeriod, filteredTransactions } = this.props;
+        const { filteredTransactions } = this.props;
         if (filteredTransactions.length == 0) return <div />;
         const { collapsed } = this.state;
         const chartViews = this.getChartCards();
@@ -100,14 +88,6 @@ class StatsView extends React.Component {
                     onClick={() => this.setState({ collapsed: !collapsed })}>
                     <div className="text-muted small page-header mb-0">Stats</div>
                     <i className={"bi ms-2 " + (collapsed ? "bi-plus-square" : "bi-dash-square")}></i>
-                    {!collapsed && <select className="form-select w-auto ms-auto" value={statsGroupByPeriod}
-                        onChange={this.handleChange} onClick={e => e.stopPropagation()}>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                        <option value="overall">Overall</option>
-                    </select>}
                 </div>
                 {!collapsed && <div className="row">{chartViews}</div>}
             </div>

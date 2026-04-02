@@ -83,7 +83,7 @@ class TransactionsView extends React.Component {
 
     getActionButtons(transaction) {
         return <div className="d-flex gap-1 flex-nowrap">
-            <span class="badge badge-outline-primary cursor-pointer" onClick={() => this.toggleTagModal(transaction)}><i className="bi bi-tag"></i></span>
+            <span className="badge badge-outline-primary cursor-pointer" onClick={() => this.toggleTagModal(transaction)}><i className="bi bi-tag"></i></span>
             <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.toggleTransactionModal(transaction)}><i className="bi bi-pencil"></i></span>
             <span className="badge badge-outline-danger cursor-pointer" onClick={() => this.setState({ deleteTransactionId: transaction._id })}><i className="bi bi-trash"></i></span>
         </div>;
