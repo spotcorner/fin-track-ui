@@ -157,11 +157,11 @@ class FiltersView extends React.Component {
                         selected={filters.accountTypeFilter} onChange={v => this.props.handleFilterChange("accountTypeFilter", v)} />
                 </div>
                 <div className="col-md-4">
-                    <CheckDropdown label="Account" options={accountOptions}
+                    <CheckDropdown label="Account" options={accountOptions} searchable sortByLabel pinSelected
                         selected={filters.accountIdFilter} onChange={v => this.props.handleFilterChange("accountIdFilter", v)} />
                 </div>
                 <div className="col-md-4">
-                    <CheckDropdown label="Tag" options={tagOptions}
+                    <CheckDropdown label="Tag" options={tagOptions} searchable sortByLabel pinSelected
                         selected={filters.tagFilter} onChange={v => this.props.handleFilterChange("tagFilter", v)} />
                 </div>
             </div>

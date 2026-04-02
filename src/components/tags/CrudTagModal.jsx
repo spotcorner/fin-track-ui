@@ -4,6 +4,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import Modal from "@modal/Modal.jsx";
+import CheckDropdown from "@components/ui/CheckDropdown.jsx";
 import { upsertTagRequest } from "@store";
 
 function getDerivedStateFromProps(props) {
@@ -102,38 +103,13 @@ class CrudTagModal extends React.Component {
         ));
     }
 
-    toggleLinkedTag = (tagId) => {
-        this.setState(prev => ({
-            linkedTags: prev.linkedTags.includes(tagId)
-                ? prev.linkedTags.filter(id => id !== tagId)
-                : [...prev.linkedTags, tagId],
-        }));
-    }
-
     getLinkedTagsSection() {
         const { tags } = this.props;
-        const { linkedTags, linkSearch = "" } = this.state;
-        const available = tags.filter(t => t._id !== this.state._id && t.name.toLowerCase().includes(linkSearch.toLowerCase()));
+        const options = tags.filter(t => t._id !== this.state._id).map(t => ({ value: t._id, label: t.name }));
         return <div className="mb-2">
             <label className="form-label">Linked Tags</label>
-            {linkedTags.length > 0 && <div className="d-flex flex-wrap gap-1 mb-2">
-                {linkedTags.map(id => {
-                    const tag = tags.find(t => t._id === id);
-                    return tag ? <span key={id} className="badge bg-primary cursor-pointer" onClick={() => this.toggleLinkedTag(id)}>{tag.name} &times;</span> : null;
-                })}
-            </div>}
-            <input type="text" className="form-control form-control-sm mb-1" placeholder="Search tags..."
-                value={linkSearch} onChange={(e) => this.setState({ linkSearch: e.target.value })} />
-            <div className="list-group" style={{ maxHeight: "150px", overflowY: "auto" }}>
-                {available.map(tag => {
-                    const selected = linkedTags.includes(tag._id);
-                    return <div key={tag._id} className={"list-group-item list-group-item-action d-flex justify-content-between align-items-center py-1 cursor-pointer" + (selected ? " active" : "")}
-                        onClick={() => this.toggleLinkedTag(tag._id)}>
-                        <small>{tag.name}</small>
-                        {selected && <i className="bi bi-check"></i>}
-                    </div>;
-                })}
-            </div>
+            <CheckDropdown label="Select tags" options={options} searchable sortByLabel inline pinSelected
+                selected={this.state.linkedTags} onChange={v => this.setState({ linkedTags: v })} />
         </div>;
     }
 

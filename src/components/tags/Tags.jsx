@@ -4,6 +4,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import CrudTagModal from "./CrudTagModal.jsx";
+import SortDropdown from "@components/ui/SortDropdown.jsx";
 import { deleteTagRequest } from "@store";
 import uiUtil from "@utils/uiUtil.js";
 
@@ -11,7 +12,13 @@ class Tags extends React.Component {
     state = {
         selectedTag: null,
         showModal: false,
+        sortField: "name",
+        sortDirection: "asc",
     };
+
+    getSortOptions() {
+        return [{ field: "name", label: "Name" }, { field: "createdAt", label: "Created" }, { field: "updatedAt", label: "Updated" }];
+    }
 
     toggleModal = (selectedTag = null) => {
         this.setState({ showModal: !this.state.showModal, selectedTag });
@@ -68,7 +75,8 @@ class Tags extends React.Component {
         if (loadingTags) return uiUtil.spinnerLoader("mt-4");
         if (tags.length === 0) return <div className="mt-4"><span className="text-muted">No tags found.</span></div>;
 
-        return <div className="list-group shadow-sm list-group-striped">{tags.map(this.getTagItem)}</div>;
+        const sorted = _.orderBy(tags, [this.state.sortField], [this.state.sortDirection]);
+        return <div className="list-group shadow-sm list-group-striped">{sorted.map(this.getTagItem)}</div>;
     }
 
     getCrudTagModal() {
@@ -86,7 +94,12 @@ class Tags extends React.Component {
     render() {
         return (
             <div className="container mt-3">
-                <div className="text-muted small mb-2 page-header">Tags</div>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                    <div className="text-muted small page-header">Tags</div>
+                    <SortDropdown options={this.getSortOptions()}
+                        selected={{ field: this.state.sortField, direction: this.state.sortDirection }}
+                        onChange={(field, direction) => this.setState({ sortField: field, sortDirection: direction })} />
+                </div>
                 {this.getTagsContainer()}
                 {this.getCrudTagModal()}
                 {this.getAddButton()}

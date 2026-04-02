@@ -57,5 +57,20 @@
 
 .check-dropdown-separator {
     border-bottom: 1px solid #eee;
-    font-style: italic;
+}
+
+.check-dropdown-search {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.check-dropdown-inline {
+    position: static;
+    box-shadow: none;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 4px 4px;
 }

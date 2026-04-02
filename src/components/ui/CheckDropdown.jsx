@@ -5,7 +5,7 @@ import "@styles/checkDropdown.scss";
 
 class CheckDropdown extends React.Component {
 
-    state = { open: false };
+    state = { open: false, search: "" };
 
     componentDidMount() {
         document.addEventListener("mousedown", this.handleClickOutside);
@@ -28,18 +28,33 @@ class CheckDropdown extends React.Component {
     };
 
     render() {
-        const { label, options, selected = [] } = this.props;
-        const { open } = this.state;
+        const { label, options, selected = [], sortByLabel, searchable, inline, pinSelected } = this.props;
+        const { open, search } = this.state;
         const hasSelection = selected.length > 0;
         const toggleLabel = !hasSelection ? label : selected.length === 1 ? `${label}: ${options.find(o => o.value === selected[0])?.label || selected[0]}` : `${label} (${selected.length})`;
+        let filtered = options;
+        if (sortByLabel) {
+            const pinned = options.filter(o => o.separator);
+            const rest = _.sortBy(options.filter(o => !o.separator), o => o.label?.toLowerCase());
+            filtered = [...pinned, ...rest];
+        }
+        if (searchable && search) filtered = filtered.filter(o => o.label?.toLowerCase().includes(search.toLowerCase()));
+        if (pinSelected) {
+            const sel = filtered.filter(o => !o.separator && selected.includes(o.value));
+            const unsel = filtered.filter(o => !o.separator && !selected.includes(o.value));
+            if (sel.length && unsel.length) sel[sel.length - 1] = { ...sel[sel.length - 1], separator: true };
+            filtered = [...filtered.filter(o => o.separator), ...sel, ...unsel];
+        }
         return <div className="check-dropdown" ref={el => this.ref = el}>
             <div className={"check-dropdown-toggle" + (hasSelection ? " has-selection" : "") + (open ? " open" : "")}
-                onClick={() => this.setState({ open: !open })}>
+                onClick={() => this.setState({ open: !open, search: "" })}>
                 <span className="text-truncate">{toggleLabel}</span>
                 <i className={"bi bi-chevron-" + (open ? "up" : "down")} style={{ fontSize: "0.7rem" }}></i>
             </div>
-            {open && <div className="check-dropdown-menu">
-                {options.map(opt => <div key={opt.value} className={"check-dropdown-item" + (opt.separator ? " check-dropdown-separator" : "")}
+            {open && <div className={"check-dropdown-menu" + (inline ? " check-dropdown-inline" : "")}>
+                {searchable && <input type="text" className="check-dropdown-search" placeholder="Search..."
+                    value={search} onChange={e => this.setState({ search: e.target.value })} onClick={e => e.stopPropagation()} />}
+                {filtered.map(opt => <div key={opt.value} className={"check-dropdown-item" + (opt.separator ? " check-dropdown-separator" : "")}
                     onClick={() => this.toggle(opt.value)}>
                     <input type="checkbox" checked={selected.includes(opt.value)} readOnly />
                     {opt.label}
