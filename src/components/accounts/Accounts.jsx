@@ -47,8 +47,8 @@ class Accounts extends React.Component {
 
     getActionButtons(acc) {
         return <div className="d-flex gap-1 flex-nowrap">
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleModal(acc)}><i className="bi bi-pencil"></i></span>
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.setState({ deleteAccountId: acc._id })}><i className="bi bi-trash"></i></span>
+            <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.toggleModal(acc)}><i className="bi bi-pencil"></i></span>
+            <span className="badge badge-outline-danger cursor-pointer" onClick={() => this.setState({ deleteAccountId: acc._id })}><i className="bi bi-trash"></i></span>
         </div>;
     }
 

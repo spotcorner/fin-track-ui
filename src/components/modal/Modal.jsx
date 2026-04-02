@@ -28,11 +28,11 @@ export default class Modal extends React.Component {
     }
 
     getCancelButton() {
-        return <button type="button" className="btn btn-secondary" onClick={this.props.onClose}>Cancel</button>;
+        return <button type="button" className="btn btn-outline-secondary" onClick={this.props.onClose}>Cancel</button>;
     }
 
     getSubmitButton() {
-        return this.props.onSubmitClick && <button type="submit" className="btn btn-dark" onClick={this.props.onSubmitClick}>{this.props.submitLabel || "Submit"}</button>;
+        return this.props.onSubmitClick && <button type="submit" className="btn btn-outline-dark" onClick={this.props.onSubmitClick}>{this.props.submitLabel || "Submit"}</button>;
     }
 
     getModalFooter() {

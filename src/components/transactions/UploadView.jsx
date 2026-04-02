@@ -63,7 +63,7 @@ class Upload extends React.Component {
                             <option key={index} value={account._id}>{labelUtil.getAccountLabel(account)}</option>
                         ))}
                     </select>
-                    <button className="btn btn-dark" onClick={() => this.toggleAccountModal()}>+</button>
+                    <button className="btn btn-outline-dark" onClick={() => this.toggleAccountModal()}>+</button>
                 </div>
             </div>
             <div className="mb-3">
@@ -79,7 +79,7 @@ class Upload extends React.Component {
                 <input type="file" className="form-control" onChange={this.handleFileUpload} required />
             </div>
             <div>
-                <button className="btn btn-dark">Extract Transactions</button>
+                <button className="btn btn-outline-dark">Extract Transactions</button>
             </div>
         </form>;
     }

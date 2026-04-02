@@ -114,7 +114,7 @@ class TagTransactionModal extends React.Component {
         return <div className="d-flex mb-2">
             <input type="text" className="form-control me-2" placeholder="Search tags..."
                 value={this.state.searchText} onChange={(e) => this.setState({ searchText: e.target.value })} />
-            <button className="btn btn-dark" onClick={() => this.setState({ selectedTagId: CREATE_NEW })}>+</button>
+            <button className="btn btn-outline-dark" onClick={() => this.setState({ selectedTagId: CREATE_NEW })}>+</button>
         </div>;
     }
 

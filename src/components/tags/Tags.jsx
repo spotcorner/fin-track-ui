@@ -35,8 +35,8 @@ class Tags extends React.Component {
 
     getActionButtons(tag) {
         return <div className="d-flex gap-1 flex-nowrap">
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleModal(tag)}><i className="bi bi-pencil"></i></span>
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.setState({ deleteTagId: tag._id })}><i className="bi bi-trash"></i></span>
+            <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.toggleModal(tag)}><i className="bi bi-pencil"></i></span>
+            <span className="badge badge-outline-danger cursor-pointer" onClick={() => this.setState({ deleteTagId: tag._id })}><i className="bi bi-trash"></i></span>
         </div>;
     }
 

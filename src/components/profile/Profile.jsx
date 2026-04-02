@@ -47,7 +47,7 @@ class Profile extends React.Component {
                         </div>
                     </div>
                     <div className="mt-3 d-flex justify-content-center">
-                        <button className="btn btn-danger" onClick={this.handleLogout}>
+                        <button className="btn btn-outline-danger" onClick={this.handleLogout}>
                             Logout
                         </button>
                     </div>

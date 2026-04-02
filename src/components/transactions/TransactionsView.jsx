@@ -83,9 +83,9 @@ class TransactionsView extends React.Component {
 
     getActionButtons(transaction) {
         return <div className="d-flex gap-1 flex-nowrap">
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleTagModal(transaction)}><i className="bi bi-tag"></i></span>
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleTransactionModal(transaction)}><i className="bi bi-pencil"></i></span>
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.setState({ deleteTransactionId: transaction._id })}><i className="bi bi-trash"></i></span>
+            <span class="badge badge-outline-primary cursor-pointer" onClick={() => this.toggleTagModal(transaction)}><i className="bi bi-tag"></i></span>
+            <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.toggleTransactionModal(transaction)}><i className="bi bi-pencil"></i></span>
+            <span className="badge badge-outline-danger cursor-pointer" onClick={() => this.setState({ deleteTransactionId: transaction._id })}><i className="bi bi-trash"></i></span>
         </div>;
     }
 
@@ -111,8 +111,8 @@ class TransactionsView extends React.Component {
             <span className="text-muted">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
             <div>
                 {isDraft && <>
-                    <button className="btn btn-primary btn-sm me-2" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
-                    <button className="btn btn-danger btn-sm" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
+                    <button className="btn btn-outline-success btn-sm me-2" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
                 </>}
             </div>
         </div>;

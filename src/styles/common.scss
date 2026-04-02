@@ -5,6 +5,34 @@
     cursor: pointer;
 }
 
+.badge-outline-primary {
+    background: transparent;
+    border: 1px solid #0d6efd;
+    color: #0d6efd;
+    &:hover { background: #0d6efd; color: #fff; }
+}
+
+.badge-outline-dark {
+    background: transparent;
+    border: 1px solid #212529;
+    color: #212529;
+    &:hover { background: #212529; color: #fff; }
+}
+
+.badge-outline-secondary {
+    background: transparent;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+    &:hover { background: #6c757d; color: #fff; }
+}
+
+.badge-outline-danger {
+    background: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    &:hover { background: #dc3545; color: #fff; }
+}
+
 .page-header { // Tags, Accounts, Dashboard, UploadView, TransactionsLayout, DraftsLayout, SummaryTable, StatsView
     text-transform: uppercase;
     letter-spacing: 1px;
