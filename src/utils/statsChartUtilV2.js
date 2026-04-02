@@ -126,7 +126,7 @@ export const charts = [
     },
     {
         key: "balance",
-        title: "Balance, Debit & Credit Over Time",
+        title: "Balance Trends",
         Chart: Line,
         getData: getBalanceDebitCreditTrendData,
         filters: { "account.type": "bank" },
