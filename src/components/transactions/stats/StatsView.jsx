@@ -11,7 +11,7 @@ class StatsView extends React.Component {
 
     state = {
         collapsed: this.props.isDraft == 1,
-        visibleCharts: this.props.isDraft == 1 ? charts.map(c => c.key) : ["tags"],
+        visibleCharts: ["tags"],
         expandedCharts: { tags: true },
     }
 
