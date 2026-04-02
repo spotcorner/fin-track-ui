@@ -10,6 +10,7 @@ import { TRANSACTION_TYPES } from "@config";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
 import TagTransactionModal from "./TagTransactionModal.jsx";
 import StatsView from "./stats/StatsView.jsx";
+import Modal from "@components/modal/Modal.jsx";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil.js";
 
@@ -19,6 +20,9 @@ class TransactionsView extends React.Component {
         showRulesModal: false,
         showTransactionModal: false,
         selectedTransactionId: null,
+        deleteTransactionId: null,
+        showSaveDraftsModal: false,
+        showDeleteDraftsModal: false,
     }
 
     getSelectedTransaction() {
@@ -81,7 +85,7 @@ class TransactionsView extends React.Component {
         return <div className="d-flex gap-1 flex-nowrap">
             <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleTagModal(transaction)}><i className="bi bi-tag"></i></span>
             <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleTransactionModal(transaction)}><i className="bi bi-pencil"></i></span>
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.props.deleteTransaction(transaction)}><i className="bi bi-trash"></i></span>
+            <span className="badge bg-secondary cursor-pointer" onClick={() => this.setState({ deleteTransactionId: transaction._id })}><i className="bi bi-trash"></i></span>
         </div>;
     }
 
@@ -107,8 +111,8 @@ class TransactionsView extends React.Component {
             <span className="text-muted">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
             <div>
                 {isDraft && <>
-                    <button className="btn btn-primary btn-sm me-2" onClick={this.saveDrafts}>Save All</button>
-                    <button className="btn btn-danger btn-sm" onClick={this.deleteDrafts}>Delete All</button>
+                    <button className="btn btn-primary btn-sm me-2" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
+                    <button className="btn btn-danger btn-sm" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
                 </>}
             </div>
         </div>;
@@ -137,13 +141,20 @@ class TransactionsView extends React.Component {
     saveDrafts = () => {
         transactionService.saveDrafts(this.props.draftId).then(() => {
             toast.info("Draft transactions saved ✅");
+            this.setState({ showSaveDraftsModal: false });
             this.props.fetchTransactions();
         });
+    }
+
+    handleDeleteTransaction = () => {
+        this.props.deleteTransaction({ _id: this.state.deleteTransactionId });
+        this.setState({ deleteTransactionId: null });
     }
 
     deleteDrafts = () => {
         transactionService.deleteDrafts(this.props.draftId).then(() => {
             toast.info("Draft transactions deleted ✅");
+            this.setState({ showDeleteDraftsModal: false });
             this.props.fetchTransactions();
         });
     }
@@ -156,6 +167,18 @@ class TransactionsView extends React.Component {
                 {this.getAddButton()}
                 {this.getTagTransactionModal()}
                 {this.getCrudTransactionModal()}
+                <Modal show={!!this.state.deleteTransactionId} title="Delete Transaction"
+                    body="Are you sure you want to delete this transaction?"
+                    onSubmitClick={this.handleDeleteTransaction}
+                    onClose={() => this.setState({ deleteTransactionId: null })} />
+                <Modal show={this.state.showSaveDraftsModal} title="Save All Drafts"
+                    body="Are you sure you want to save all draft transactions?"
+                    onSubmitClick={this.saveDrafts}
+                    onClose={() => this.setState({ showSaveDraftsModal: false })} />
+                <Modal show={this.state.showDeleteDraftsModal} title="Delete All Drafts"
+                    body="Are you sure you want to delete all draft transactions?"
+                    onSubmitClick={this.deleteDrafts}
+                    onClose={() => this.setState({ showDeleteDraftsModal: false })} />
             </div>
         );
     }

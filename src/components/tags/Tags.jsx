@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import CrudTagModal from "./CrudTagModal.jsx";
 import SortDropdown from "@components/ui/SortDropdown.jsx";
+import Modal from "@components/modal/Modal.jsx";
 import { deleteTagRequest } from "@store";
 import uiUtil from "@utils/uiUtil.js";
 
@@ -12,6 +13,7 @@ class Tags extends React.Component {
     state = {
         selectedTag: null,
         showModal: false,
+        deleteTagId: null,
         sortField: "name",
         sortDirection: "asc",
     };
@@ -24,8 +26,9 @@ class Tags extends React.Component {
         this.setState({ showModal: !this.state.showModal, selectedTag });
     };
 
-    handleDelete = (_id) => {
-        this.props.dispatch(deleteTagRequest(_id)).then(() => {
+    handleDelete = () => {
+        this.props.dispatch(deleteTagRequest(this.state.deleteTagId)).then(() => {
+            this.setState({ deleteTagId: null });
             toast.success("Tag deleted ✅");
         });
     };
@@ -33,7 +36,7 @@ class Tags extends React.Component {
     getActionButtons(tag) {
         return <div className="d-flex gap-1 flex-nowrap">
             <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleModal(tag)}><i className="bi bi-pencil"></i></span>
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.handleDelete(tag._id)}><i className="bi bi-trash"></i></span>
+            <span className="badge bg-secondary cursor-pointer" onClick={() => this.setState({ deleteTagId: tag._id })}><i className="bi bi-trash"></i></span>
         </div>;
     }
 
@@ -102,6 +105,10 @@ class Tags extends React.Component {
                 </div>
                 {this.getTagsContainer()}
                 {this.getCrudTagModal()}
+                <Modal show={!!this.state.deleteTagId} title="Delete Tag"
+                    body="Are you sure you want to delete this tag?"
+                    onSubmitClick={this.handleDelete}
+                    onClose={() => this.setState({ deleteTagId: null })} />
                 {this.getAddButton()}
             </div>
         );

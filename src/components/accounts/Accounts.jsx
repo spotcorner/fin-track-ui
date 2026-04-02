@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import CrudAccountModal from "./CrudAccountModal.jsx";
 import SortDropdown from "@components/ui/SortDropdown.jsx";
+import Modal from "@components/modal/Modal.jsx";
 import { deleteAccountRequest } from "@store";
 import { ACCOUNT_TYPE_LABELS } from "@config";
 import uiUtil from "@utils/uiUtil.js";
@@ -16,6 +17,7 @@ class Accounts extends React.Component {
     state = {
         selectedAccount: null,
         showModal: false,
+        deleteAccountId: null,
         sortField: "name",
         sortDirection: "asc",
     };
@@ -36,8 +38,9 @@ class Accounts extends React.Component {
         this.setState({ showModal: !this.state.showModal, selectedAccount });
     };
 
-    handleDelete = (_id) => {
-        this.props.dispatch(deleteAccountRequest(_id)).then(() => {
+    handleDelete = () => {
+        this.props.dispatch(deleteAccountRequest(this.state.deleteAccountId)).then(() => {
+            this.setState({ deleteAccountId: null });
             toast.info("Account deleted ✅");
         });
     };
@@ -45,7 +48,7 @@ class Accounts extends React.Component {
     getActionButtons(acc) {
         return <div className="d-flex gap-1 flex-nowrap">
             <span className="badge bg-secondary cursor-pointer" onClick={() => this.toggleModal(acc)}><i className="bi bi-pencil"></i></span>
-            <span className="badge bg-secondary cursor-pointer" onClick={() => this.handleDelete(acc._id)}><i className="bi bi-trash"></i></span>
+            <span className="badge bg-secondary cursor-pointer" onClick={() => this.setState({ deleteAccountId: acc._id })}><i className="bi bi-trash"></i></span>
         </div>;
     }
 
@@ -123,6 +126,10 @@ class Accounts extends React.Component {
                 </div>
                 {this.getAccountsContainer()}
                 {this.getCrudAccountModal()}
+                <Modal show={!!this.state.deleteAccountId} title="Delete Account"
+                    body="Are you sure you want to delete this account?"
+                    onSubmitClick={this.handleDelete}
+                    onClose={() => this.setState({ deleteAccountId: null })} />
                 {this.getAddButton()}
             </div>
         );
