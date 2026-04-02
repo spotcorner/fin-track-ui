@@ -76,7 +76,7 @@ export default class SummaryTable extends React.Component {
                 <div className="mb-2 d-flex align-items-center cursor-pointer"
                     onClick={() => this.setState({ collapsed: !collapsed })}>
                     <div className="text-muted small page-header mb-0">Summary</div>
-                    <i className={"bi ms-2 " + (collapsed ? "bi-plus-square" : "bi-dash-square")}></i>
+                    <i className={"bi ms-auto " + (collapsed ? "bi-plus-square" : "bi-dash-square")}></i>
                 </div>
                 {!collapsed && <div className="table-responsive">
                     <table className="table summary-table text-center">

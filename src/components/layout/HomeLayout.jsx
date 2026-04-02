@@ -37,7 +37,7 @@ class HomeLayout extends React.Component {
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item">
-                                {this.getNavLink("/", "Transactions")}
+                                {this.getNavLink("/", "Cashflow")}
                             </li>
                             <li className="nav-item">
                                 {this.getNavLink("/transactions/drafts", "Drafts")}

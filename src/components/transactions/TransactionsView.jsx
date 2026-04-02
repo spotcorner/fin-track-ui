@@ -23,6 +23,7 @@ class TransactionsView extends React.Component {
         deleteTransactionId: null,
         showSaveDraftsModal: false,
         showDeleteDraftsModal: false,
+        collapsed: false,
     }
 
     getSelectedTransaction() {
@@ -121,12 +122,19 @@ class TransactionsView extends React.Component {
     getTransactions(filteredTransactions) {
         const reversed = filteredTransactions.slice().reverse();
         const isDraft = this.props.isDraft == 1 && this.props.transactions.length > 0;
+        const { collapsed } = this.state;
         return this.props.transactions.length > 0 && <div>
-            <StatsView filteredTransactions={filteredTransactions} />
+            <StatsView filteredTransactions={filteredTransactions} isDraft={this.props.isDraft} />
             <SummaryTable transactions={this.props.transactions} filteredTransactions={filteredTransactions} accounts={this.props.accounts} />
-            {this.getToolbar(filteredTransactions, isDraft)}
+            <div className="mb-2 d-flex align-items-center">
+                <div className="text-muted small page-header mb-0 cursor-pointer"
+                    onClick={() => this.setState({ collapsed: !collapsed })}>Transactions</div>
+                <i className={"bi ms-auto cursor-pointer " + (collapsed ? "bi-plus-square" : "bi-dash-square")}
+                    onClick={() => this.setState({ collapsed: !collapsed })}></i>
+            </div>
+            {!collapsed && <>{this.getToolbar(filteredTransactions, isDraft)}
             <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>{reversed.map(this.getListTransaction)}</div></div>
-            {this.getToolbar(filteredTransactions, isDraft)}
+            {this.getToolbar(filteredTransactions, isDraft)}</>}
         </div>;
     }
 

@@ -120,6 +120,10 @@
     height: 500px;
 }
 
+.stats-chart-dropdown { // StatsView - chart visibility dropdown
+    width: 200px;
+}
+
 .tag-applied-2 { // TagTransactionModal list - keyword match
     border-left: 3px solid var(--bs-info);
     background-color: #e8f8f8;

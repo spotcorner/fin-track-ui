@@ -47,9 +47,7 @@ class FiltersView extends React.Component {
                     <SortDropdown options={this.getSortOptions()} selected={this.getSortSelected()} onChange={this.handleSortChange} />
                 </span>
                 <div className="flex-grow-1"></div>
-                <button className="btn btn-sm btn-outline-secondary" onClick={() => this.setState({ collapsed: false })}>
-                    <i className="bi bi-plus-lg"></i>
-                </button>
+                <i className="bi bi-plus-square cursor-pointer" onClick={() => this.setState({ collapsed: false })}></i>
             </div>
         </div>;
     }
@@ -100,9 +98,7 @@ class FiltersView extends React.Component {
                     onClick={() => this.setState({ showPanel: !this.state.showPanel })}>
                     <i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i>
                 </button>
-                <button className="btn btn-sm btn-outline-secondary" onClick={() => this.setState({ collapsed: true, showPanel: false })}>
-                    <i className="bi bi-dash-lg"></i>
-                </button>
+                <i className="bi bi-dash-square cursor-pointer" onClick={() => this.setState({ collapsed: true, showPanel: false })}></i>
             </div>
         </div>;
     }
