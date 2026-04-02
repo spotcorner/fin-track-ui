@@ -52,6 +52,7 @@ class CrudTransactionModal extends React.Component {
         transactionService.upsert(this.state).then(data => {
             toast.info("Transaction saved ✅");
             this.props.onSave(data.transaction);
+            this.props.onClose();
         })
     };
 
@@ -74,37 +75,39 @@ class CrudTransactionModal extends React.Component {
                     <label className="form-label">Date</label>
                     <input type="date" className="form-control" name="date" value={date} onChange={this.handleChange} required />
                 </div>
-                <div className="mb-2">
-                    <label className="form-label">Transaction Type</label>
-                    <select className="form-select" name="type" value={type} onChange={this.handleChange} required>
-                        <option value=""></option>
-                        <option value="DEBIT">Debit</option>
-                        <option value="CREDIT">Credit</option>
-                    </select>
+                <div className="row mb-2">
+                    <div className="col">
+                        <label className="form-label">Account</label>
+                        <select className="form-select" name="accountId" value={accountId} onChange={this.handleChange} required>
+                            <option value=""></option>
+                            {_.values(accountsMap).map((account, index) => (
+                                <option key={index} value={account._id}>{labelUtil.getAccountLabel(account)}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="col-auto">
+                        <label className="form-label">Type</label>
+                        <select className="form-select" name="type" value={type} onChange={this.handleChange} required>
+                            <option value=""></option>
+                            <option value="DEBIT">Debit</option>
+                            <option value="CREDIT">Credit</option>
+                        </select>
+                    </div>
                 </div>
-                <div className="mb-2">
-                    <label className="form-label">Account</label>
-                    <select className="form-select" name="accountId" value={accountId} onChange={this.handleChange} required>
-                        <option value=""></option>
-                        {_.values(accountsMap).map((account, index) => (
-                            <option key={index} value={account._id}>{labelUtil.getAccountLabel(account)}</option>
-                        ))}
-                    </select>
+                <div className="row mb-2">
+                    <div className="col">
+                        <label className="form-label">Amount</label>
+                        <input type="number" className="form-control" name="amount" value={amount} onChange={this.handleChange} required />
+                    </div>
+                    <div className="col">
+                        <label className="form-label">Split ({type === TRANSACTION_TYPES.DEBIT ? "owed" : "settled"})</label>
+                        <input type="number" className="form-control" name="splitAmount" value={this.state.splitAmount} onChange={this.handleChange} />
+                    </div>
                 </div>
-                <div className="mb-2">
-                    <label className="form-label">Amount</label>
-                    <input type="number" className="form-control" name="amount" value={amount} onChange={this.handleChange} required />
-                </div>
-                <div className="mb-2">
-                    <label className="form-label">Split Amount ({type === TRANSACTION_TYPES.DEBIT ? "owed by others" : "settled by others"})</label>
-                    <input type="number" className="form-control" name="splitAmount" value={this.state.splitAmount} onChange={this.handleChange} />
-                </div>
-                <div className="mb-2">
-                    <label className="form-label">Exclude from Totals</label>
-                    <select className="form-select" name="excludeFromTotals" value={excludeFromTotals} onChange={this.handleChange} required>
-                        <option value="0">No</option>
-                        <option value="1">Yes</option>
-                    </select>
+                <div className="mb-2 form-check">
+                    <input type="checkbox" className="form-check-input" name="excludeFromTotals" checked={excludeFromTotals == 1}
+                        onChange={(e) => this.setState({ excludeFromTotals: e.target.checked ? 1 : 0 })} />
+                    <label className="form-check-label">Exclude from totals</label>
                 </div>
                 <div className="mb-2">
                     <label className="form-label">Description</label>

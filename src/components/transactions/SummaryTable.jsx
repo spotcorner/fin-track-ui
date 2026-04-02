@@ -10,7 +10,7 @@ const fmt = amountUtil.getFormattedAmount;
 export default class SummaryTable extends React.Component {
 
     state = {
-        collapsed: false,
+        collapsed: this.props.isDraft != 1,
     }
 
     getSplitSummary() {

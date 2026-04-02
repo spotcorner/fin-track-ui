@@ -125,7 +125,7 @@ class TransactionsView extends React.Component {
         const { collapsed } = this.state;
         return this.props.transactions.length > 0 && <div>
             <StatsView filteredTransactions={filteredTransactions} isDraft={this.props.isDraft} />
-            <SummaryTable transactions={this.props.transactions} filteredTransactions={filteredTransactions} accounts={this.props.accounts} />
+            <SummaryTable transactions={this.props.transactions} filteredTransactions={filteredTransactions} accounts={this.props.accounts} isDraft={this.props.isDraft} />
             <div className="mb-2 d-flex align-items-center">
                 <div className="text-muted small page-header mb-0 cursor-pointer"
                     onClick={() => this.setState({ collapsed: !collapsed })}>Transactions</div>
