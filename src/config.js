@@ -32,6 +32,7 @@ export const EXTRACTOR_TYPE_LABELS = {
     "HDFC_AS_XLS_V1": "HDFC - XLS - V1",
     "SBI_AS_XLS_V1": "SBI - XLS - V1",
     "SBI_AS_PDF_V1": "SBI - PDF - V1",
+    "SBI_CS_PDF_V1": "SBI CC - PDF - V1",
     "AXIS_AS_PDF_V1": "AXIS - PDF - V1",
     "YES_CS_PDF_V1": "YES Bank CC - PDF - V1",
 };
