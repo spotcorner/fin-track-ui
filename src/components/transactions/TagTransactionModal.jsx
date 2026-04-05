@@ -20,6 +20,10 @@ class TagTransactionModal extends React.Component {
                 selectedTagId: "", searchText: "",
                 localAppliedTags: { ...this.props.transaction?.appliedTags },
             });
+        } else if (prevProps.tags !== this.props.tags) {
+            this.setState({
+                localAppliedTags: { ...this.props.transaction?.appliedTags },
+            });
         }
     }
 
