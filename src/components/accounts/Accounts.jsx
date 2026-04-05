@@ -52,6 +52,25 @@ class Accounts extends React.Component {
         </div>;
     }
 
+    getAccountDetails(acc) {
+        if (acc.type === "credit_card") return null;
+        return <>
+            <div className="d-flex justify-content-between small text-muted mb-1">
+                <span>Opening</span><span>₹{fmt(acc.openingBalance)}</span>
+            </div>
+            <div className="d-flex justify-content-between small mb-1">
+                <span className="text-danger">Debit</span><span className="text-danger">₹{fmt(acc.totalDebit)}</span>
+            </div>
+            <div className="d-flex justify-content-between small mb-1">
+                <span className="text-success">Credit</span><span className="text-success">₹{fmt(acc.totalCredit)}</span>
+            </div>
+            <hr className="my-2" />
+            <div className="d-flex justify-content-between fw-bold">
+                <span>Closing</span><span>₹{fmt(acc.closingBalance)}</span>
+            </div>
+        </>;
+    }
+
     getAccountCard = (acc) => {
         return <div key={acc._id} className="col-md-6 col-lg-4">
             <div className="card shadow-sm" style={{ borderLeft: "3px solid #0d6efd" }}>
@@ -61,19 +80,7 @@ class Accounts extends React.Component {
                         {this.getActionButtons(acc)}
                     </div>
                     {!_.isEmpty(acc.description) && <div className="small text-muted mb-1">{acc.description}</div>}
-                    <div className="d-flex justify-content-between small text-muted mb-1">
-                        <span>Opening</span><span>₹{fmt(acc.openingBalance)}</span>
-                    </div>
-                    <div className="d-flex justify-content-between small mb-1">
-                        <span className="text-danger">Debit</span><span className="text-danger">₹{fmt(acc.totalDebit)}</span>
-                    </div>
-                    <div className="d-flex justify-content-between small mb-1">
-                        <span className="text-success">Credit</span><span className="text-success">₹{fmt(acc.totalCredit)}</span>
-                    </div>
-                    <hr className="my-2" />
-                    <div className="d-flex justify-content-between fw-bold">
-                        <span>Closing</span><span>₹{fmt(acc.closingBalance)}</span>
-                    </div>
+                    {this.getAccountDetails(acc)}
                 </div>
             </div>
         </div>;
@@ -81,11 +88,11 @@ class Accounts extends React.Component {
 
     getGroupView(group, accounts) {
         const sorted = _.orderBy(accounts, [this.state.sortField], [this.state.sortDirection]);
-        const closingBalance = _.sumBy(accounts, "closingBalance");
+        const isCreditCard = group === "credit_card";
         return <div key={group} className="mt-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h5 className="mb-0">{ACCOUNT_TYPE_LABELS[group]}</h5>
-                <span className="fw-bold">₹{fmt(closingBalance)}</span>
+                {!isCreditCard && <span className="fw-bold">₹{fmt(_.sumBy(accounts, "closingBalance"))}</span>}
             </div>
             <div className="row g-3">{sorted.map(this.getAccountCard)}</div>
         </div>;
