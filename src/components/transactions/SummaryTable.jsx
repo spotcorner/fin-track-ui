@@ -33,24 +33,33 @@ export default class SummaryTable extends React.Component {
         const accountSummaries = filteredAccounts.map((account) => {
             const accountId = account._id || account.id;
             const openingBalance = account.openingBalance || 0;
+            const isCreditCard = account.type === "credit_card";
             const filteredTransactions = transactions.filter(tx => tx.accountId === accountId);
             const grouped = _.groupBy(filteredTransactions, "type");
             const totalDebit = _.sumBy(grouped[TRANSACTION_TYPES.DEBIT], tx => tx.amount);
             const totalCredit = _.sumBy(grouped[TRANSACTION_TYPES.CREDIT], tx => tx.amount);
             return {
-                name: account.name, type: account.type, openingBalance, totalDebit, totalCredit,
-                closingBalance: openingBalance + totalCredit - totalDebit,
+                name: account.name, type: account.type, isCreditCard, openingBalance, totalDebit, totalCredit,
+                closingBalance: isCreditCard ? 0 : openingBalance + totalCredit - totalDebit,
             };
         });
 
-        const cumulative = {
-            openingBalance: _.sumBy(accountSummaries, "openingBalance"),
-            totalDebit: _.sumBy(accountSummaries, "totalDebit"),
-            totalCredit: _.sumBy(accountSummaries, "totalCredit"),
-        };
-        cumulative.closingBalance = cumulative.openingBalance + cumulative.totalCredit - cumulative.totalDebit;
+        const bankSummaries = accountSummaries.filter(a => !a.isCreditCard);
+        const ccSummaries = accountSummaries.filter(a => a.isCreditCard);
 
-        return { accountSummaries, cumulative };
+        const bankCumulative = {
+            openingBalance: _.sumBy(bankSummaries, "openingBalance"),
+            totalDebit: _.sumBy(bankSummaries, "totalDebit"),
+            totalCredit: _.sumBy(bankSummaries, "totalCredit"),
+        };
+        bankCumulative.closingBalance = bankCumulative.openingBalance + bankCumulative.totalCredit - bankCumulative.totalDebit;
+
+        const ccCumulative = {
+            totalDebit: _.sumBy(ccSummaries, "totalDebit"),
+            totalCredit: _.sumBy(ccSummaries, "totalCredit"),
+        };
+
+        return { bankSummaries, ccSummaries, bankCumulative, ccCumulative };
     }
 
     renderSplitSummary() {
@@ -64,12 +73,72 @@ export default class SummaryTable extends React.Component {
         </div>;
     }
 
+    renderBankSummary(summaries, cumulative) {
+        if (summaries.length === 0) return null;
+        return <div className="table-responsive">
+            <table className="table summary-table text-center">
+                <thead>
+                    <tr>
+                        <th className="text-start">Account</th>
+                        <th>Opening</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Closing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {summaries.map((acc, idx) => <tr key={idx}>
+                        <td className="text-start">{labelUtil.getAccountLabel(acc)}</td>
+                        <td className="text-muted">₹{fmt(acc.openingBalance)}</td>
+                        <td><span className="badge bg-danger bg-opacity-10 text-danger">₹{fmt(acc.totalDebit)}</span></td>
+                        <td><span className="badge bg-success bg-opacity-10 text-success">₹{fmt(acc.totalCredit)}</span></td>
+                        <td className="fw-bold">₹{fmt(acc.closingBalance)}</td>
+                    </tr>)}
+                    {summaries.length > 1 && <tr className="summary-table-total">
+                        <td className="text-start">Total</td>
+                        <td>₹{fmt(cumulative.openingBalance)}</td>
+                        <td><span className="badge bg-danger bg-opacity-10 text-danger fw-bold">₹{fmt(cumulative.totalDebit)}</span></td>
+                        <td><span className="badge bg-success bg-opacity-10 text-success fw-bold">₹{fmt(cumulative.totalCredit)}</span></td>
+                        <td className="fw-bold">₹{fmt(cumulative.closingBalance)}</td>
+                    </tr>}
+                </tbody>
+            </table>
+        </div>;
+    }
+
+    renderCreditCardSummary(summaries, cumulative) {
+        if (summaries.length === 0) return null;
+        return <div className="table-responsive">
+            <table className="table summary-table text-center">
+                <thead>
+                    <tr>
+                        <th className="text-start">Credit Card</th>
+                        <th>Spends</th>
+                        <th>Payments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {summaries.map((acc, idx) => <tr key={idx}>
+                        <td className="text-start">{labelUtil.getAccountLabel(acc)}</td>
+                        <td><span className="badge bg-danger bg-opacity-10 text-danger">₹{fmt(acc.totalDebit)}</span></td>
+                        <td><span className="badge bg-success bg-opacity-10 text-success">₹{fmt(acc.totalCredit)}</span></td>
+                    </tr>)}
+                    {summaries.length > 1 && <tr className="summary-table-total">
+                        <td className="text-start">Total</td>
+                        <td><span className="badge bg-danger bg-opacity-10 text-danger fw-bold">₹{fmt(cumulative.totalDebit)}</span></td>
+                        <td><span className="badge bg-success bg-opacity-10 text-success fw-bold">₹{fmt(cumulative.totalCredit)}</span></td>
+                    </tr>}
+                </tbody>
+            </table>
+        </div>;
+    }
+
     render() {
         const { transactions, accounts } = this.props;
         if (_.isEmpty(transactions) || _.isEmpty(accounts)) return <></>;
 
         const { collapsed } = this.state;
-        const { accountSummaries, cumulative } = this.getSummaries();
+        const { bankSummaries, ccSummaries, bankCumulative, ccCumulative } = this.getSummaries();
 
         return (
             <div className="mb-2">
@@ -78,36 +147,11 @@ export default class SummaryTable extends React.Component {
                     <div className="text-muted small page-header mb-0">Summary</div>
                     <i className={"bi ms-auto " + (collapsed ? "bi-plus-square" : "bi-dash-square")}></i>
                 </div>
-                {!collapsed && <div className="table-responsive">
-                    <table className="table summary-table text-center">
-                        <thead>
-                            <tr>
-                                <th className="text-start">Account</th>
-                                <th>Opening</th>
-                                <th>Debit</th>
-                                <th>Credit</th>
-                                <th>Closing</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {accountSummaries.map((acc, idx) => <tr key={idx}>
-                                <td className="text-start">{labelUtil.getAccountLabel(acc)}</td>
-                                <td className="text-muted">₹{fmt(acc.openingBalance)}</td>
-                                <td><span className="badge bg-danger bg-opacity-10 text-danger">₹{fmt(acc.totalDebit)}</span></td>
-                                <td><span className="badge bg-success bg-opacity-10 text-success">₹{fmt(acc.totalCredit)}</span></td>
-                                <td className="fw-bold">₹{fmt(acc.closingBalance)}</td>
-                            </tr>)}
-                            <tr className="summary-table-total">
-                                <td className="text-start">Total</td>
-                                <td>₹{fmt(cumulative.openingBalance)}</td>
-                                <td><span className="badge bg-danger bg-opacity-10 text-danger fw-bold">₹{fmt(cumulative.totalDebit)}</span></td>
-                                <td><span className="badge bg-success bg-opacity-10 text-success fw-bold">₹{fmt(cumulative.totalCredit)}</span></td>
-                                <td className="fw-bold">₹{fmt(cumulative.closingBalance)}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>}
-                {!collapsed && this.renderSplitSummary()}
+                {!collapsed && <>
+                    {this.renderBankSummary(bankSummaries, bankCumulative)}
+                    {this.renderCreditCardSummary(ccSummaries, ccCumulative)}
+                    {this.renderSplitSummary()}
+                </>}
             </div>
         );
     }
