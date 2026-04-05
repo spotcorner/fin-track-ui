@@ -29,7 +29,9 @@ export const TRANSACTION_TYPES_LABELS = {
 };
 
 export const EXTRACTOR_TYPE_LABELS = {
+    "AUTO": "Automatic",
     "HDFC_AS_XLS_V1": "HDFC Account - XLS - V1",
+    "HDFC_AS_PDF_V1": "HDFC Account - PDF - V1",
     "HDFC_CS_PDF_V1": "HDFC Credit Card - PDF - V1",
     "SBI_AS_XLS_V1": "SBI Account - XLS - V1",
     "SBI_AS_PDF_V1": "SBI Account - PDF - V1",

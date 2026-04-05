@@ -22,9 +22,11 @@ const UPLOAD_STATUS = {
 class Upload extends React.Component {
     initialState = () => ({
         accountId: "",
-        extractor: "",
+        extractor: "AUTO",
         draftName: "",
         file: null,
+        fromPage: "",
+        toPage: "",
         status: UPLOAD_STATUS.IDLE,
         results: null,
         selectedResult: 0,
@@ -50,7 +52,7 @@ class Upload extends React.Component {
     extractTransactions = (e) => {
         e.preventDefault();
         this.setState({ status: UPLOAD_STATUS.EXTRACTING, results: null });
-        transactionService.extract(this.state.extractor, this.state.file).then(data => {
+        transactionService.extract(this.state.extractor, this.state.file, this.state.fromPage, this.state.toPage).then(data => {
             const results = data.results || [];
             this.setState({
                 results,
@@ -85,7 +87,6 @@ class Upload extends React.Component {
             <div className="mb-2">
                 <label className="form-label">Extractor</label>
                 <select className="form-select" name="extractor" value={this.state.extractor} onChange={this.handleChange}>
-                    <option value="">Automatic</option>
                     {_.keys(EXTRACTOR_TYPE_LABELS).map((extractor, index) => (
                         <option key={index} value={extractor}>{EXTRACTOR_TYPE_LABELS[extractor]}</option>
                     ))}
@@ -95,6 +96,13 @@ class Upload extends React.Component {
                 <label className="form-label">File</label>
                 <input type="file" className="form-control" onChange={this.handleFileUpload} required />
             </div>
+            <div className="mb-2">
+                <label className="form-label">Page Range <span className="text-muted small">(optional)</span></label>
+                <div className="d-flex gap-2">
+                    <input type="number" className="form-control" name="fromPage" placeholder="From" min="1" value={this.state.fromPage} onChange={this.handleChange} />
+                    <input type="number" className="form-control" name="toPage" placeholder="To" min="1" value={this.state.toPage} onChange={this.handleChange} />
+                </div>
+            </div>
             <button className="btn btn-outline-dark" disabled={status === UPLOAD_STATUS.EXTRACTING}>
                 {status === UPLOAD_STATUS.EXTRACTING ? "Extracting..." : "Extract Transactions"}
             </button>
@@ -103,18 +111,17 @@ class Upload extends React.Component {
     }
 
     getConfirmationForm() {
-        const { status, results, selectedResult } = this.state;
+        const { status } = this.state;
         const isSaved = status === UPLOAD_STATUS.SAVED;
         if (![UPLOAD_STATUS.EXTRACTED, UPLOAD_STATUS.SAVING, UPLOAD_STATUS.SAVED].includes(status)) return null;
-        const selectedExtractor = results[selectedResult]?.extractor;
         return <form className="p-3 shadow mb-2" onSubmit={this.confirmDrafts}>
             <div className="mb-2">
                 <label className="form-label">Extractor</label>
-                <input type="text" className="form-control" value={EXTRACTOR_TYPE_LABELS[selectedExtractor] || selectedExtractor} disabled />
+                <input type="text" className="form-control" value={EXTRACTOR_TYPE_LABELS[this.state.extractor] || this.state.extractor} disabled />
             </div>
             <div className="mb-2">
                 <label className="form-label">File</label>
-                <input type="text" className="form-control" value={this.state.file?.name || ""} disabled />
+                <input type="text" className="form-control" value={this.state.file?.name + (this.state.fromPage || this.state.toPage ? ` (Pages ${this.state.fromPage || "1"}-${this.state.toPage || "end"})` : "")} disabled />
             </div>
             <div className="mb-2">
                 <label className="form-label">Draft Name</label>
