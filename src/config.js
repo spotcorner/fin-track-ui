@@ -37,4 +37,5 @@ export const EXTRACTOR_TYPE_LABELS = {
     "AXIS_AS_PDF_V1": "AXIS Account - PDF - V1",
     "AXIS_CS_PDF_V1": "AXIS Credit Card - PDF - V1",
     "YES_CS_PDF_V1": "YES Bank Credit Card - PDF - V1",
+    "ICICI_CS_PDF_V1": "ICICI Credit Card - PDF - V1",
 };
