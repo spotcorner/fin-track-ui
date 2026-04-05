@@ -120,7 +120,6 @@ class TransactionsView extends React.Component {
     }
 
     getTransactions(filteredTransactions) {
-        const reversed = filteredTransactions.slice().reverse();
         const isDraft = this.props.isDraft == 1 && this.props.transactions.length > 0;
         const { collapsed } = this.state;
         return this.props.transactions.length > 0 && <div>
@@ -133,7 +132,7 @@ class TransactionsView extends React.Component {
                     onClick={() => this.setState({ collapsed: !collapsed })}></i>
             </div>
             {!collapsed && <>{this.getToolbar(filteredTransactions, isDraft)}
-            <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>{reversed.map(this.getListTransaction)}</div></div>
+            <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>{filteredTransactions.map(this.getListTransaction)}</div></div>
             {this.getToolbar(filteredTransactions, isDraft)}</>}
         </div>;
     }
