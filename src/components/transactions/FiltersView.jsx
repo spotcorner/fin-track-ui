@@ -43,10 +43,10 @@ class FiltersView extends React.Component {
         return <div className="filter-bar">
             <div className="filter-row">
                 <span className="filter-collapsed-summary">
-                    {chips > 0 && <><i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i> {chips} filter{chips > 1 ? "s" : ""} · </>}
-                    <SortDropdown options={this.getSortOptions()} selected={this.getSortSelected()} onChange={this.handleSortChange} />
+                    {chips > 0 && <><i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i> {chips} filter{chips > 1 ? "s" : ""}</>}
                 </span>
                 <div className="flex-grow-1"></div>
+                <SortDropdown options={this.getSortOptions()} selected={this.getSortSelected()} onChange={this.handleSortChange} />
                 <i className="bi bi-plus-square cursor-pointer" onClick={() => this.setState({ collapsed: false })}></i>
             </div>
         </div>;
@@ -96,7 +96,7 @@ class FiltersView extends React.Component {
                 <SortDropdown options={this.getSortOptions()} selected={this.getSortSelected()} onChange={this.handleSortChange} />
                 <button className={"btn btn-sm " + (hasFilters || this.state.showPanel ? "btn-dark" : "btn-outline-secondary")}
                     onClick={() => this.setState({ showPanel: !this.state.showPanel })}>
-                    <i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i>
+                    <i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i> Filters
                 </button>
                 <i className="bi bi-dash-square cursor-pointer" onClick={() => this.setState({ collapsed: true, showPanel: false })}></i>
             </div>
@@ -210,9 +210,12 @@ class FiltersView extends React.Component {
                         selected={filters.tagFilter} onChange={v => this.props.handleFilterChange("tagFilter", v)} countMap={counts.tag} />
                 </div>
             </div>
-            <div className="mt-2 text-end">
+            <div className="mt-2 text-end d-flex gap-2 justify-content-end">
+                <button className="btn btn-outline-secondary btn-sm" onClick={this.props.clearFilters}>
+                    <i className="bi bi-x-lg"></i> Clear All
+                </button>
                 <button className="btn btn-outline-secondary btn-sm" onClick={this.props.resetFilters}>
-                    <i className="bi bi-trash"></i> Clear All
+                    <i className="bi bi-arrow-counterclockwise"></i> Reset to Default
                 </button>
             </div>
         </div>;

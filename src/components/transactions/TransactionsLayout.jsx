@@ -82,8 +82,12 @@ class TransactionsLayout extends React.Component {
         this.setState(this.getInitialFilters());
     }
 
+    clearFilters = () => {
+        this.setState({ ...this.getInitialFilters(), excludeFromTotalsFilter: [] });
+    }
+
     getFiltersView() {
-        return <FiltersView filters={this.getFilters()} transactions={this.state.transactions} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} resetDateFilter={this.resetDateFilter} />
+        return <FiltersView filters={this.getFilters()} transactions={this.state.transactions} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
     }
 
     getNoTransactionsLabel() {
