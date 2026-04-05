@@ -33,6 +33,7 @@ export const EXTRACTOR_TYPE_LABELS = {
     "HDFC_CS_PDF_V1": "HDFC Credit Card - PDF - V1",
     "SBI_AS_XLS_V1": "SBI Account - XLS - V1",
     "SBI_AS_PDF_V1": "SBI Account - PDF - V1",
+    "SBI_AS_PDF_V2": "SBI Account - PDF - V2",
     "SBI_CS_PDF_V1": "SBI Credit Card - PDF - V1",
     "AXIS_AS_PDF_V1": "AXIS Account - PDF - V1",
     "AXIS_CS_PDF_V1": "AXIS Credit Card - PDF - V1",
