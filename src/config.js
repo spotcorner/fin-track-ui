@@ -30,18 +30,15 @@ export const TRANSACTION_TYPES_LABELS = {
 
 export const EXTRACTOR_TYPE_LABELS = {
     "AUTO": "Automatic",
-    "PDF_V1": "PDF - V1",
-    "PDF_V2": "PDF - V2",
     "HDFC_AS_XLS_V1": "HDFC Account - XLS - V1",
     "HDFC_AS_PDF_V1": "HDFC Account - PDF - V1",
     "HDFC_CS_PDF_V1": "HDFC Credit Card - PDF - V1",
     "SBI_AS_XLS_V1": "SBI Account - XLS - V1",
-
-    // "SBI_AS_PDF_V1": "SBI Account - PDF - V1", // handled by PDF_V1
-    // "SBI_AS_PDF_V2": "SBI Account - PDF - V2", // handled by PDF_V1
-    // "SBI_CS_PDF_V1": "SBI Credit Card - PDF - V1", // handled by PDF_V2
-    // "AXIS_AS_PDF_V1": "AXIS Account - PDF - V1", // handled by PDF_V1
-    // "AXIS_CS_PDF_V1": "AXIS Credit Card - PDF - V1", // handled by PDF_V1
-    // "YES_CS_PDF_V1": "YES Bank Credit Card - PDF - V1", // handled by PDF_V1
-    // "ICICI_CS_PDF_V1": "ICICI Credit Card - PDF - V1", // handled by PDF_V2
+    "SBI_AS_PDF_V1": "SBI Account - PDF - V1",
+    "SBI_AS_PDF_V2": "SBI Account - PDF - V2",
+    "SBI_CS_PDF_V1": "SBI Credit Card - PDF - V1",
+    "AXIS_AS_PDF_V1": "AXIS Account - PDF - V1",
+    "AXIS_CS_PDF_V1": "AXIS Credit Card - PDF - V1",
+    "YES_CS_PDF_V1": "YES Bank Credit Card - PDF - V1",
+    "ICICI_CS_PDF_V1": "ICICI Credit Card - PDF - V1",
 };
