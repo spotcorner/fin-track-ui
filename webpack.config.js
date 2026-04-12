@@ -1,14 +1,14 @@
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const path = require('path');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const commonConfig = {
     output: {
         filename: 'main.js',
         chunkFilename: 'bundle.[id].js',
         path: path.resolve(__dirname, './assets/js/bundle/'),
-        publicPath: '/assets/js/bundle/',
+        // publicPath: '/assets/js/bundle/',
     },
     module: {
         rules: [
@@ -61,12 +61,18 @@ const developmentConfig = {
         poll: 1000,
         ignored: ['**/node_modules/', '**/assests']
     },
+    output: {
+        publicPath: '/assets/js/bundle/',
+    },
     plugins: [
-        new BundleAnalyzerPlugin(),
+        // new BundleAnalyzerPlugin(),
     ]
 }
 
 const productionConfig = {
+    output: {
+        publicPath: 'https://spotcorner.github.io/fin-track-cdn/assets/js/bundle/',
+    },
 }
 
 module.exports = (env, args) => {
