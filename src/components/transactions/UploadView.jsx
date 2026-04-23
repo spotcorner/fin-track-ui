@@ -11,6 +11,7 @@ import uiUtil from "@utils/uiUtil";
 import labelUtil from "@utils/labelUtil";
 import amountUtil from "@utils/amountUtil";
 import { getUnmappedColumns, getFlattenedResults, applyMapping } from "@utils/transactionGroupUtil";
+import { getDefaultMapping, isMappingComplete } from "@utils/columnMappingUtil";
 import ColumnMappingTable from "@components/transactions/ColumnMappingTable.jsx";
 import TransactionPreview from "@components/transactions/TransactionPreview.jsx";
 
@@ -66,9 +67,18 @@ class Upload extends React.Component {
         transactionService.extract(this.state.extractor, this.state.file, this.state.fromPage, this.state.toPage, this.state.password).then(data => {
             const results = data.results || [];
             const flattened = getFlattenedResults(results, EXTRACTOR_TYPE_LABELS);
+            const mappings = {};
+            if (flattened) flattened.forEach((row, i) => {
+                if (row.unmapped) {
+                    const columns = getUnmappedColumns(row.transactions);
+                    const columnMapping = getDefaultMapping(columns, row.transactions);
+                    mappings[i] = { columnMapping, isComplete: isMappingComplete({ columnMapping }, columns, row.transactions) };
+                }
+            });
             this.setState({
                 results,
                 flattened,
+                mappings,
                 selectedResult: null,
                 status: UPLOAD_STATUS.EXTRACTED,
             });

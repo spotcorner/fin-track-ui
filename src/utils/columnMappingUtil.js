@@ -5,11 +5,10 @@
  * Mapper interface: { isComplete(state, col, mappedValues, transactions), resolve(target, amount, raw, context) }
  */
 import simpleMapper from "@utils/mappers/simpleMapper";
-import suffixMapper from "@utils/mappers/suffixMapper";
+import suffixMapper, { getUniqueSuffixes } from "@utils/mappers/suffixMapper";
 import descKeywordMapper from "@utils/mappers/descKeywordMapper";
 import balanceInferMapper from "@utils/mappers/balanceInferMapper";
-
-export { getUniqueSuffixes } from "@utils/mappers/suffixMapper";
+export { getUniqueSuffixes };
 
 /** Maps each column target to its mapper implementation. */
 export const MAPPER_REGISTRY = {
@@ -98,4 +97,41 @@ export function getFilteredTransactions(transactions, columns, showNoDateRows) {
     return transactions.filter(txn =>
         columns.some(col => col.startsWith("date_") && txn[col])
     );
+}
+
+/**
+ * Returns a default columnMapping based on column structure and data patterns.
+ * - 1 date column → Date
+ * - 1 amount: has suffix → Use suffix, no suffix → Use desc keyword
+ * - 2+ amounts: two sparse (mutually exclusive) → Debit/Credit
+ * - 2 amounts, both present: Infer from balance/Balance
+ */
+export function getDefaultMapping(columns, transactions) {
+    const mapping = {};
+    const dateCols = columns.filter(c => c.startsWith("date_"));
+    const amountCols = columns.filter(c => c.startsWith("amount_"));
+
+    if (dateCols.includes("date_1")) mapping["date_1"] = "date";
+
+    if (amountCols.length === 1) {
+        const col = amountCols[0];
+        const suffixes = getUniqueSuffixes(transactions, col);
+        const hasSuffix = suffixes.some(s => s.length > 0);
+        mapping[col] = hasSuffix ? "use_suffix" : "use_desc_keyword";
+    } else if (amountCols.length >= 2) {
+        const counts = amountCols.map(col => ({
+            col,
+            present: transactions.filter(txn => parseAmount(txn[col]) > 0).length,
+        }));
+        const sparse = counts.filter(c => c.present != transactions.length);
+        if (sparse.length === 2) {
+            mapping[sparse[0].col] = "debit";
+            mapping[sparse[1].col] = "credit";
+        } else if (amountCols.length === 2) {
+            mapping[amountCols[0]] = "infer_from_balance";
+            mapping[amountCols[1]] = "balance";
+        }
+    }
+
+    return mapping;
 }
