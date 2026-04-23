@@ -49,6 +49,11 @@ class ColumnMappingTable extends React.Component {
         return val.map((part, i) => <span key={i}>{i > 0 && <i className="bi bi-arrow-return-left text-muted mx-1"></i>}{part}</span>);
     }
 
+    isMultiPage() {
+        const txns = this.props.transactions;
+        return txns.length > 1 && txns[0].page !== txns[txns.length - 1].page;
+    }
+
     renderFilterBar() {
         if (!this.props.editable) return null;
         const count = noDateCount(this.props.transactions, this.props.columns);
@@ -59,7 +64,8 @@ class ColumnMappingTable extends React.Component {
                     onChange={() => this.notifyMapping({ showNoDateRows: !this.state.showNoDateRows })} />
                 Show transactions without date ({count})
             </label>}
-            {this.props.columns.includes("page") && <label className="form-check-label small text-muted">
+            {this.props.columns.includes("page") && this.isMultiPage() &&
+                <label className="form-check-label small text-muted">
                 <input type="checkbox" className="form-check-input me-1"
                     checked={this.state.showPageNumbers}
                     onChange={() => this.notifyMapping({ showPageNumbers: !this.state.showPageNumbers })} />

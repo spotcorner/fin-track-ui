@@ -35,6 +35,7 @@ class Upload extends React.Component {
         toPage: "",
         status: UPLOAD_STATUS.IDLE,
         results: null,
+        flattened: null, // computed once after extraction, derived from results
         selectedResult: null,
         showAccountModal: false,
         showPdfPreview: false,
@@ -64,8 +65,10 @@ class Upload extends React.Component {
         this.setState({ status: UPLOAD_STATUS.EXTRACTING, results: null });
         transactionService.extract(this.state.extractor, this.state.file, this.state.fromPage, this.state.toPage, this.state.password).then(data => {
             const results = data.results || [];
+            const flattened = getFlattenedResults(results, EXTRACTOR_TYPE_LABELS);
             this.setState({
                 results,
+                flattened,
                 selectedResult: null,
                 status: UPLOAD_STATUS.EXTRACTED,
             });
@@ -76,8 +79,7 @@ class Upload extends React.Component {
     }
 
     getSelectedResult = () => {
-        const flattened = this.getFlattenedResults();
-        const { selectedResult } = this.state;
+        const { flattened, selectedResult } = this.state;
         return flattened && selectedResult !== null ? flattened[selectedResult] : null;
     }
 
@@ -222,8 +224,7 @@ class Upload extends React.Component {
 
     selectResult = (e, i) => {
         e.stopPropagation();
-        const flattened = this.getFlattenedResults();
-        const row = flattened[i];
+        const row = this.state.flattened[i];
         if (row.unmapped && !this.getMapping(i)?.isComplete) return;
         const deselect = this.state.selectedResult === i;
         this.setState({
@@ -247,10 +248,6 @@ class Upload extends React.Component {
 
     getMapping(idx) {
         return this.state.mappings[idx] || null;
-    }
-
-    getFlattenedResults() {
-        return getFlattenedResults(this.state.results, EXTRACTOR_TYPE_LABELS);
     }
 
     getMappedPreviewData(row, idx) {
@@ -318,7 +315,7 @@ class Upload extends React.Component {
     }
 
     getPreview() {
-        const flattened = this.getFlattenedResults();
+        const { flattened } = this.state;
         if (!flattened) return null;
         if (flattened.length === 0) {
             return <div className="mb-2 alert alert-warning">No transactions found in the uploaded file.</div>;
