@@ -3,12 +3,13 @@
 import http from "./http";
 
 export default {
-    extract: (extractor, file, fromPage, toPage) => {
+    extract: (extractor, file, fromPage, toPage, password) => {
         const formData = new FormData();
         formData.append("extractor", extractor);
         formData.append("file", file);
         if (fromPage) formData.append("fromPage", fromPage);
         if (toPage) formData.append("toPage", toPage);
+        if (password) formData.append("password", password);
         const headers = { "Content-Type": "multipart/form-data" };
         return http.post("/api/v1/transactions/extract", formData, headers);
     },

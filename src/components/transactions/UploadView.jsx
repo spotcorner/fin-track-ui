@@ -28,6 +28,8 @@ class Upload extends React.Component {
         extractor: "AUTO",
         draftName: "",
         file: null,
+        password: "",
+        showPassword: false,
         fromPage: "",
         toPage: "",
         status: UPLOAD_STATUS.IDLE,
@@ -57,7 +59,7 @@ class Upload extends React.Component {
     extractTransactions = (e) => {
         e.preventDefault();
         this.setState({ status: UPLOAD_STATUS.EXTRACTING, results: null });
-        transactionService.extract(this.state.extractor, this.state.file, this.state.fromPage, this.state.toPage).then(data => {
+        transactionService.extract(this.state.extractor, this.state.file, this.state.fromPage, this.state.toPage, this.state.password).then(data => {
             const results = data.results || [];
             this.setState({
                 results,
@@ -111,17 +113,30 @@ class Upload extends React.Component {
             <div className="mb-2">
                 <label className="form-label">File</label>
                 <input type="file" className="form-control" onChange={this.handleFileUpload} required />
+                <label className="form-check-label small text-muted mt-1">
+                    <input type="checkbox" className="form-check-input me-1"
+                        checked={this.state.showPassword}
+                        onChange={() => this.setState({ showPassword: !this.state.showPassword, password: "" })} />
+                    Password protected
+                </label>
             </div>
-            {/* <div className="mb-2">
+            {this.state.showPassword && <div className="mb-2">
+                <label className="form-label">PDF Password</label>
+                <input type="password" className="form-control" name="password" value={this.state.password} onChange={this.handleChange} />
+                <div className="form-text text-muted">Password is never stored — only used for this extraction.</div>
+            </div>}
+            <div className="mb-2">
                 <label className="form-label">Page Range <span className="text-muted small">(optional)</span></label>
                 <div className="d-flex gap-2">
                     <input type="number" className="form-control" name="fromPage" placeholder="From" min="1" value={this.state.fromPage} onChange={this.handleChange} />
                     <input type="number" className="form-control" name="toPage" placeholder="To" min="1" value={this.state.toPage} onChange={this.handleChange} />
                 </div>
-            </div> */}
-            <button className="btn btn-outline-dark" disabled={status === UPLOAD_STATUS.EXTRACTING}>
-                {status === UPLOAD_STATUS.EXTRACTING ? "Extracting..." : "Extract Transactions"}
-            </button>
+            </div>
+            <div className="d-flex align-items-center gap-3">
+                <button className="btn btn-outline-dark" disabled={status === UPLOAD_STATUS.EXTRACTING}>
+                    {status === UPLOAD_STATUS.EXTRACTING ? "Extracting..." : "Extract Transactions"}
+                </button>
+            </div>
             {status === UPLOAD_STATUS.EXTRACTING && uiUtil.spinnerLoader("mt-2")}
         </form>;
     }
