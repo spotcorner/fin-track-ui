@@ -5,17 +5,16 @@
  * Requires: inferFirstTxn (debit/credit) for the first row, and a balance column mapped.
  * Uses a mutable prevBalance ref ({ value }) to track state across rows.
  */
+import { parseAmount } from "@utils/columnMappingUtil";
+
 export default {
     isComplete(state, _col, mappedValues) {
         return !!state.inferFirstTxn && mappedValues.includes("balance");
     },
 
     resolve(_target, amount, _raw, { txn, balanceCol, inferFirstTxn, prevBalance }) {
-        const balRaw = txn[balanceCol];
-        if (!balRaw) return { debit: 0, credit: 0 };
-        const balMatch = String(balRaw).match(/^([\d,]+\.\d{2})/);
-        if (!balMatch) return { debit: 0, credit: 0 };
-        const balance = parseFloat(balMatch[1].replace(/,/g, ""));
+        const balance = parseAmount(txn[balanceCol]);
+        if (balance === null) return { debit: 0, credit: 0 };
         let result;
         if (prevBalance.value !== null) {
             result = balance > prevBalance.value

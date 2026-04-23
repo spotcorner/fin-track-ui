@@ -43,6 +43,18 @@ export const TYPE_OPTIONS = [
     { value: "credit", label: "Credit" },
 ];
 
+/** Parses a numeric amount from a raw string like "1,058.05 CR". Returns the number or null. */
+export function parseAmount(raw) {
+    const m = String(raw).match(/^([\d,]+\.\d{2})/);
+    return m ? parseFloat(m[1].replace(/,/g, "")) : null;
+}
+
+/** Extracts the suffix after the amount value, e.g. "1,058.05 CR" → "CR". */
+export function extractSuffix(raw) {
+    const m = String(raw).match(/^[\d,]+\.\d{2}\s*(.*)$/);
+    return m ? m[1].trim().toUpperCase() : "";
+}
+
 /** Returns available mapping targets for a column based on its prefix. */
 export function getTargets(col) {
     if (col.startsWith("date_")) return DATE_TARGETS;

@@ -2,7 +2,7 @@
  * Transaction grouping and mapping utilities for the upload flow.
  * Handles unmapped result grouping, flattening, column mapping application, and page sub-grouping.
  */
-import { MAPPER_REGISTRY } from "@utils/columnMappingUtil";
+import { MAPPER_REGISTRY, parseAmount } from "@utils/columnMappingUtil";
 
 /** Extracts and sorts column names from transactions in display order: page, date, description, amount. */
 export function getUnmappedColumns(transactions) {
@@ -79,9 +79,8 @@ export function applyMapping(transactions, mapping) {
             if (!mapper) continue;
             const raw = txn[col];
             if (!raw) continue;
-            const numMatch = String(raw).match(/^([\d,]+\.\d{2})/);
-            if (!numMatch) continue;
-            const amount = parseFloat(numMatch[1].replace(/,/g, ""));
+            const amount = parseAmount(raw);
+            if (!amount) continue;
             const context = { col, txn, suffixMapping, descKeywords, description, inferFirstTxn, balanceCol, prevBalance };
             const result = mapper.resolve(target, amount, raw, context);
             debit += result.debit;

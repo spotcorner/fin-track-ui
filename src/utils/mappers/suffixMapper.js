@@ -4,6 +4,7 @@
  *
  * Requires: user maps each unique suffix to debit or credit.
  */
+import { extractSuffix } from "@utils/columnMappingUtil";
 
 /** Extracts unique suffixes from amount values in a column across all transactions. */
 export function getUniqueSuffixes(transactions, col) {
@@ -12,8 +13,8 @@ export function getUniqueSuffixes(transactions, col) {
         const val = txn[col];
         if (!val) return;
         const str = Array.isArray(val) ? val.join(" ") : String(val);
-        const m = str.match(/^[\d,]+\.\d{2}\s*(.*)$/);
-        if (m) suffixes.add(m[1].trim().toUpperCase() || "");
+        const suffix = extractSuffix(str);
+        if (str.match(/^[\d,]+\.\d{2}/)) suffixes.add(suffix);
     });
     return [...suffixes].sort();
 }
@@ -25,8 +26,7 @@ export default {
     },
 
     resolve(_target, amount, raw, { col, suffixMapping }) {
-        const suffixMatch = String(raw).match(/^[\d,]+\.\d{2}\s*(.*)$/);
-        const suffix = suffixMatch ? suffixMatch[1].trim().toUpperCase() : "";
+        const suffix = extractSuffix(raw);
         if (suffixMapping[`${col}:${suffix}`] === "credit") return { debit: 0, credit: amount };
         return { debit: amount, credit: 0 };
     },
