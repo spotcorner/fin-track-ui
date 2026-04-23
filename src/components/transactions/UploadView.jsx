@@ -264,13 +264,11 @@ class Upload extends React.Component {
         </span>;
     }
 
-    getRowBadges(row, idx) {
+    getRowBadges(row, idx, mappedData) {
         if (row.unmapped) {
-            const mapping = this.getMapping(idx);
-            if (!mapping?.isComplete) return null;
-            const mapped = this.getMappedPreviewData(row, idx);
+            if (!mappedData) return null;
             let totalDebit = 0, totalCredit = 0;
-            mapped.forEach(txn => {
+            mappedData.forEach(txn => {
                 if (txn.type === "CREDIT") totalCredit += txn.amount;
                 else totalDebit += txn.amount;
             });
@@ -284,18 +282,19 @@ class Upload extends React.Component {
     }
 
 
-    getPreviewRowHeader(row, i) {
+    getPreviewRowHeader(row, i, mappedData) {
+        const isComplete = !row.unmapped || !!mappedData;
         const isExpanded = this.state.expanded[`row_${i}`];
         return <div className="d-flex align-items-center p-2 cursor-pointer flex-wrap" onClick={() => this.toggleExpand(i)}>
-            {(!row.unmapped || this.getMapping(i)?.isComplete)
+            {isComplete
                 ? <input type="radio" className="form-check-input me-2" checked={this.state.selectedResult === i}
                     onClick={(e) => this.selectResult(e, i)} readOnly />
                 : <span className="badge bg-warning bg-opacity-10 text-warning me-2">Unmapped</span>}
             <div className="me-2 small fw-bold">{row.label}</div>
             <span className="text-muted small">{row.transactions.length} transactions</span>
-            {this.getRowBadges(row, i)}
+            {this.getRowBadges(row, i, mappedData)}
             <span className="ms-auto d-flex align-items-center gap-2">
-                {row.unmapped && this.getMapping(i)?.isComplete &&
+                {row.unmapped && isComplete &&
                     <button type="button" className={"btn btn-sm " + (this.state.showMappedPreview[i] ? "btn-outline-secondary" : "btn-outline-dark")}
                         onClick={(e) => this.togglePreview(e, i)}>
                         {this.state.showMappedPreview[i] ? "Show Mapping" : "Preview"}
@@ -305,10 +304,10 @@ class Upload extends React.Component {
         </div>;
     }
 
-    getPreviewRowBody(row, i) {
+    getPreviewRowBody(row, i, mappedData) {
         if (!this.state.expanded[`row_${i}`]) return null;
         if (!row.unmapped) return <TransactionPreview transactions={row.transactions} />;
-        if (this.state.showMappedPreview[i]) return <TransactionPreview transactions={this.getMappedPreviewData(row, i)} />;
+        if (this.state.showMappedPreview[i]) return <TransactionPreview transactions={mappedData} />;
         return <ColumnMappingTable transactions={row.transactions} columns={getUnmappedColumns(row.transactions)}
             editable initialMapping={this.getMapping(i)}
             onMappingChange={(m) => this.onMappingChange(i, m)} />;
@@ -321,10 +320,13 @@ class Upload extends React.Component {
             return <div className="mb-2 alert alert-warning">No transactions found in the uploaded file.</div>;
         }
         return <div className="mb-2">
-            {flattened.map((row, i) => <div key={i} className="border rounded mb-2">
-                {this.getPreviewRowHeader(row, i)}
-                {this.getPreviewRowBody(row, i)}
-            </div>)}
+            {flattened.map((row, i) => {
+                const mappedData = this.getMappedPreviewData(row, i);
+                return <div key={i} className="border rounded mb-2">
+                    {this.getPreviewRowHeader(row, i, mappedData)}
+                    {this.getPreviewRowBody(row, i, mappedData)}
+                </div>;
+            })}
         </div>;
     }
 
