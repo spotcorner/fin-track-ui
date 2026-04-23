@@ -28,6 +28,7 @@ class Upload extends React.Component {
         extractor: "AUTO",
         draftName: "",
         file: null,
+        pdfUrl: null, // stored once on upload to avoid iframe reload on state changes
         password: "",
         showPassword: false,
         fromPage: "",
@@ -53,7 +54,9 @@ class Upload extends React.Component {
     };
 
     handleFileUpload = (e) => {
-        this.setState({ file: e.target.files[0] });
+        const file = e.target.files[0];
+        if (this.state.pdfUrl) URL.revokeObjectURL(this.state.pdfUrl);
+        this.setState({ file, pdfUrl: file ? URL.createObjectURL(file) : null });
     };
 
     extractTransactions = (e) => {
@@ -96,7 +99,10 @@ class Upload extends React.Component {
         });
     }
 
-    reset = () => this.setState(this.initialState());
+    reset = () => {
+        if (this.state.pdfUrl) URL.revokeObjectURL(this.state.pdfUrl);
+        this.setState(this.initialState());
+    }
 
     getExtractionForm() {
         const { status } = this.state;
@@ -334,7 +340,7 @@ class Upload extends React.Component {
                 <div className="text-muted small page-header mb-0">Source Preview</div>
                 <i className={"bi ms-auto " + (showPdfPreview ? "bi-dash-square" : "bi-plus-square")}></i>
             </div>
-            {showPdfPreview && <iframe src={URL.createObjectURL(file)} width="100%" height="600px" style={{ border: "1px solid #dee2e6", borderRadius: "4px" }} />}
+            {showPdfPreview && <iframe src={this.state.pdfUrl} width="100%" height="600px" style={{ border: "1px solid #dee2e6", borderRadius: "4px" }} />}
         </div>;
     }
 
