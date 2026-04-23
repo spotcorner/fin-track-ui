@@ -4,12 +4,15 @@ import React from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { EXTRACTOR_TYPE_LABELS, TRANSACTION_TYPES } from "@config";
+import { EXTRACTOR_TYPE_LABELS } from "@config";
 import CrudAccountModal from "@components/accounts/CrudAccountModal.jsx";
 import transactionService from "@services/transactionService";
 import uiUtil from "@utils/uiUtil";
 import labelUtil from "@utils/labelUtil";
 import amountUtil from "@utils/amountUtil";
+import { getUnmappedColumns, getFlattenedResults, applyMapping } from "@utils/transactionGroupUtil";
+import ColumnMappingTable from "@components/transactions/ColumnMappingTable.jsx";
+import TransactionPreview from "@components/transactions/TransactionPreview.jsx";
 
 const UPLOAD_STATUS = {
     IDLE: "IDLE",
@@ -33,6 +36,8 @@ class Upload extends React.Component {
         showAccountModal: false,
         showPdfPreview: false,
         expanded: {},
+        mappings: {},
+        showMappedPreview: {},
     });
 
     state = this.initialState();
@@ -75,8 +80,13 @@ class Upload extends React.Component {
         e.preventDefault();
         const selected = this.getSelectedResult();
         if (!selected) return;
+        const idx = this.state.selectedResult;
+        const transactions = selected.unmapped
+            ? this.getMappedPreviewData(selected, idx)
+            : selected.transactions;
+        if (!transactions || transactions.length === 0) return;
         this.setState({ status: UPLOAD_STATUS.SAVING });
-        transactionService.createDrafts(this.state.accountId, this.state.draftName, selected.transactions).then(data => {
+        transactionService.createDrafts(this.state.accountId, this.state.draftName, transactions).then(data => {
             this.setState({ status: UPLOAD_STATUS.SAVED });
         }).catch(err => {
             this.setState({ status: UPLOAD_STATUS.EXTRACTED });
@@ -102,13 +112,13 @@ class Upload extends React.Component {
                 <label className="form-label">File</label>
                 <input type="file" className="form-control" onChange={this.handleFileUpload} required />
             </div>
-            <div className="mb-2">
+            {/* <div className="mb-2">
                 <label className="form-label">Page Range <span className="text-muted small">(optional)</span></label>
                 <div className="d-flex gap-2">
                     <input type="number" className="form-control" name="fromPage" placeholder="From" min="1" value={this.state.fromPage} onChange={this.handleChange} />
                     <input type="number" className="form-control" name="toPage" placeholder="To" min="1" value={this.state.toPage} onChange={this.handleChange} />
                 </div>
-            </div>
+            </div> */}
             <button className="btn btn-outline-dark" disabled={status === UPLOAD_STATUS.EXTRACTING}>
                 {status === UPLOAD_STATUS.EXTRACTING ? "Extracting..." : "Extract Transactions"}
             </button>
@@ -116,15 +126,17 @@ class Upload extends React.Component {
         </form>;
     }
 
-    isUnmappedResult = () => {
+    isMappingIncomplete = () => {
         const selected = this.getSelectedResult();
-        return selected?.unmapped;
+        if (!selected?.unmapped) return false;
+        const mapping = this.getMapping(this.state.selectedResult);
+        return !mapping?.isComplete;
     }
 
     getConfirmationForm() {
         const { status } = this.state;
         const isSaved = status === UPLOAD_STATUS.SAVED;
-        const isUnmapped = this.isUnmappedResult();
+        const isUnmapped = this.isMappingIncomplete();
         if (![UPLOAD_STATUS.EXTRACTED, UPLOAD_STATUS.SAVING, UPLOAD_STATUS.SAVED].includes(status)) return null;
         const hasSelection = this.state.selectedResult !== null;
         return <form className="p-3 shadow mb-2" onSubmit={this.confirmDrafts}>
@@ -139,7 +151,7 @@ class Upload extends React.Component {
             {!hasSelection
                 ? <div className="alert alert-info mb-2">Select an extractor result below to continue.</div>
                 : isUnmapped
-                ? <div className="alert alert-warning mb-2">Unmapped extraction — column mapping required before saving. (Coming soon)</div>
+                ? <div className="alert alert-warning mb-2">Unmapped extraction — column mapping required before saving.</div>
                 : <>
                     <div className="mb-2">
                         <label className="form-label">Draft Name</label>
@@ -183,109 +195,105 @@ class Upload extends React.Component {
         </div>;
     }
 
-    getUnmappedColumns(transactions) {
-        const keys = new Set();
-        transactions.forEach(txn => Object.keys(txn).forEach(k => keys.add(k)));
-        const order = ["page", "date", "description", "amount"];
-        return [...keys].sort((a, b) => {
-            const ai = order.findIndex(p => a.startsWith(p));
-            const bi = order.findIndex(p => b.startsWith(p));
-            return (ai === -1 ? order.length : ai) - (bi === -1 ? order.length : bi) || a.localeCompare(b);
+    toggleExpand = (i) => {
+        this.setState({ expanded: { ...this.state.expanded, [`row_${i}`]: !this.state.expanded[`row_${i}`] } });
+    }
+
+    selectResult = (e, i) => {
+        e.stopPropagation();
+        const flattened = this.getFlattenedResults();
+        const row = flattened[i];
+        if (row.unmapped && !this.getMapping(i)?.isComplete) return;
+        const deselect = this.state.selectedResult === i;
+        this.setState({
+            selectedResult: deselect ? null : i,
+            expanded: { ...this.state.expanded, ...(!deselect ? { [`row_${i}`]: true } : {}) },
         });
     }
 
-    getUnmappedGroups(transactions) {
-        const buckets = {};
-        transactions.forEach(txn => {
-            const count = Object.keys(txn).filter(k => k.startsWith("amount_")).length;
-            const label = `${count} amount${count !== 1 ? "s" : ""}`;
-            (buckets[label] = buckets[label] || []).push(txn);
+    togglePreview = (e, i) => {
+        e.stopPropagation();
+        this.setState({
+            showMappedPreview: { ...this.state.showMappedPreview, [i]: !this.state.showMappedPreview[i] },
+            selectedResult: i,
+            expanded: { ...this.state.expanded, [`row_${i}`]: true },
         });
-        return Object.entries(buckets)
-            .map(([label, txns]) => ({ label, transactions: txns, subGroups: this.getPageSubGroups(txns) }))
-            .sort((a, b) => b.transactions.length - a.transactions.length);
     }
 
-    getPageSubGroups(transactions) {
-        const groups = [];
-        let current = null;
-        transactions.forEach(txn => {
-            const page = txn.page;
-            if (!current || page !== current.endPage + 1 && page !== current.endPage) {
-                current = { startPage: page, endPage: page, transactions: [] };
-                groups.push(current);
-            }
-            current.endPage = page;
-            current.transactions.push(txn);
-        });
-        return groups.map(g => ({
-            label: g.startPage === g.endPage ? `Page ${g.startPage}` : `Pages ${g.startPage}-${g.endPage}`,
-            transactions: g.transactions,
-        }));
+    onMappingChange = (idx, mapping) => {
+        this.setState({ mappings: { ...this.state.mappings, [idx]: mapping }, showMappedPreview: { ...this.state.showMappedPreview, [idx]: false } });
     }
 
-    getUnmappedCell(txn, col) {
-        const val = txn[col];
-        if (!Array.isArray(val)) return val || "";
-        return val.map((part, i) => <span key={i}>{i > 0 && <i className="bi bi-arrow-return-left text-muted mx-1"></i>}{part}</span>);
-    }
-
-    getUnmappedTable(transactions) {
-        const columns = this.getUnmappedColumns(transactions);
-        return <div style={{ overflowX: "auto" }}>
-            <table className="table table-sm table-striped table-bordered small mb-2">
-                <thead><tr>{columns.map(col => <th key={col}>{col}</th>)}</tr></thead>
-                <tbody>
-                    {transactions.map((txn, i) => <tr key={i}>
-                        {columns.map(col => <td key={col}>{this.getUnmappedCell(txn, col)}</td>)}
-                    </tr>)}
-                </tbody>
-            </table>
-        </div>;
-    }
-
-    getTransactionList(transactions) {
-        return <div style={{ overflowX: "auto" }}>
-            <div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>
-                {transactions.map((txn, i) => {
-                    const typeClass = txn.type === TRANSACTION_TYPES.CREDIT ? "transaction-credit" : "transaction-debit";
-                    const amountColor = txn.type === TRANSACTION_TYPES.CREDIT ? "text-success" : "text-danger";
-                    return <div key={i} className={"list-group-item " + typeClass}>
-                        <div className="d-flex align-items-center gap-3">
-                            <div className="text-muted small text-nowrap">{moment(txn.date, "YYYY-MM-DD").format("MMM D, YYYY")}</div>
-                            <span className={"fw-bold text-nowrap " + amountColor}>₹{amountUtil.getFormattedAmount(txn.amount)}</span>
-                            <div className="flex-grow-1 text-truncate small">{txn.description}</div>
-                        </div>
-                    </div>;
-                })}
-            </div>
-        </div>;
+    getMapping(idx) {
+        return this.state.mappings[idx] || null;
     }
 
     getFlattenedResults() {
-        const { results } = this.state;
-        if (!results) return null;
-        const flattened = [];
-        results.forEach(result => {
-            if (result.unmapped) {
-                this.getUnmappedGroups(result.transactions).forEach(group => {
-                    const subGroups = this.getPageSubGroups(group.transactions);
-                    subGroups.forEach(sub => {
-                        flattened.push({
-                            ...result,
-                            label: `${EXTRACTOR_TYPE_LABELS[result.extractor] || result.extractor} - ${group.label} - ${sub.label}`,
-                            transactions: sub.transactions,
-                        });
-                    });
-                });
-            } else {
-                flattened.push({
-                    ...result,
-                    label: EXTRACTOR_TYPE_LABELS[result.extractor] || result.extractor,
-                });
-            }
-        });
-        return flattened;
+        return getFlattenedResults(this.state.results, EXTRACTOR_TYPE_LABELS);
+    }
+
+    getMappedPreviewData(row, idx) {
+        const mapping = this.getMapping(idx);
+        if (!row.unmapped || !mapping?.isComplete) return null;
+        return applyMapping(row.transactions, mapping);
+    }
+
+    renderBadge(type, amount, label) {
+        if (amount <= 0) return null;
+        const isCredit = type === "credit";
+        return <span className={`badge bg-${isCredit ? "success" : "danger"} bg-opacity-10 text-${isCredit ? "success" : "danger"} ms-2`}>
+            {label || (isCredit ? "Credit" : "Debit")} ₹{amountUtil.getFormattedAmount(amount)}
+        </span>;
+    }
+
+    getRowBadges(row, idx) {
+        if (row.unmapped) {
+            const mapping = this.getMapping(idx);
+            if (!mapping?.isComplete) return null;
+            const mapped = this.getMappedPreviewData(row, idx);
+            let totalDebit = 0, totalCredit = 0;
+            mapped.forEach(txn => {
+                if (txn.type === "CREDIT") totalCredit += txn.amount;
+                else totalDebit += txn.amount;
+            });
+            return <>{this.renderBadge("debit", totalDebit)}{this.renderBadge("credit", totalCredit)}</>;
+        }
+        const isCS = row.extractor.includes("CS");
+        return <>
+            {this.renderBadge("debit", row.totalDebit, isCS ? "Spends" : null)}
+            {this.renderBadge("credit", row.totalCredit, isCS ? "Payments" : null)}
+        </>;
+    }
+
+
+    getPreviewRowHeader(row, i) {
+        const isExpanded = this.state.expanded[`row_${i}`];
+        return <div className="d-flex align-items-center p-2 cursor-pointer flex-wrap" onClick={() => this.toggleExpand(i)}>
+            {(!row.unmapped || this.getMapping(i)?.isComplete)
+                ? <input type="radio" className="form-check-input me-2" checked={this.state.selectedResult === i}
+                    onClick={(e) => this.selectResult(e, i)} readOnly />
+                : <span className="badge bg-warning bg-opacity-10 text-warning me-2">Unmapped</span>}
+            <div className="me-2 small fw-bold">{row.label}</div>
+            <span className="text-muted small">{row.transactions.length} transactions</span>
+            {this.getRowBadges(row, i)}
+            <span className="ms-auto d-flex align-items-center gap-2">
+                {row.unmapped && this.getMapping(i)?.isComplete &&
+                    <button type="button" className={"btn btn-sm " + (this.state.showMappedPreview[i] ? "btn-outline-secondary" : "btn-outline-dark")}
+                        onClick={(e) => this.togglePreview(e, i)}>
+                        {this.state.showMappedPreview[i] ? "Show Mapping" : "Preview"}
+                    </button>}
+                <i className={"bi " + (isExpanded ? "bi-chevron-up" : "bi-chevron-down")}></i>
+            </span>
+        </div>;
+    }
+
+    getPreviewRowBody(row, i) {
+        if (!this.state.expanded[`row_${i}`]) return null;
+        if (!row.unmapped) return <TransactionPreview transactions={row.transactions} />;
+        if (this.state.showMappedPreview[i]) return <TransactionPreview transactions={this.getMappedPreviewData(row, i)} />;
+        return <ColumnMappingTable transactions={row.transactions} columns={getUnmappedColumns(row.transactions)}
+            editable initialMapping={this.getMapping(i)}
+            onMappingChange={(m) => this.onMappingChange(i, m)} />;
     }
 
     getPreview() {
@@ -295,26 +303,10 @@ class Upload extends React.Component {
             return <div className="mb-2 alert alert-warning">No transactions found in the uploaded file.</div>;
         }
         return <div className="mb-2">
-            {flattened.map((row, i) => {
-                const isExpanded = this.state.expanded[`row_${i}`];
-                return <div key={i} className="border rounded mb-2">
-                    <div className="d-flex align-items-center p-2 cursor-pointer"
-                        onClick={() => this.setState({ expanded: { ...this.state.expanded, [`row_${i}`]: !isExpanded } })}>
-                        <input type="radio" className="form-check-input me-2" checked={this.state.selectedResult === i}
-                            onClick={(e) => { e.stopPropagation(); this.setState({ selectedResult: this.state.selectedResult === i ? null : i }); }} readOnly />
-                        <div className="me-2 small fw-bold">{row.label}</div>
-                        <span className="text-muted small">{row.transactions.length} transactions</span>
-                        {row.unmapped
-                            ? <span className="badge bg-warning bg-opacity-10 text-warning ms-2">Unmapped</span>
-                            : <>{row.totalDebit > 0 && <span className="badge bg-danger bg-opacity-10 text-danger ms-2">{row.extractor.includes("CS") ? "Spends" : "Debit"} ₹{amountUtil.getFormattedAmount(row.totalDebit)}</span>}
-                                {row.totalCredit > 0 && <span className="badge bg-success bg-opacity-10 text-success ms-2">{row.extractor.includes("CS") ? "Payments" : "Credit"} ₹{amountUtil.getFormattedAmount(row.totalCredit)}</span>}</>}
-                        <i className={"bi ms-auto " + (isExpanded ? "bi-chevron-up" : "bi-chevron-down")}></i>
-                    </div>
-                    {isExpanded && (row.unmapped
-                        ? this.getUnmappedTable(row.transactions)
-                        : this.getTransactionList(row.transactions))}
-                </div>;
-            })}
+            {flattened.map((row, i) => <div key={i} className="border rounded mb-2">
+                {this.getPreviewRowHeader(row, i)}
+                {this.getPreviewRowBody(row, i)}
+            </div>)}
         </div>;
     }
 
