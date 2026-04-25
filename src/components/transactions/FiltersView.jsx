@@ -10,7 +10,7 @@ import "@styles/filtersView.scss";
 
 class FiltersView extends React.Component {
 
-    state = { showPanel: false, collapsed: false }
+    state = { showPanel: false }
 
     handleFilterChange = (e) => {
         this.props.handleFilterChange(e.target.name, e.target.value);
@@ -36,37 +36,14 @@ class FiltersView extends React.Component {
         this.props.handleFilterChange("sortDirection", direction);
     };
 
-    getCollapsedBar() {
-        const { filters } = this.props;
-        const hasFilters = this.hasActiveFilters();
-        const chips = this.getChipCount();
-        return <div className="filter-bar">
-            <div className="filter-row">
-                <span className="filter-collapsed-summary">
-                    {chips > 0 && <><i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i> {chips} filter{chips > 1 ? "s" : ""}</>}
-                </span>
-                <div className="flex-grow-1"></div>
-                <SortDropdown options={this.getSortOptions()} selected={this.getSortSelected()} onChange={this.handleSortChange} />
-                <i className="bi bi-plus-square cursor-pointer" onClick={() => this.setState({ collapsed: false })}></i>
-            </div>
-        </div>;
+    getTagOptions() {
+        return [
+            { value: "__NONE__", label: "Untagged", separator: true },
+            ..._.values(this.props.tagsMap).map(t => ({ value: t._id, label: t.name })),
+        ];
     }
 
-    getChipCount() {
-        const { filters } = this.props;
-        let count = 0;
-        count += filters.transactionTypeFilter.length;
-        count += filters.excludeFromTotalsFilter.length;
-        if (filters.minAmountFilter) count++;
-        if (filters.maxAmountFilter) count++;
-        count += filters.accountTypeFilter.length;
-        count += filters.accountIdFilter.length;
-        count += filters.tagFilter.length;
-        if (filters.searchFilter) count++;
-        return count;
-    }
-
-    getFilterBar() {
+    getFilterBar(counts) {
         const { filters } = this.props;
         const hasFilters = this.hasActiveFilters();
         return <div className={"filter-bar" + (hasFilters || this.state.showPanel ? " filter-bar-open" : "")}>
@@ -79,6 +56,10 @@ class FiltersView extends React.Component {
                     <button className="btn btn-outline-secondary btn-sm" onClick={this.props.resetDateFilter}>
                         <i className="bi bi-x-lg"></i>
                     </button>
+                </div>
+                <div className="col-md-2">
+                    <CheckDropdown label="Tags" options={this.getTagOptions()} searchable sortByLabel pinSelected
+                        selected={filters.tagFilter} onChange={v => this.props.handleFilterChange("tagFilter", v)} countMap={counts.tag} />
                 </div>
                 <div className="flex-grow-1"></div>
                 <div className="input-group input-group-sm filter-search">
@@ -98,7 +79,6 @@ class FiltersView extends React.Component {
                     onClick={() => this.setState({ showPanel: !this.state.showPanel })}>
                     <i className={"bi bi-funnel" + (hasFilters ? "-fill" : "")}></i> Filters
                 </button>
-                <i className="bi bi-dash-square cursor-pointer" onClick={() => this.setState({ collapsed: true, showPanel: false })}></i>
             </div>
         </div>;
     }
@@ -169,19 +149,14 @@ class FiltersView extends React.Component {
         return counts;
     }
 
-    getPanel() {
+    getPanel(counts) {
         if (!this.state.showPanel) return null;
         const { filters, accountsMap, tagsMap } = this.props;
-        const counts = this.getCounts();
         const accountTypeOptions = _.keys(_.groupBy(accountsMap, "type")).map(type => ({ value: type, label: ACCOUNT_TYPE_LABELS[type] || type }));
         const accountOptions = _.values(accountsMap).map(a => ({ value: a._id, label: labelUtil.getAccountLabel(a) }));
-        const tagOptions = [
-            { value: "__NONE__", label: "Untagged", separator: true },
-            ..._.values(tagsMap).map(t => ({ value: t._id, label: t.name })),
-        ];
         return <div className="filter-panel">
             <div className="row g-2">
-                <div className="col-md-6">
+                <div className="col-md-4">
                     <div className="input-group input-group-sm">
                         <span className="input-group-text">Min ₹</span>
                         <input type="number" name="minAmountFilter" value={filters.minAmountFilter} className="form-control" onChange={this.handleFilterChange} />
@@ -189,25 +164,21 @@ class FiltersView extends React.Component {
                         <input type="number" name="maxAmountFilter" value={filters.maxAmountFilter} className="form-control" onChange={this.handleFilterChange} />
                     </div>
                 </div>
-                <div className="col-md-3">
+                <div className="col-md-2">
                     <CheckDropdown label="Type" options={[{ value: TRANSACTION_TYPES.DEBIT, label: "Debit" }, { value: TRANSACTION_TYPES.CREDIT, label: "Credit" }]}
                         selected={filters.transactionTypeFilter} onChange={v => this.props.handleFilterChange("transactionTypeFilter", v)} countMap={counts.type} />
                 </div>
-                <div className="col-md-3">
+                <div className="col-md-2">
                     <CheckDropdown label="Totals" options={[{ value: "0", label: "Included" }, { value: "1", label: "Excluded" }]}
                         selected={filters.excludeFromTotalsFilter} onChange={v => this.props.handleFilterChange("excludeFromTotalsFilter", v)} countMap={counts.totals} />
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-2">
                     <CheckDropdown label="Account Type" options={accountTypeOptions}
                         selected={filters.accountTypeFilter} onChange={v => this.props.handleFilterChange("accountTypeFilter", v)} countMap={counts.accountType} />
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-2">
                     <CheckDropdown label="Account" options={accountOptions} searchable sortByLabel pinSelected
                         selected={filters.accountIdFilter} onChange={v => this.props.handleFilterChange("accountIdFilter", v)} countMap={counts.account} />
-                </div>
-                <div className="col-md-4">
-                    <CheckDropdown label="Tag" options={tagOptions} searchable sortByLabel pinSelected
-                        selected={filters.tagFilter} onChange={v => this.props.handleFilterChange("tagFilter", v)} countMap={counts.tag} />
                 </div>
             </div>
             <div className="mt-2 text-end d-flex gap-2 justify-content-end">
@@ -222,11 +193,11 @@ class FiltersView extends React.Component {
     }
 
     render() {
-        if (this.state.collapsed) return <div className="mb-2 filter-sticky">{this.getCollapsedBar()}</div>;
+        const counts = this.getCounts();
         return <div className="mb-2 filter-sticky">
-            {this.getFilterBar()}
+            {this.getFilterBar(counts)}
             {this.getChips()}
-            {this.getPanel()}
+            {this.getPanel(counts)}
         </div>;
     }
 }

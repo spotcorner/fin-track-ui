@@ -52,13 +52,6 @@
     background: #fff;
 }
 
-.filter-collapsed-summary { // FiltersView.jsx
-    font-size: 0.8rem;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
 
 @media (max-width: 768px) {
     .filter-row { flex-wrap: wrap; }
