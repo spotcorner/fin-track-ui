@@ -22,7 +22,8 @@ export function getUniqueSuffixes(transactions, col) {
 export default {
     isComplete(state, col, _mappedValues, transactions) {
         const suffixes = getUniqueSuffixes(transactions, col);
-        return !suffixes.some(s => !state.suffixMapping[`${col}:${s}`]);
+        const suffixMapping = state.suffixMapping || {};
+        return !suffixes.some(s => !suffixMapping[`${col}:${s}`]);
     },
 
     resolve(_target, amount, raw, { col, suffixMapping }) {

@@ -83,6 +83,7 @@ class Upload extends React.Component {
                 status: UPLOAD_STATUS.EXTRACTED,
             });
         }).catch(err => {
+            console.error(err);
             this.setState({ status: UPLOAD_STATUS.IDLE });
             toast.error(err.message);
         });
