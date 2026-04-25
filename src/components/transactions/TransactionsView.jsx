@@ -4,12 +4,10 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from "react-toastify";
 import transactionService from "@services/transactionService";
-import SummaryTable from "./SummaryTable.jsx";
 import TagBadges from "@components/tags/TagBadges.jsx";
 import { TRANSACTION_TYPES } from "@config";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
 import TagTransactionModal from "./TagTransactionModal.jsx";
-import StatsView from "./stats/StatsView.jsx";
 import Modal from "@components/modal/Modal.jsx";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil.js";
@@ -23,7 +21,6 @@ class TransactionsView extends React.Component {
         deleteTransactionId: null,
         showSaveDraftsModal: false,
         showDeleteDraftsModal: false,
-        collapsed: false,
     }
 
     getSelectedTransaction() {
@@ -121,19 +118,10 @@ class TransactionsView extends React.Component {
 
     getTransactions(filteredTransactions) {
         const isDraft = this.props.isDraft == 1 && this.props.transactions.length > 0;
-        const { collapsed } = this.state;
-        return this.props.transactions.length > 0 && <div>
-            <StatsView filteredTransactions={filteredTransactions} isDraft={this.props.isDraft} />
-            <SummaryTable transactions={this.props.transactions} filteredTransactions={filteredTransactions} accounts={this.props.accounts} isDraft={this.props.isDraft} />
-            <div className="mb-2 d-flex align-items-center">
-                <div className="text-muted small page-header mb-0 cursor-pointer"
-                    onClick={() => this.setState({ collapsed: !collapsed })}>Transactions</div>
-                <i className={"bi ms-auto cursor-pointer " + (collapsed ? "bi-plus-square" : "bi-dash-square")}
-                    onClick={() => this.setState({ collapsed: !collapsed })}></i>
-            </div>
-            {!collapsed && <>{this.getToolbar(filteredTransactions, isDraft)}
+        return <div>
+            {this.getToolbar(filteredTransactions, isDraft)}
             <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>{filteredTransactions.map(this.getListTransaction)}</div></div>
-            {this.getToolbar(filteredTransactions, isDraft)}</>}
+            {this.getToolbar(filteredTransactions, isDraft)}
         </div>;
     }
 

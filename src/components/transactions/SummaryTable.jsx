@@ -9,10 +9,6 @@ const fmt = amountUtil.getFormattedAmount;
 
 export default class SummaryTable extends React.Component {
 
-    state = {
-        collapsed: this.props.isDraft != 1,
-    }
-
     getSplitSummary() {
         const { filteredTransactions } = this.props;
         let owed = 0, settled = 0;
@@ -137,21 +133,16 @@ export default class SummaryTable extends React.Component {
         const { transactions, accounts } = this.props;
         if (_.isEmpty(transactions) || _.isEmpty(accounts)) return <></>;
 
-        const { collapsed } = this.state;
         const { bankSummaries, ccSummaries, bankCumulative, ccCumulative } = this.getSummaries();
 
         return (
             <div className="mb-2">
-                <div className="mb-2 d-flex align-items-center cursor-pointer"
-                    onClick={() => this.setState({ collapsed: !collapsed })}>
+                <div className="mb-2 d-flex align-items-center">
                     <div className="text-muted small page-header mb-0">Summary</div>
-                    <i className={"bi ms-auto " + (collapsed ? "bi-plus-square" : "bi-dash-square")}></i>
                 </div>
-                {!collapsed && <>
-                    {this.renderBankSummary(bankSummaries, bankCumulative)}
-                    {this.renderCreditCardSummary(ccSummaries, ccCumulative)}
-                    {this.renderSplitSummary()}
-                </>}
+                {this.renderBankSummary(bankSummaries, bankCumulative)}
+                {this.renderCreditCardSummary(ccSummaries, ccCumulative)}
+                {this.renderSplitSummary()}
             </div>
         );
     }

@@ -11,7 +11,6 @@ import SortDropdown from "@components/ui/SortDropdown.jsx";
 class StatsView extends React.Component {
 
     state = {
-        collapsed: this.props.isDraft == 1,
         visibleCharts: ["tags"],
         expandedCharts: { tags: true },
         sortBy: {},
@@ -86,19 +85,15 @@ class StatsView extends React.Component {
     render() {
         const { filteredTransactions } = this.props;
         if (filteredTransactions.length == 0) return <div />;
-        const { collapsed } = this.state;
         const chartViews = this.getChartCards();
         return (
             <div className="">
                 <div className="mb-2 d-flex align-items-center">
-                    <div className="text-muted small page-header mb-0 cursor-pointer"
-                        onClick={() => this.setState({ collapsed: !collapsed })}>Stats</div>
-                    {!collapsed && <div className="ms-auto stats-chart-dropdown"><CheckDropdown label="Charts" options={charts.map(c => ({ value: c.key, label: c.title }))}
-                        selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts })} searchable /></div>}
-                    <i className={"bi cursor-pointer " + (collapsed ? "bi-plus-square ms-auto" : "bi-dash-square ms-2")}
-                        onClick={() => this.setState({ collapsed: !collapsed })}></i>
+                    <div className="text-muted small page-header mb-0">Stats</div>
+                    <div className="ms-auto stats-chart-dropdown"><CheckDropdown label="Charts" options={charts.map(c => ({ value: c.key, label: c.title }))}
+                        selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts })} searchable /></div>
                 </div>
-                {!collapsed && <div className="row">{chartViews}</div>}
+                <div className="row">{chartViews}</div>
             </div>
         );
     }

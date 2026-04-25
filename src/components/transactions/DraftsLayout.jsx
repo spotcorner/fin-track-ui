@@ -64,7 +64,7 @@ export default class DraftsLayout extends React.Component {
                 onSubmitClick={this.closeDraft}
                 onClose={() => this.setState({ showCloseModal: false })} />
             {selectedDraftId && <TransactionsLayout key={selectedDraftId}
-                isDraft={1} draftId={selectedDraftId} sortByDate={1} />}
+                isDraft={1} draftId={selectedDraftId} sortByDate={1} basePath={"/drafts"} />}
         </div>;
     }
 

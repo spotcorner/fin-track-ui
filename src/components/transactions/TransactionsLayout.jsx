@@ -3,12 +3,20 @@
 import React from "react";
 import { connect } from "react-redux";
 import { toast } from "react-toastify";
-// import { Link } from "react-router-dom";
+import { NavLink, withRouter } from "react-router-dom";
 import transactionService from "@services/transactionService";
 import FiltersView from "@components/transactions/FiltersView.jsx";
 import TransactionsView from "@components/transactions/TransactionsView.jsx";
+import StatsView from "./stats/StatsView.jsx";
+import SummaryTable from "./SummaryTable.jsx";
 import transactionUtil from "@utils/transactionUtil";
 import uiUtil from "@utils/uiUtil";
+
+const TABS = [
+    { key: "stats", label: "Stats" },
+    { key: "summary", label: "Summary" },
+    { key: "transactions", label: "Transactions" },
+];
 
 class TransactionsLayout extends React.Component {
 
@@ -86,34 +94,6 @@ class TransactionsLayout extends React.Component {
         this.setState({ ...this.getInitialFilters(), excludeFromTotalsFilter: [] });
     }
 
-    getFiltersView() {
-        return <FiltersView filters={this.getFilters()} transactions={this.state.transactions} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
-    }
-
-    getNoTransactionsLabel() {
-        if (this.props.isDraft) {
-            return <div className="text-muted">No drafts transactions found.
-                {/* <div>Visit <Link to="/transactions/upload-statement">Upload Statements</Link> page to extract transactions from statements.</div>
-                <div>Visit <Link to="/transactions">Transactions</Link> page to see the saved transactions.</div> */}
-            </div>
-        }
-        return <div className="text-muted">No transactions found.
-            {/* <div>Visit <Link to="/transactions/upload-statement">Upload Statements</Link> page to extract transactions from statements.</div>
-            <div>Visit <Link to="/transactions/drafts">Edit Drafts</Link> page to edit and save draft transactions.</div> */}
-        </div>
-    }
-
-    getLoader() {
-        if (this.state.transactionsLoading) {
-            return uiUtil.spinnerLoader("mt-3");
-        }
-        if (this.state.transactions.length == 0) {
-            return <div className="mt-3 mb-3 text-center">
-                {this.getNoTransactionsLabel()}
-            </div>;
-        }
-    }
-
     getFilteredTransactions() {
         return transactionUtil.applyFilters(this.state.transactions, this.getFilters(), this.props.accountsMap, this.props.tags);
     }
@@ -154,8 +134,30 @@ class TransactionsLayout extends React.Component {
         });
     }
 
-    getLayoutBody() {
-        const filteredTransactions = this.getFilteredTransactions();
+    getActiveTab() {
+        const tab = _.find(TABS, t => _.endsWith(this.props.location.pathname, t.key));
+        return tab ? tab.key : "stats";
+    }
+
+    getTabBar() {
+        const basePath = this.props.basePath || "/";
+        return <ul className="nav nav-tabs mb-2">
+            {TABS.map(tab => <li key={tab.key} className="nav-item">
+                <NavLink className="nav-link" activeClassName="active"
+                    to={basePath === "/" ? `/${tab.key}` : `${basePath}/${tab.key}`}>{tab.label}</NavLink>
+            </li>)}
+        </ul>;
+    }
+
+    getTabContent(filteredTransactions) {
+        const tab = this.getActiveTab();
+        if (tab === "stats") {
+            return <StatsView filteredTransactions={filteredTransactions} isDraft={this.props.isDraft} />;
+        }
+        if (tab === "summary") {
+            return <SummaryTable transactions={this.state.transactions} filteredTransactions={filteredTransactions}
+                accounts={this.props.accounts} isDraft={this.props.isDraft} />;
+        }
         return <TransactionsView isDraft={this.props.isDraft} draftId={this.props.draftId}
             transactions={this.state.transactions} filteredTransactions={filteredTransactions}
             updateTransaction={this.updateTransaction} updateTransactionTags={this.updateTransactionTags}
@@ -165,12 +167,34 @@ class TransactionsLayout extends React.Component {
             clearLastAppliedTag={() => this.setState({ lastAppliedTagId: null })} />;
     }
 
+    getNoTransactionsLabel() {
+        if (this.props.isDraft) {
+            return <div className="text-muted">No drafts transactions found.</div>;
+        }
+        return <div className="text-muted">No transactions found.</div>;
+    }
+
+    getLoader() {
+        if (this.state.transactionsLoading) {
+            return uiUtil.spinnerLoader("mt-3");
+        }
+        if (this.state.transactions.length == 0) {
+            return <div className="mt-3 mb-3 text-center">
+                {this.getNoTransactionsLabel()}
+            </div>;
+        }
+    }
+
     render() {
+        const filteredTransactions = this.getFilteredTransactions();
         return <div className="">
             {this.props.title !== undefined && <div className="text-muted small mb-2 page-header">{this.props.title}</div>}
-            {this.getFiltersView()}
+            <FiltersView filters={this.getFilters()} transactions={this.state.transactions} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
             {this.getLoader()}
-            {this.getLayoutBody()}
+            {this.state.transactions.length > 0 && <>
+                {this.getTabBar()}
+                {this.getTabContent(filteredTransactions)}
+            </>}
         </div>;
     }
 
@@ -188,4 +212,4 @@ class TransactionsLayout extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accountsMap", "tags"]))(TransactionsLayout);
+export default withRouter(connect(state => _.pick(state.user, ["accountsMap", "accounts", "tags"]))(TransactionsLayout));

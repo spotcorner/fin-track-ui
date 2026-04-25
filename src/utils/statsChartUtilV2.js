@@ -112,7 +112,7 @@ export const charts = [
         getData: getAmountByTagData,
         className: "col-sm-12 col-md-6 mb-3",
         getOptions: (data) => getHorizontalBarOptions(data.labels.length),
-        getHeight: (data) => Math.max(300, data.labels.length * 25),
+        getHeight: (data) => Math.max(500, data.labels.length * 25),
         plugins: [horizontalBarDatalabelsPlugin],
         sortOptions: [{ field: "sum", label: "Amount" }, { field: "name", label: "Name" }],
         defaultSort: { field: "sum", direction: "desc" },

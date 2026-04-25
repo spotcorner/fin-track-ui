@@ -222,7 +222,7 @@ class Upload extends React.Component {
         const count = this.getSelectedResult()?.transactions?.length || 0;
         return <div className="mb-2 alert alert-success">
             <span>Saved {count} transactions as draft. </span>
-            {count > 0 && <span>Visit <Link to="/transactions/drafts">Edit Drafts</Link> page to review.</span>}
+            {count > 0 && <span>Visit <Link to="/drafts">Edit Drafts</Link> page to review.</span>}
         </div>;
     }
 

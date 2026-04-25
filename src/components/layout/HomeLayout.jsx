@@ -14,11 +14,11 @@ class HomeLayout extends React.Component {
     }
 
     getActiveStatus(to) {
-        return this.props.location.pathname == to ? "active" : "";
+        return this.props.location.pathname.startsWith(to) ? "active" : "";
     }
 
-    getNavLink(to, content) {
-        return <Link to={to} className={"nav-link " + this.getActiveStatus(to)}>{content}</Link>;
+    getNavLink(to, content, basePath) {
+        return <Link to={to} className={"nav-link " + this.getActiveStatus(basePath || to)}>{content}</Link>;
     }
 
     getDropdownItem(to, content) {
@@ -49,13 +49,13 @@ class HomeLayout extends React.Component {
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item">
-                                {this.getNavLink("/", "Cashflow")}
+                                {this.getNavLink("/cashflow/stats", "Cashflow", "/cashflow")}
                             </li>
                             <li className="nav-item">
-                                {this.getNavLink("/transactions/drafts", "Drafts")}
+                                {this.getNavLink("/drafts/stats", "Drafts", "/drafts")}
                             </li>
                             <li className="nav-item">
-                                {this.getNavLink("/transactions/upload-statement", "Upload Statement")}
+                                {this.getNavLink("/upload-statement", "Upload Statement")}
                             </li>
                             <li className="nav-item">
                                 {this.getNavLink("/accounts", "Accounts")}
