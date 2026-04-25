@@ -13,6 +13,7 @@ function getDerivedStateFromProps(props) {
         name: props.tag?.name || "",
         rules: props.tag?.rules || [],
         linkedTags: props.tag?.linkedTags || [],
+        priority: props.tag?.priority || 0,
         description: props.tag?.description || "",
     };
 }
@@ -62,6 +63,7 @@ class CrudTagModal extends React.Component {
             name: this.state.name,
             rules,
             linkedTags: this.state.linkedTags,
+            priority: parseInt(this.state.priority) || 0,
             description: this.state.description,
         };
         this.props.dispatch(upsertTagRequest(payload)).then(data => {
@@ -129,6 +131,10 @@ class CrudTagModal extends React.Component {
                     {this.getRuleRows()}
                 </div>
                 {this.getLinkedTagsSection()}
+                <div className="mb-2">
+                    <label className="form-label">Priority <span className="text-muted small">(higher wins when multiple tags match)</span></label>
+                    <input type="number" className="form-control" name="priority" value={this.state.priority} onChange={this.handleChange} min="0" />
+                </div>
             </form>
         );
     }

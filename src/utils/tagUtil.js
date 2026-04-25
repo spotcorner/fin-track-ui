@@ -19,10 +19,10 @@ export default {
             transaction._appliedTags = { ...transaction.appliedTags };
         }
         const ruleResult = {};
-        const matchedIds = [];
+        const matches = [];
         tags.forEach(tag => {
-            const { _id, rules } = tag;
-            if (transaction._appliedTags[_id] == 1) { matchedIds.push(_id); return; }
+            const { _id, rules, priority = 0 } = tag;
+            if (transaction._appliedTags[_id] == 1) { matches.push({ _id, priority }); return; }
             const matched = _.some(rules, (rule) => {
                 const description = transaction.description || "";
                 if (rule.type === "keyword") {
@@ -37,11 +37,19 @@ export default {
                 }
                 return false;
             });
-            if (matched) {
-                ruleResult[_id] = 2;
-                matchedIds.push(_id);
+            if (matched) matches.push({ _id, priority });
+        });
+
+        // Keep only highest priority matches
+        const maxPriority = matches.length > 0 ? Math.max(...matches.map(m => m.priority)) : 0;
+        const matchedIds = [];
+        matches.forEach(m => {
+            if (m.priority === maxPriority) {
+                if (transaction._appliedTags[m._id] != 1) ruleResult[m._id] = 2;
+                matchedIds.push(m._id);
             }
         });
+
         resolveLinkedTags(matchedIds, tags, ruleResult);
         transaction.ruleResult = ruleResult;
         transaction.appliedTags = { ...ruleResult, ...transaction._appliedTags };
