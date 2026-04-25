@@ -39,7 +39,7 @@ class Accounts extends React.Component {
     };
 
     handleDelete = () => {
-        this.props.dispatch(deleteAccountRequest(this.state.deleteAccountId)).then(() => {
+        this.props.dispatch(deleteAccountRequest(this.state.deleteAccountId)).unwrap().then(() => {
             this.setState({ deleteAccountId: null });
             toast.info("Account deleted ✅");
         });

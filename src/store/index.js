@@ -1,16 +1,12 @@
 export {
     setUserDetails,
     setStatsGroupByPeriod,
+    switchViewAs,
     fetchAccountsRequest,
     fetchTagsRequest,
+    fetchReceivedAccessRequest,
     deleteAccountRequest,
     deleteTagRequest,
     upsertAccountRequest,
     upsertTagRequest,
-    upsertAccount,
-    upsertTag,
-    deleteAccount,
-    deleteTag,
-    updateAccounts,
-    updateTags,
 } from "./userSlice";

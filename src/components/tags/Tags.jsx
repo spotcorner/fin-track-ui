@@ -27,7 +27,7 @@ class Tags extends React.Component {
     };
 
     handleDelete = () => {
-        this.props.dispatch(deleteTagRequest(this.state.deleteTagId)).then(() => {
+        this.props.dispatch(deleteTagRequest(this.state.deleteTagId)).unwrap().then(() => {
             this.setState({ deleteTagId: null });
             toast.success("Tag deleted ✅");
         });

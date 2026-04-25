@@ -3,36 +3,76 @@
 import React from "react";
 import { connect } from "react-redux";
 import userService from "@services/userService";
-import { setUserDetails } from "@store";
+import accessService from "@services/accessService";
+import { setUserDetails, fetchReceivedAccessRequest } from "@store";
+import { toast } from "react-toastify";
 
 class Profile extends React.Component {
+    state = {
+        grantEmail: "",
+        granted: [],
+    }
+
     handleLogout = () => {
         userService.logout().then(data => {
             if (data.success) {
                 this.props.dispatch(setUserDetails({}));
-            } else {
-                console.error("Logout failed:", data.error);
             }
         });
     }
-    getFamily() {
-        const family = this.props.userInfo.family;
-        if (_.isEmpty(family)) return;
-        return <div className="row mt-3">
-            {Object.entries(family || {}).map(([id, member]) => (
-                <div key={id} className="col-md-4 col-sm-6 col-12 mb-3">
-                    <div className="card shadow-sm">
-                        <div className="card-body">
-                            <h5 className="card-title">{member.name}</h5>
-                            <p className="card-text">
-                                <strong>Relation:</strong> {member.relation}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
+
+    fetchGranted = () => {
+        accessService.getGranted().then(data => {
+            this.setState({ granted: data.access || [] });
+        });
     }
+
+    grantAccess = (e) => {
+        e.preventDefault();
+        accessService.grant(this.state.grantEmail).then(() => {
+            toast.info("Access granted");
+            this.setState({ grantEmail: "" });
+            this.fetchGranted();
+        });
+    }
+
+    revokeAccess = (_id) => {
+        accessService.revoke(_id).then(() => {
+            toast.info("Access revoked");
+            this.fetchGranted();
+            this.props.dispatch(fetchReceivedAccessRequest());
+        });
+    }
+
+    getGrantedSection() {
+        const { granted } = this.state;
+        return <div className="card shadow-sm p-3 mt-3">
+            <h6>Shared my data with</h6>
+            <form className="d-flex gap-2 mb-2" onSubmit={this.grantAccess}>
+                <input type="email" className="form-control form-control-sm" placeholder="Enter email to grant access"
+                    value={this.state.grantEmail} onChange={(e) => this.setState({ grantEmail: e.target.value })} required />
+                <button className="btn btn-outline-dark btn-sm text-nowrap">Grant</button>
+            </form>
+            {granted.length === 0 && <div className="text-muted small">No access granted yet.</div>}
+            {granted.map(a => <div key={a._id} className="d-flex align-items-center justify-content-between py-1 border-bottom">
+                <div className="small">{a.user.email}</div>
+                <button className="btn btn-outline-danger btn-sm" onClick={() => this.revokeAccess(a._id)}>Revoke</button>
+            </div>)}
+        </div>;
+    }
+
+    getReceivedSection() {
+        const { receivedAccessList } = this.props;
+        if (!receivedAccessList || receivedAccessList.length === 0) return null;
+        return <div className="card shadow-sm p-3 mt-3">
+            <h6>Shared with me</h6>
+            {receivedAccessList.map((a, i) => <div key={i} className="d-flex align-items-center py-1 border-bottom">
+                <div className="small">{a.email}</div>
+                <span className="badge bg-secondary bg-opacity-10 text-secondary ms-auto">{a.accessType}</span>
+            </div>)}
+        </div>;
+    }
+
     render() {
         const userInfo = this.props.userInfo;
         return (
@@ -52,10 +92,18 @@ class Profile extends React.Component {
                         </button>
                     </div>
                 </div>
-                {this.getFamily()}
+                {this.getGrantedSection()}
+                {this.getReceivedSection()}
             </div>
         );
     }
+
+    componentDidMount() {
+        this.fetchGranted();
+    }
 }
 
-export default connect(state => ({ userInfo: state.user.info }))(Profile);
+export default connect(state => ({
+    userInfo: state.user.info,
+    receivedAccessList: state.user.receivedAccessList,
+}))(Profile);

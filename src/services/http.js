@@ -2,16 +2,19 @@
 
 import axios from "axios";
 import { toast } from "react-toastify";
+import store from "@store/store";
 
 async function request(path, method, data = {}, headers) {
+    const viewAs = store.getState().user.viewAsUserId;
     const config = {
         url: path,
         method,
         ...data,
+        headers: {
+            ...headers,
+            ...(viewAs ? { "X-View-As": viewAs } : {}),
+        },
     };
-    if (headers) {
-        config.headers = headers;
-    }
     try {
         const response = await axios(config);
         return response.data;

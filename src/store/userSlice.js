@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import accountService from "@services/accountService";
 import tagService from "@services/tagService";
+import accessService from "@services/accessService";
 
 let info = null;
 try {
     info = document.querySelector("meta[name='user-info']").content;
     info = JSON.parse(info);
-    // console.log("info::", info);
 } catch (e) {
     console.log("info::", info);
     info = null;
@@ -15,6 +15,8 @@ try {
 
 const initialState = {
     info,
+    receivedAccessList: [],
+    viewAsUserId: null,
     loadingAccounts: false,
     loadingTags: false,
     accounts: [],
@@ -38,6 +40,13 @@ export const fetchTagsRequest = createAsyncThunk(
     }
 );
 
+export const fetchReceivedAccessRequest = createAsyncThunk(
+    "user/fetchReceivedAccessRequest",
+    async () => {
+        return await accessService.getReceived();
+    }
+);
+
 export const upsertAccountRequest = createAsyncThunk(
     "user/upsertAccountRequest",
     async (account) => {
@@ -49,6 +58,15 @@ export const upsertTagRequest = createAsyncThunk(
     "user/upsertTagRequest",
     async (tag) => {
         return await tagService.upsert(tag);
+    }
+);
+
+export const switchViewAs = createAsyncThunk(
+    "user/switchViewAs",
+    async (userId, { dispatch }) => {
+        dispatch(setViewAsUserId(userId));
+        dispatch(fetchAccountsRequest());
+        dispatch(fetchTagsRequest());
     }
 );
 
@@ -72,6 +90,9 @@ const reducers = {
     },
     setStatsGroupByPeriod: (user, action) => {
         user.statsGroupByPeriod = action.payload;
+    },
+    setViewAsUserId: (user, action) => {
+        user.viewAsUserId = action.payload;
     },
     upsertAccount: (user, action) => {
         const { account } = action.payload;
@@ -111,6 +132,13 @@ const reducers = {
         user.tagsMap = _.keyBy(user.tags, "_id");
         user.loadingTags = false;
     },
+    updateReceivedAccess: (user, action) => {
+        user.receivedAccessList = (action.payload.access || []).map(a => ({
+            userId: a.ownerId,
+            email: a.user.email,
+            accessType: a.accessType,
+        }));
+    },
 }
 
 const userSlice = createSlice({
@@ -127,10 +155,18 @@ const userSlice = createSlice({
             })
             .addCase(fetchAccountsRequest.fulfilled, reducers.updateAccounts)
             .addCase(fetchTagsRequest.fulfilled, reducers.updateTags)
+            .addCase(fetchReceivedAccessRequest.fulfilled, reducers.updateReceivedAccess)
+            .addCase(fetchReceivedAccessRequest.rejected, (user) => {
+                user.receivedAccessList = [];
+            })
             .addCase(fetchAccountsRequest.rejected, (user) => {
+                user.accounts = [];
+                user.accountsMap = {};
                 user.loadingAccounts = false;
             })
             .addCase(fetchTagsRequest.rejected, (user) => {
+                user.tags = [];
+                user.tagsMap = {};
                 user.loadingTags = false;
             })
             .addCase(upsertAccountRequest.fulfilled, reducers.upsertAccount)
@@ -140,15 +176,11 @@ const userSlice = createSlice({
     }
 });
 
+const { setViewAsUserId } = userSlice.actions;
+
 export const {
     setUserDetails,
     setStatsGroupByPeriod,
-    upsertAccount,
-    upsertTag,
-    deleteAccount,
-    deleteTag,
-    updateAccounts,
-    updateTags,
 } = userSlice.actions;
 
 export default userSlice.reducer;

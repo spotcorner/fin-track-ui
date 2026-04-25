@@ -38,7 +38,7 @@ class CrudAccountModal extends React.Component {
         e.preventDefault();
 
         this.state.openingBalance = parseFloat(this.state.openingBalance);
-        this.props.dispatch(upsertAccountRequest(this.state)).then(data => {
+        this.props.dispatch(upsertAccountRequest(this.state)).unwrap().then(data => {
             toast.info("Account saved ✅");
             const onSave = this.props.onSave || this.props.onClose || (() => { });
             onSave(data.payload);

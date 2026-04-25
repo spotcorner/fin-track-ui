@@ -3,7 +3,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
-import { fetchAccountsRequest, fetchTagsRequest } from "@store";
+import { fetchAccountsRequest, fetchTagsRequest, fetchReceivedAccessRequest, switchViewAs } from "@store";
 
 class HomeLayout extends React.Component {
 
@@ -23,6 +23,18 @@ class HomeLayout extends React.Component {
 
     getDropdownItem(to, content) {
         return <Link to={to} className={"dropdown-item"}>{content}</Link>;
+    }
+
+    getViewAsDropdown() {
+        const { receivedAccessList, viewAsUserId } = this.props;
+        if (!receivedAccessList || receivedAccessList.length === 0) return null;
+        return <select className="form-select form-select-sm bg-dark text-light border-secondary ms-2"
+            style={{ width: "auto" }}
+            value={viewAsUserId || ""}
+            onChange={(e) => this.props.dispatch(switchViewAs(e.target.value || null))}>
+            <option value="">My Data</option>
+            {receivedAccessList.map(a => <option key={a.userId} value={a.userId}>{a.email}</option>)}
+        </select>;
     }
 
     render() {
@@ -52,16 +64,20 @@ class HomeLayout extends React.Component {
                                 {this.getNavLink("/tags", "Tags")}
                             </li>
                             <li className="nav-item d-lg-none">
+                                {this.getViewAsDropdown()}
+                            </li>
+                            <li className="nav-item d-lg-none">
                                 {this.getProfileLink()}
                             </li>
                         </ul>
                     </div>
-                    <div className="ms-3 d-none d-lg-block">
+                    <div className="ms-3 d-none d-lg-flex align-items-center gap-2">
+                        {this.getViewAsDropdown()}
                         {this.getProfileLink()}
                     </div>
                 </div>
             </nav>
-            <div className="container-fluid mt-3">
+            <div className="container-fluid mt-3" key={this.props.viewAsUserId || "self"}>
                 {LayoutBody}
             </div>
         </div>
@@ -70,7 +86,8 @@ class HomeLayout extends React.Component {
     componentDidMount() {
         this.props.dispatch(fetchAccountsRequest());
         this.props.dispatch(fetchTagsRequest());
+        this.props.dispatch(fetchReceivedAccessRequest());
     }
 }
 
-export default withRouter(connect(state => ({ userInfo: state.user.info }))(HomeLayout));
+export default withRouter(connect(state => ({ userInfo: state.user.info, receivedAccessList: state.user.receivedAccessList, viewAsUserId: state.user.viewAsUserId }))(HomeLayout));
