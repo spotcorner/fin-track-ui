@@ -45,6 +45,14 @@ class Profile extends React.Component {
         });
     }
 
+    getAccessLabel(accessType) {
+        switch (accessType) {
+            case "full": return "Full Access";
+            case "readonly": return "Read Only";
+            default: return accessType;
+        }
+    }
+
     getGrantedSection() {
         const { granted } = this.state;
         return <div className="card shadow-sm p-3 mt-3">
@@ -63,7 +71,7 @@ class Profile extends React.Component {
             {granted.map(a => <div key={a._id} className="d-flex align-items-center justify-content-between py-1 border-bottom">
                 <div className="small">{a.user.email}</div>
                 <div className="d-flex align-items-center gap-2">
-                    <span className="badge bg-secondary bg-opacity-10 text-secondary">{a.accessType === "full" ? "Full Access" : "Read Only"}</span>
+                    <span className="badge bg-secondary bg-opacity-10 text-secondary">{this.getAccessLabel(a.accessType)}</span>
                     <button className="btn btn-outline-danger btn-sm" onClick={() => this.revokeAccess(a._id)}>Revoke</button>
                 </div>
             </div>)}
@@ -77,7 +85,7 @@ class Profile extends React.Component {
             <h6>Shared with me</h6>
             {receivedAccessList.map((a, i) => <div key={i} className="d-flex align-items-center py-1 border-bottom">
                 <div className="small">{a.email}</div>
-                <span className="badge bg-secondary bg-opacity-10 text-secondary ms-auto">{a.accessType}</span>
+                <span className="badge bg-secondary bg-opacity-10 text-secondary ms-auto">{this.getAccessLabel(a.accessType)}</span>
             </div>)}
         </div>;
     }
