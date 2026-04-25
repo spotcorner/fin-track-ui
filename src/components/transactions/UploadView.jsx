@@ -118,14 +118,14 @@ class Upload extends React.Component {
         const { status } = this.state;
         if (![UPLOAD_STATUS.IDLE, UPLOAD_STATUS.EXTRACTING].includes(status)) return null;
         return <form className="p-3 shadow mb-2" onSubmit={this.extractTransactions}>
-            <div className="mb-2">
+            {/* <div className="mb-2">
                 <label className="form-label">Extractor</label>
                 <select className="form-select" name="extractor" value={this.state.extractor} onChange={this.handleChange}>
                     {_.keys(EXTRACTOR_TYPE_LABELS).map((extractor, index) => (
                         <option key={index} value={extractor}>{EXTRACTOR_TYPE_LABELS[extractor]}</option>
                     ))}
                 </select>
-            </div>
+            </div> */}
             <div className="mb-2">
                 <label className="form-label">File</label>
                 <input type="file" className="form-control" onChange={this.handleFileUpload} required />
@@ -141,13 +141,13 @@ class Upload extends React.Component {
                 <input type="password" className="form-control" name="password" value={this.state.password} onChange={this.handleChange} />
                 <div className="form-text text-muted">Password is never stored — only used for this extraction.</div>
             </div>}
-            <div className="mb-2">
+            {/* <div className="mb-2">
                 <label className="form-label">Page Range <span className="text-muted small">(optional)</span></label>
                 <div className="d-flex gap-2">
                     <input type="number" className="form-control" name="fromPage" placeholder="From" min="1" value={this.state.fromPage} onChange={this.handleChange} />
                     <input type="number" className="form-control" name="toPage" placeholder="To" min="1" value={this.state.toPage} onChange={this.handleChange} />
                 </div>
-            </div>
+            </div> */}
             <div className="d-flex align-items-center gap-3">
                 <button className="btn btn-outline-dark" disabled={status === UPLOAD_STATUS.EXTRACTING}>
                     {status === UPLOAD_STATUS.EXTRACTING ? "Extracting..." : "Extract Transactions"}
@@ -171,10 +171,10 @@ class Upload extends React.Component {
         if (![UPLOAD_STATUS.EXTRACTED, UPLOAD_STATUS.SAVING, UPLOAD_STATUS.SAVED].includes(status)) return null;
         const hasSelection = this.state.selectedResult !== null;
         return <form className="p-3 shadow mb-2" onSubmit={this.confirmDrafts}>
-            <div className="mb-2">
+            {/* <div className="mb-2">
                 <label className="form-label">Extractor</label>
                 <input type="text" className="form-control" value={EXTRACTOR_TYPE_LABELS[this.state.extractor] || this.state.extractor} disabled />
-            </div>
+            </div> */}
             <div className="mb-2">
                 <label className="form-label">File</label>
                 <input type="text" className="form-control" value={this.state.file?.name + (this.state.fromPage || this.state.toPage ? ` (Pages ${this.state.fromPage || "1"}-${this.state.toPage || "end"})` : "")} disabled />
