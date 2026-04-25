@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 class Profile extends React.Component {
     state = {
         grantEmail: "",
+        grantAccessType: "readonly",
         granted: [],
     }
 
@@ -29,9 +30,9 @@ class Profile extends React.Component {
 
     grantAccess = (e) => {
         e.preventDefault();
-        accessService.grant(this.state.grantEmail).then(() => {
+        accessService.grant(this.state.grantEmail, this.state.grantAccessType).then(() => {
             toast.info("Access granted");
-            this.setState({ grantEmail: "" });
+            this.setState({ grantEmail: "", grantAccessType: "readonly" });
             this.fetchGranted();
         });
     }
@@ -51,12 +52,20 @@ class Profile extends React.Component {
             <form className="d-flex gap-2 mb-2" onSubmit={this.grantAccess}>
                 <input type="email" className="form-control form-control-sm" placeholder="Enter email to grant access"
                     value={this.state.grantEmail} onChange={(e) => this.setState({ grantEmail: e.target.value })} required />
+                <select className="form-select form-select-sm" style={{ width: "auto" }}
+                    value={this.state.grantAccessType} onChange={(e) => this.setState({ grantAccessType: e.target.value })}>
+                    <option value="readonly">Read Only</option>
+                    <option value="edit">Edit</option>
+                </select>
                 <button className="btn btn-outline-dark btn-sm text-nowrap">Grant</button>
             </form>
             {granted.length === 0 && <div className="text-muted small">No access granted yet.</div>}
             {granted.map(a => <div key={a._id} className="d-flex align-items-center justify-content-between py-1 border-bottom">
                 <div className="small">{a.user.email}</div>
-                <button className="btn btn-outline-danger btn-sm" onClick={() => this.revokeAccess(a._id)}>Revoke</button>
+                <div className="d-flex align-items-center gap-2">
+                    <span className="badge bg-secondary bg-opacity-10 text-secondary">{a.accessType === "edit" ? "Edit" : "Read Only"}</span>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => this.revokeAccess(a._id)}>Revoke</button>
+                </div>
             </div>)}
         </div>;
     }
