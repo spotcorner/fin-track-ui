@@ -69,7 +69,8 @@ class StatsView extends React.Component {
                     <i className={"bi " + (chart.sortOptions ? "ms-2" : "ms-auto") + " " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
                         onClick={(e) => this.toggleExpand(chart.key, e)}></i>
                 </h5>
-                <div className={"chart-container" + (chartExpanded ? " chart-expanded" : "")} key={chartExpanded}>
+                <div className={"chart-container" + (chartExpanded ? " chart-expanded" : "")} key={chartExpanded}
+                    style={chart.getHeight ? { height: chart.getHeight(chartData) } : {}}>
                     <chart.Chart data={chartData}
                         options={{ ...(chart.getOptions ? chart.getOptions(chartData) : chart.options || {}), ...(chartExpanded ? { maintainAspectRatio: false, responsive: true } : {}) }}
                         plugins={chart.plugins || []} />
