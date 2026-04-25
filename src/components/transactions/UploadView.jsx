@@ -82,10 +82,8 @@ class Upload extends React.Component {
                 selectedResult: null,
                 status: UPLOAD_STATUS.EXTRACTED,
             });
-        }).catch(err => {
-            console.error(err);
+        }).catch(() => {
             this.setState({ status: UPLOAD_STATUS.IDLE });
-            toast.error(err.message);
         });
     }
 
@@ -106,9 +104,8 @@ class Upload extends React.Component {
         this.setState({ status: UPLOAD_STATUS.SAVING });
         transactionService.createDrafts(this.state.accountId, this.state.draftName, transactions).then(data => {
             this.setState({ status: UPLOAD_STATUS.SAVED });
-        }).catch(err => {
+        }).catch(() => {
             this.setState({ status: UPLOAD_STATUS.EXTRACTED });
-            toast.error(err.message);
         });
     }
 

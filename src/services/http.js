@@ -1,6 +1,7 @@
 "use strict";
 
 import axios from "axios";
+import { toast } from "react-toastify";
 
 async function request(path, method, data = {}, headers) {
     const config = {
@@ -11,8 +12,14 @@ async function request(path, method, data = {}, headers) {
     if (headers) {
         config.headers = headers;
     }
-    const response = await axios(config);
-    return response.data;
+    try {
+        const response = await axios(config);
+        return response.data;
+    } catch (err) {
+        const message = err.response?.data?.message || err.message || "Something went wrong";
+        toast.error(message);
+        throw new Error(message);
+    }
 }
 
 export default {

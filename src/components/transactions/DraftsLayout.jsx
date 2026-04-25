@@ -25,6 +25,8 @@ export default class DraftsLayout extends React.Component {
                 selectedDraftId: drafts.length > 0 ? drafts[0]._id : "",
                 loading: false,
             });
+        }).catch(() => {
+            this.setState({ loading: false });
         });
     }
 
