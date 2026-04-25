@@ -55,7 +55,7 @@ class Profile extends React.Component {
                 <select className="form-select form-select-sm" style={{ width: "auto" }}
                     value={this.state.grantAccessType} onChange={(e) => this.setState({ grantAccessType: e.target.value })}>
                     <option value="readonly">Read Only</option>
-                    <option value="edit">Edit</option>
+                    <option value="full">Full Access</option>
                 </select>
                 <button className="btn btn-outline-dark btn-sm text-nowrap">Grant</button>
             </form>
@@ -63,7 +63,7 @@ class Profile extends React.Component {
             {granted.map(a => <div key={a._id} className="d-flex align-items-center justify-content-between py-1 border-bottom">
                 <div className="small">{a.user.email}</div>
                 <div className="d-flex align-items-center gap-2">
-                    <span className="badge bg-secondary bg-opacity-10 text-secondary">{a.accessType === "edit" ? "Edit" : "Read Only"}</span>
+                    <span className="badge bg-secondary bg-opacity-10 text-secondary">{a.accessType === "full" ? "Full Access" : "Read Only"}</span>
                     <button className="btn btn-outline-danger btn-sm" onClick={() => this.revokeAccess(a._id)}>Revoke</button>
                 </div>
             </div>)}
