@@ -11,8 +11,8 @@ import SortDropdown from "@components/ui/SortDropdown.jsx";
 class StatsView extends React.Component {
 
     state = {
-        visibleCharts: ["tags"],
-        expandedCharts: { tags: true },
+        visibleCharts: charts.map(c => c.key),
+        expandedCharts: _.fromPairs(charts.map(c => [c.key, true])),
         sortBy: {},
     }
 
@@ -53,20 +53,22 @@ class StatsView extends React.Component {
             <div className="card shadow-sm p-3">
                 <h5 className="card-title d-flex align-items-center">
                     {chart.title}
-                    {chart.hasTimeFilter && <select className="form-select form-select-sm w-auto ms-2" value={statsGroupByPeriod}
-                        onChange={this.handleChange} onClick={e => e.stopPropagation()}>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                        <option value="overall">Overall</option>
-                    </select>}
-                    {chart.sortOptions && <div className="ms-auto"><SortDropdown
-                        options={chart.sortOptions}
-                        selected={sortBy}
-                        onChange={(field, direction) => this.handleSortChange(chart.key, field, direction)} /></div>}
-                    <i className={"bi " + (chart.sortOptions ? "ms-2" : "ms-auto") + " " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
-                        onClick={(e) => this.toggleExpand(chart.key, e)}></i>
+                    <div className="ms-auto d-flex align-items-center gap-2">
+                        {chart.sortOptions && <SortDropdown
+                            options={chart.sortOptions}
+                            selected={sortBy}
+                            onChange={(field, direction) => this.handleSortChange(chart.key, field, direction)} />}
+                        {chart.hasTimeFilter && <select className="form-select form-select-sm w-auto" value={statsGroupByPeriod}
+                            onChange={this.handleChange} onClick={e => e.stopPropagation()}>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="overall">Overall</option>
+                        </select>}
+                        <i className={"bi " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
+                            onClick={(e) => this.toggleExpand(chart.key, e)}></i>
+                    </div>
                 </h5>
                 <div className={"chart-container" + (chartExpanded ? " chart-expanded" : "")} key={chartExpanded}
                     style={chart.getHeight ? { height: chart.getHeight(chartData) } : {}}>

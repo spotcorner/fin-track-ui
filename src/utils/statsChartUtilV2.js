@@ -1,89 +1,84 @@
-import { Bar, Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import statsUtil from "./statsUtil";
 import amountUtil from "./amountUtil";
 
-const getBalanceDebitCreditTrendData = (filteredTransactions, accountsMap, timeFilter) => {
+const DEBIT_COLOR = "rgba(220, 53, 70, 0.6)";
+const CREDIT_COLOR = "rgba(40, 167, 70, 0.6)";
+const DEBIT_LABEL_COLOR = "rgba(220, 53, 70, 0.8)";
+const CREDIT_LABEL_COLOR = "rgba(40, 167, 70, 0.8)";
+
+function getDebitCreditSplit(txns) {
+    const debit = txns.filter(t => t.type === "DEBIT");
+    const credit = txns.filter(t => t.type === "CREDIT");
+    return { debit: _.sumBy(debit, "amount"), credit: _.sumBy(credit, "amount"), debitCount: debit.length, creditCount: credit.length, count: txns.length };
+}
+
+function buildDebitCreditDatasets(results) {
+    return [
+        { label: "Debit", data: results.map(r => r.debit), backgroundColor: DEBIT_COLOR, _counts: results.map(r => r.debitCount) },
+        { label: "Credit", data: results.map(r => r.credit), backgroundColor: CREDIT_COLOR, _counts: results.map(r => r.creditCount) },
+    ];
+}
+
+const getAmountByPeriodData = (filteredTransactions, accountsMap, timeFilter) => {
     const sorted = _.sortBy(filteredTransactions, "date");
-    let cumulativeBalance = statsUtil.getCummulativeBalance(sorted, accountsMap);
-    const trendData = {};
+    const periodMap = {};
     sorted.forEach(txn => {
-        const date = statsUtil.formatDate(timeFilter, txn.date);
-        if (!trendData[date]) trendData[date] = { balance: cumulativeBalance, debit: 0, credit: 0 };
-        if (txn.type === "CREDIT") {
-            cumulativeBalance += txn.amount;
-            trendData[date].credit += txn.amount;
-        } else {
-            cumulativeBalance -= txn.amount;
-            trendData[date].debit += txn.amount;
-        }
-        trendData[date].balance = cumulativeBalance;
+        const period = statsUtil.formatDate(timeFilter, txn.date);
+        if (!periodMap[period]) periodMap[period] = [];
+        periodMap[period].push(txn);
     });
-    const labels = Object.keys(trendData);
-    return {
-        labels,
-        datasets: [
-            { label: "Balance", data: labels.map(d => trendData[d].balance), borderColor: "rgb(0, 123, 255)", backgroundColor: "rgba(0, 123, 255, 0.1)", fill: true, tension: 0.3 },
-            { label: "Debit", data: labels.map(d => trendData[d].debit), borderColor: "rgb(220, 53, 70)", backgroundColor: "rgba(220, 53, 70, 0.1)", fill: true, tension: 0.3 },
-            { label: "Credit", data: labels.map(d => trendData[d].credit), borderColor: "rgb(40, 167, 70)", backgroundColor: "rgba(40, 167, 70, 0.1)", fill: true, tension: 0.3 },
-        ],
-    };
+    const labels = Object.keys(periodMap);
+    const results = labels.map(label => ({ label, ...getDebitCreditSplit(periodMap[label]) }));
+    return { labels, datasets: buildDebitCreditDatasets(results) };
 };
 
-const COLORS = [
-    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
-    "#FF9F40", "#7BC67E", "#E77C8E", "#A78BFA", "#F472B6",
-    "#34D399", "#60A5FA", "#FBBF24", "#F87171", "#818CF8",
-];
-
 const getAmountByRangeData = (filteredTransactions) => {
-    const ranges = statsUtil.getTransactionAmountRange();
-    const results = ranges.map(({ label, min, max }) => {
+    const results = statsUtil.getTransactionAmountRange().map(({ label, min, max }) => {
         const txns = filteredTransactions.filter(t => t.amount >= min && t.amount <= max);
-        return { label, count: txns.length, sum: _.sumBy(txns, "amount") };
+        return { label, ...getDebitCreditSplit(txns) };
     }).filter(r => r.count > 0);
-    return {
-        labels: results.map(r => r.label),
-        datasets: [{ data: results.map(r => r.sum), backgroundColor: COLORS.slice(0, results.length), _counts: results.map(r => r.count) }],
-    };
+    return { labels: results.map(r => r.label), datasets: buildDebitCreditDatasets(results) };
 };
 
 const getAmountByTagData = (filteredTransactions, accountsMap, timeFilter, tags, sortBy) => {
     let results = tags.map(({ _id, name }) => {
         const txns = filteredTransactions.filter(t => t.appliedTags[_id] >= 1);
-        return { label: name, count: txns.length, sum: _.sumBy(txns, "amount") };
+        return { label: name, ...getDebitCreditSplit(txns) };
     });
     const untagged = filteredTransactions.filter(t => !_.some(t.appliedTags, v => v >= 1));
-    results.push({ label: "Untagged", count: untagged.length, sum: _.sumBy(untagged, "amount") });
+    results.push({ label: "Untagged", ...getDebitCreditSplit(untagged) });
     results = results.filter(r => r.count > 0);
-    if (sortBy) results = _.orderBy(results, sortBy.field === "name" ? [r => r.label.toLowerCase()] : ["sum"], [sortBy.direction]);
-    return {
-        labels: results.map(r => r.label),
-        datasets: [{ data: results.map(r => r.sum), backgroundColor: COLORS.slice(0, results.length), _counts: results.map(r => r.count) }],
-    };
+    if (sortBy) results = _.orderBy(results, sortBy.field === "name" ? [r => r.label.toLowerCase()] : [r => r.debit + r.credit], [sortBy.direction]);
+    return { labels: results.map(r => r.label), datasets: buildDebitCreditDatasets(results) };
 };
+
+const fmt = amountUtil.getFormattedAmount;
 
 const horizontalBarDatalabelsPlugin = {
     id: "horizontalBarDatalabels",
     afterDatasetsDraw(chart) {
         const { ctx } = chart;
-        chart.data.datasets.forEach((dataset, i) => {
-            const counts = dataset._counts;
-            const meta = chart.getDatasetMeta(i);
-            meta.data.forEach((bar, index) => {
-                const value = dataset.data[index];
-                if (!value) return;
-                ctx.save();
-                ctx.textBaseline = "middle";
-                ctx.textAlign = "left";
-                ctx.fillStyle = "#333";
-                ctx.font = "12px sans-serif";
-                const label = `₹${amountUtil.getFormattedAmount(value)}` + (counts ? ` (${counts[index]})` : "");
-                ctx.fillText(label, bar.x + 6, bar.y);
-                ctx.restore();
-            });
+        const debitDs = chart.data.datasets[0];
+        const creditDs = chart.data.datasets[1];
+        const meta = chart.getDatasetMeta(0);
+        meta.data.forEach((bar, index) => {
+            const debit = debitDs.data[index] || 0;
+            const credit = creditDs?.data[index] || 0;
+            if (!debit && !credit) return;
+            ctx.save();
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "left";
+            ctx.font = "11px sans-serif";
+            let x = 6 + Math.max(...chart.data.datasets.map((_, di) => chart.getDatasetMeta(di).data[index]?.x || 0));
+            if (debit) { const dl = `₹${fmt(debit)} (${debitDs._counts[index]})`; ctx.fillStyle = DEBIT_LABEL_COLOR; ctx.fillText(dl, x, bar.y); x += ctx.measureText(dl).width + 8; }
+            if (credit) { const cl = `₹${fmt(credit)} (${creditDs._counts[index]})`; ctx.fillStyle = CREDIT_LABEL_COLOR; ctx.fillText(cl, x, bar.y); }
+            ctx.restore();
         });
     },
 };
+
+const STACKED_SCALES = { scales: { x: { stacked: true }, y: { stacked: true } } };
 
 const getHorizontalBarOptions = (labelCount) => ({
     indexAxis: "y",
@@ -93,15 +88,15 @@ const getHorizontalBarOptions = (labelCount) => ({
         tooltip: {
             callbacks: {
                 label: (context) => {
-                    const counts = context.dataset._counts;
-                    const value = amountUtil.getFormattedAmount(context.raw);
-                    const count = counts?.[context.dataIndex];
+                    const count = context.dataset._counts?.[context.dataIndex];
+                    const value = fmt(context.raw);
                     return count != null ? `₹${value} (${count})` : `₹${value}`;
                 },
             },
         },
         legend: { display: false },
     },
+    ...STACKED_SCALES,
 });
 
 export const charts = [
@@ -127,11 +122,14 @@ export const charts = [
         plugins: [horizontalBarDatalabelsPlugin],
     },
     {
-        key: "balance",
-        title: "Balance Trends",
-        Chart: Line,
-        getData: getBalanceDebitCreditTrendData,
+        key: "trends",
+        title: "Amount by Period",
+        Chart: Bar,
+        getData: getAmountByPeriodData,
         className: "col-sm-12 col-md-6 mb-3",
+        getOptions: (data) => getHorizontalBarOptions(data.labels.length),
+        getHeight: (data) => Math.max(300, data.labels.length * 25),
+        plugins: [horizontalBarDatalabelsPlugin],
         hasTimeFilter: true,
     },
 ];
