@@ -63,6 +63,9 @@ class HomeLayout extends React.Component {
                             <li className="nav-item">
                                 {this.getNavLink("/tags", "Tags")}
                             </li>
+                            <li className="nav-item">
+                                {this.getNavLink("/how-to-use", "Help")}
+                            </li>
                             <li className="nav-item d-lg-none">
                                 {this.getViewAsDropdown()}
                             </li>

@@ -10,6 +10,7 @@ const routes = [
     { path: '/accounts', component: () => import('@components/accounts/Accounts.jsx') },
     { path: '/tags', component: () => import('@components/tags/Tags.jsx') },
     { path: '/profile', component: () => import('@components/profile/Profile.jsx') },
+    { path: '/how-to-use', component: () => import('@components/help/HowToUse.jsx') },
     { path: '/', component: () => import('@components/transactions/TransactionsRoutes.jsx') },
 ];
 
