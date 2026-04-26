@@ -16,7 +16,7 @@ try {
 const initialState = {
     info,
     receivedAccessList: [],
-    viewAsUserId: null,
+    viewAsUserId: localStorage.getItem("viewAsUserId") || null,
     loadingAccounts: false,
     loadingTags: false,
     accounts: [],
@@ -94,12 +94,16 @@ export const deleteTagRequest = createAsyncThunk(
 const reducers = {
     setUserDetails: (user, action) => {
         user.info = action.payload;
+        user.viewAsUserId = null;
+        localStorage.removeItem("viewAsUserId");
     },
     setStatsGroupByPeriod: (user, action) => {
         user.statsGroupByPeriod = action.payload;
     },
     setViewAsUserId: (user, action) => {
         user.viewAsUserId = action.payload;
+        if (action.payload) localStorage.setItem("viewAsUserId", action.payload);
+        else localStorage.removeItem("viewAsUserId");
     },
     upsertAccount: (user, action) => {
         const { account } = action.payload;

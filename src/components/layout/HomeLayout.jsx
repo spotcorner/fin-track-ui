@@ -23,7 +23,7 @@ class HomeLayout extends React.Component {
 
     getViewAsDropdown() {
         const { receivedAccessList, viewAsUserId } = this.props;
-        if (!receivedAccessList || receivedAccessList.length === 0) return null;
+        if (!viewAsUserId && (!receivedAccessList || receivedAccessList.length === 0)) return null;
         return <select className="form-select form-select-sm bg-dark text-light border-secondary ms-2"
             style={{ width: "auto" }}
             value={viewAsUserId || ""}
