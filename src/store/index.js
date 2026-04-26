@@ -5,6 +5,7 @@ export {
     fetchAccountsRequest,
     fetchTagsRequest,
     fetchReceivedAccessRequest,
+    updateNicknameForOwnerRequest,
     deleteAccountRequest,
     deleteTagRequest,
     upsertAccountRequest,

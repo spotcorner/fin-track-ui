@@ -70,6 +70,13 @@ export const switchViewAs = createAsyncThunk(
     }
 );
 
+export const updateNicknameForOwnerRequest = createAsyncThunk(
+    "user/updateNicknameForOwner",
+    async ({ _id, nickname }) => {
+        return await accessService.update(_id, { nickname });
+    }
+);
+
 export const deleteAccountRequest = createAsyncThunk(
     "user/deleteAccountRequest",
     async (_id) => {
@@ -133,11 +140,7 @@ const reducers = {
         user.loadingTags = false;
     },
     updateReceivedAccess: (user, action) => {
-        user.receivedAccessList = (action.payload.access || []).map(a => ({
-            userId: a.ownerId,
-            email: a.user.email,
-            accessType: a.accessType,
-        }));
+        user.receivedAccessList = action.payload.access;
     },
 }
 
@@ -172,7 +175,12 @@ const userSlice = createSlice({
             .addCase(upsertAccountRequest.fulfilled, reducers.upsertAccount)
             .addCase(upsertTagRequest.fulfilled, reducers.upsertTag)
             .addCase(deleteAccountRequest.fulfilled, reducers.deleteAccount)
-            .addCase(deleteTagRequest.fulfilled, reducers.deleteTag);
+            .addCase(deleteTagRequest.fulfilled, reducers.deleteTag)
+            .addCase(updateNicknameForOwnerRequest.fulfilled, (user, action) => {
+                const { _id, nicknameForOwner } = action.payload;
+                const item = user.receivedAccessList.find(a => a._id === _id);
+                if (item) item.nicknameForOwner = nicknameForOwner;
+            });
     }
 });
 

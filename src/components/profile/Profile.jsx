@@ -4,14 +4,16 @@ import React from "react";
 import { connect } from "react-redux";
 import userService from "@services/userService";
 import accessService from "@services/accessService";
-import { setUserDetails, fetchReceivedAccessRequest } from "@store";
+import { setUserDetails, updateNicknameForOwnerRequest } from "@store";
 import { toast } from "react-toastify";
+import CrudAccessModal from "./CrudAccessModal.jsx";
+import Modal from "@components/modal/Modal.jsx";
 
 class Profile extends React.Component {
     state = {
-        grantEmail: "",
-        grantAccessType: "readonly",
         granted: [],
+        modalData: null,
+        deleteId: null,
     }
 
     handleLogout = () => {
@@ -28,51 +30,81 @@ class Profile extends React.Component {
         });
     }
 
-    grantAccess = (e) => {
-        e.preventDefault();
-        accessService.grant(this.state.grantEmail, this.state.grantAccessType).then(() => {
+    openGrantModal = () => {
+        this.setState({ modalData: { mode: "grant", onSubmit: this.handleGrant } });
+    }
+
+    openEditGrantedModal = (a) => {
+        this.setState({ modalData: { mode: "editGranted", _id: a._id, email: a.user.email, accessType: a.accessType, nickname: a.nicknameForMember || "", onSubmit: this.handleEditGranted } });
+    }
+
+    openEditReceivedModal = (a) => {
+        this.setState({ modalData: { mode: "editReceived", _id: a._id, email: a.user.email, accessType: a.accessType, nickname: a.nicknameForOwner || "", onSubmit: this.handleEditReceived } });
+    }
+
+    closeModal = () => {
+        this.setState({ modalData: null });
+    }
+
+    handleGrant = (formData) => {
+        accessService.grant(formData.email, formData.accessType, formData.nickname).then((data) => {
             toast.info("Access granted");
-            this.setState({ grantEmail: "", grantAccessType: "readonly" });
-            this.fetchGranted();
+            this.setState(prev => ({ granted: [...prev.granted, data.access] }));
+            this.closeModal();
         });
     }
 
-    revokeAccess = (_id) => {
-        accessService.revoke(_id).then(() => {
+    handleEditGranted = (formData) => {
+        const { _id } = this.state.modalData;
+        accessService.update(_id, { nickname: formData.nickname, accessType: formData.accessType }).then((data) => {
+            toast.info("Access updated");
+            this.setState(prev => ({
+                granted: prev.granted.map(a => a._id === _id ? { ...a, nicknameForMember: data.nicknameForMember, accessType: data.accessType } : a),
+            }));
+            this.closeModal();
+        });
+    }
+
+    handleEditReceived = (formData) => {
+        const { _id } = this.state.modalData;
+        this.props.dispatch(updateNicknameForOwnerRequest({ _id, nickname: formData.nickname })).unwrap().then(() => {
+            toast.info("Nickname updated");
+            this.closeModal();
+        });
+    }
+
+    revokeAccess = () => {
+        accessService.revoke(this.state.deleteId).then(() => {
             toast.info("Access revoked");
-            this.fetchGranted();
-            this.props.dispatch(fetchReceivedAccessRequest());
+            this.setState(prev => ({ granted: prev.granted.filter(a => a._id !== prev.deleteId), deleteId: null }));
         });
     }
 
-    getAccessLabel(accessType) {
+    getAccessBadge(accessType) {
         switch (accessType) {
-            case "full": return "Full Access";
-            case "readonly": return "Read Only";
-            default: return accessType;
+            case "full": return <span className="badge bg-success bg-opacity-10 text-success">Full Access</span>;
+            case "readonly": return <span className="badge bg-primary bg-opacity-10 text-primary">Read Only</span>;
+            default: return <span className="badge bg-secondary bg-opacity-10 text-secondary">{accessType}</span>;
         }
     }
 
     getGrantedSection() {
         const { granted } = this.state;
         return <div className="card shadow-sm p-3 mt-3">
-            <h6>Shared my data with</h6>
-            <form className="d-flex gap-2 mb-2" onSubmit={this.grantAccess}>
-                <input type="email" className="form-control form-control-sm" placeholder="Enter email to grant access"
-                    value={this.state.grantEmail} onChange={(e) => this.setState({ grantEmail: e.target.value })} required />
-                <select className="form-select form-select-sm" style={{ width: "auto" }}
-                    value={this.state.grantAccessType} onChange={(e) => this.setState({ grantAccessType: e.target.value })}>
-                    <option value="readonly">Read Only</option>
-                    <option value="full">Full Access</option>
-                </select>
-                <button className="btn btn-outline-dark btn-sm text-nowrap">Grant</button>
-            </form>
+            <div className="d-flex align-items-center mb-2">
+                <h6 className="mb-0">Shared my data with</h6>
+                <button className="btn btn-outline-dark btn-sm ms-auto" onClick={this.openGrantModal}>+</button>
+            </div>
             {granted.length === 0 && <div className="text-muted small">No access granted yet.</div>}
             {granted.map(a => <div key={a._id} className="d-flex align-items-center justify-content-between py-1 border-bottom">
-                <div className="small">{a.user.email}</div>
                 <div className="d-flex align-items-center gap-2">
-                    <span className="badge bg-secondary bg-opacity-10 text-secondary">{this.getAccessLabel(a.accessType)}</span>
-                    <button className="btn btn-outline-danger btn-sm" onClick={() => this.revokeAccess(a._id)}>Revoke</button>
+                    <div className="small">{a.user.email}</div>
+                    {a.nicknameForMember && <span className="badge bg-dark bg-opacity-10 text-dark">{a.nicknameForMember}</span>}
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                    {this.getAccessBadge(a.accessType)}
+                    <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.openEditGrantedModal(a)}><i className="bi bi-pencil"></i></span>
+                    <span className="badge badge-outline-danger cursor-pointer" onClick={() => this.setState({ deleteId: a._id })}><i className="bi bi-trash"></i></span>
                 </div>
             </div>)}
         </div>;
@@ -83,9 +115,15 @@ class Profile extends React.Component {
         if (!receivedAccessList || receivedAccessList.length === 0) return null;
         return <div className="card shadow-sm p-3 mt-3">
             <h6>Shared with me</h6>
-            {receivedAccessList.map((a, i) => <div key={i} className="d-flex align-items-center py-1 border-bottom">
-                <div className="small">{a.email}</div>
-                <span className="badge bg-secondary bg-opacity-10 text-secondary ms-auto">{this.getAccessLabel(a.accessType)}</span>
+            {receivedAccessList.map((a, i) => <div key={i} className="d-flex align-items-center justify-content-between py-1 border-bottom">
+                <div className="d-flex align-items-center gap-2">
+                    <div className="small">{a.user.email}</div>
+                    {a.nicknameForOwner && <span className="badge bg-dark bg-opacity-10 text-dark">{a.nicknameForOwner}</span>}
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                    {this.getAccessBadge(a.accessType)}
+                    <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.openEditReceivedModal(a)}><i className="bi bi-pencil"></i></span>
+                </div>
             </div>)}
         </div>;
     }
@@ -111,6 +149,14 @@ class Profile extends React.Component {
                 </div>
                 {this.getGrantedSection()}
                 {this.getReceivedSection()}
+                <CrudAccessModal show={!!this.state.modalData} mode={this.state.modalData?.mode}
+                    data={this.state.modalData}
+                    onSubmit={this.state.modalData?.onSubmit}
+                    onClose={this.closeModal} />
+                <Modal show={!!this.state.deleteId} title="Revoke Access"
+                    body="Are you sure you want to revoke access?"
+                    onSubmitClick={this.revokeAccess}
+                    onClose={() => this.setState({ deleteId: null })} />
             </div>
         );
     }

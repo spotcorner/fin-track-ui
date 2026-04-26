@@ -21,10 +21,6 @@ class HomeLayout extends React.Component {
         return <Link to={to} className={"nav-link " + this.getActiveStatus(basePath || to)}>{content}</Link>;
     }
 
-    getDropdownItem(to, content) {
-        return <Link to={to} className={"dropdown-item"}>{content}</Link>;
-    }
-
     getViewAsDropdown() {
         const { receivedAccessList, viewAsUserId } = this.props;
         if (!receivedAccessList || receivedAccessList.length === 0) return null;
@@ -33,7 +29,7 @@ class HomeLayout extends React.Component {
             value={viewAsUserId || ""}
             onChange={(e) => this.props.dispatch(switchViewAs(e.target.value || null))}>
             <option value="">My Data</option>
-            {receivedAccessList.map(a => <option key={a.userId} value={a.userId}>{a.email}</option>)}
+            {receivedAccessList.map(a => <option key={a.ownerId} value={a.ownerId}>{a.nicknameForOwner || a.user?.email}</option>)}
         </select>;
     }
 
