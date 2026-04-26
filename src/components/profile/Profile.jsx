@@ -83,7 +83,7 @@ class Profile extends React.Component {
     getAccessBadge(accessType) {
         switch (accessType) {
             case "full": return <span className="badge bg-success bg-opacity-10 text-success">Full Access</span>;
-            case "readonly": return <span className="badge bg-primary bg-opacity-10 text-primary">Read Only</span>;
+            case "readonly": return <span className="badge bg-primary bg-opacity-10 text-primary">🔒 Read Only</span>;
             default: return <span className="badge bg-secondary bg-opacity-10 text-secondary">{accessType}</span>;
         }
     }

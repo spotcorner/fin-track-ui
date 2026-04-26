@@ -25,11 +25,11 @@ class HomeLayout extends React.Component {
         const { receivedAccessList, viewAsUserId } = this.props;
         if (!viewAsUserId && (!receivedAccessList || receivedAccessList.length === 0)) return null;
         return <select className="form-select form-select-sm bg-dark text-light border-secondary ms-2"
-            style={{ width: "auto" }}
+            style={{ width: "auto", maxWidth: 200 }}
             value={viewAsUserId || ""}
             onChange={(e) => this.props.dispatch(switchViewAs(e.target.value || null))}>
             <option value="">My Data</option>
-            {receivedAccessList.map(a => <option key={a.ownerId} value={a.ownerId}>{a.nicknameForOwner || a.user?.email}</option>)}
+            {receivedAccessList.map(a => <option key={a.ownerId} value={a.ownerId}>{a.accessType === "readonly" ? "🔒 " : ""}{a.nicknameForOwner || a.user?.email}</option>)}
         </select>;
     }
 
