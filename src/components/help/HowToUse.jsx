@@ -130,32 +130,36 @@ const steps = [
 ];
 
 function FlowDiagram() {
-    return <div className="mb-4 overflow-auto">
-        <div className="d-flex align-items-start gap-0">
-            {flow.map((step, i) => <React.Fragment key={i}>
-                {i > 0 && <div className="d-flex align-items-center" style={{ minHeight: 40 }}>
-                    <i className="bi bi-arrow-right text-muted mx-1"></i>
+    return <div className="d-flex flex-column align-items-center gap-1">
+        {flow.map((step, i) => <React.Fragment key={i}>
+            {i > 0 && <i className="bi bi-arrow-down text-muted"></i>}
+            <div className="text-center">
+                <div className="badge bg-dark px-3 py-2">{step.label}</div>
+                {step.options && <div className="mt-1 d-flex flex-wrap justify-content-center gap-1">
+                    {step.options.map((opt, j) => <span key={j} className="badge bg-secondary bg-opacity-10 text-secondary" style={{ fontSize: "0.7rem" }}>{opt}</span>)}
                 </div>}
-                <div className="text-center" style={{ minWidth: 130 }}>
-                    <div className="badge bg-dark px-3 py-2">{step.label}</div>
-                    {step.options && <div className="mt-1 d-flex flex-column gap-1">
-                        {step.options.map((opt, j) => <span key={j} className="badge bg-secondary bg-opacity-10 text-secondary" style={{ fontSize: "0.7rem" }}>{opt}</span>)}
-                    </div>}
-                </div>
-            </React.Fragment>)}
-        </div>
+            </div>
+        </React.Fragment>)}
     </div>;
 }
 
 export default function HowToUse() {
     return <div>
         <div className="text-muted small mb-3 page-header">How to Use</div>
-        <FlowDiagram />
-        {steps.map((step, i) => <div key={i} className="mb-3">
-            <div className="fw-bold">{step.title}</div>
-            <ul className="text-muted small mb-0 ps-3">
-                {step.details.map((d, j) => <li key={j}>{d}</li>)}
-            </ul>
-        </div>)}
+        <div className="row">
+            <div className="col-lg-8 order-2 order-lg-1">
+                {steps.map((step, i) => <div key={i} className="mb-3">
+                    <div className="fw-bold">{step.title}</div>
+                    <ul className="text-muted small mb-0 ps-3">
+                        {step.details.map((d, j) => <li key={j}>{d}</li>)}
+                    </ul>
+                </div>)}
+            </div>
+            <div className="col-lg-4 order-1 order-lg-2 mb-3 mb-lg-0">
+                <div className="position-sticky" style={{ top: 20 }}>
+                    <FlowDiagram />
+                </div>
+            </div>
+        </div>
     </div>;
 }
