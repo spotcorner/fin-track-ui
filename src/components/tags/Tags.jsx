@@ -86,22 +86,17 @@ class Tags extends React.Component {
         return <CrudTagModal show={this.state.showModal} tag={this.state.selectedTag} onClose={() => this.toggleModal()} />;
     }
 
-    getAddButton() {
-        return <button
-            className="btn btn-dark rounded-circle position-fixed bottom-0 end-0 m-4"
-            onClick={() => this.toggleModal()}
-            style={{ width: "50px", height: "50px" }}
-        >+</button>;
-    }
-
     render() {
         return (
             <div className="container mt-3">
-                <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="d-flex align-items-center mb-2">
                     <div className="text-muted small page-header">Tags</div>
-                    <SortDropdown options={this.getSortOptions()}
-                        selected={{ field: this.state.sortField, direction: this.state.sortDirection }}
-                        onChange={(field, direction) => this.setState({ sortField: field, sortDirection: direction })} />
+                    <div className="ms-auto d-flex align-items-center gap-2">
+                        <SortDropdown options={this.getSortOptions()}
+                            selected={{ field: this.state.sortField, direction: this.state.sortDirection }}
+                            onChange={(field, direction) => this.setState({ sortField: field, sortDirection: direction })} />
+                        <button className="btn btn-outline-dark btn-sm" style={{ width: 30, height: 30 }} onClick={() => this.toggleModal()}>+</button>
+                    </div>
                 </div>
                 {this.getTagsContainer()}
                 {this.getCrudTagModal()}
@@ -109,7 +104,6 @@ class Tags extends React.Component {
                     body="Are you sure you want to delete this tag?"
                     onSubmitClick={this.handleDelete}
                     onClose={() => this.setState({ deleteTagId: null })} />
-                {this.getAddButton()}
             </div>
         );
     }
