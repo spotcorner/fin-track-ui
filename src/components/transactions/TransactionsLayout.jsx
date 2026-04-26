@@ -208,6 +208,7 @@ class TransactionsLayout extends React.Component {
     }
 
     componentDidMount() {
+        console.log("componentDidMount")
         this.fetchTransactions();
     }
 }

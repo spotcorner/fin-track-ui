@@ -30,7 +30,7 @@ const routes = [
 ];
 
 function getRoute(route, key) {
-    return <Route key={key} exact={route.exact !== false} path={route.path} component={() => <LazyLoad component={route.component} {...route.props} />} />;
+    return <Route key={key} exact={route.exact !== false} path={route.path} render={() => <LazyLoad component={route.component} {...route.props} />} />;
 }
 
 export default function getRoutes() {
