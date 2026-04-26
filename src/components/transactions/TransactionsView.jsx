@@ -104,15 +104,15 @@ class TransactionsView extends React.Component {
     }
 
     getToolbar(filteredTransactions, isDraft) {
-        return <div className="d-flex justify-content-between align-items-center mb-2">
-            <div></div>
-            <span className="text-muted">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
+        return <div className="d-flex align-items-center mb-2">
             <div>
                 {isDraft && <>
                     <button className="btn btn-outline-success btn-sm me-2" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
                     <button className="btn btn-outline-danger btn-sm" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
                 </>}
             </div>
+            <span className="text-muted mx-auto">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
+            <button className="btn btn-outline-dark btn-sm" style={{ width: 30, height: 30 }} onClick={() => this.toggleTransactionModal()}>+</button>
         </div>;
     }
 
@@ -121,16 +121,7 @@ class TransactionsView extends React.Component {
         return <div>
             {this.getToolbar(filteredTransactions, isDraft)}
             <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>{filteredTransactions.map(this.getListTransaction)}</div></div>
-            {this.getToolbar(filteredTransactions, isDraft)}
         </div>;
-    }
-
-    getAddButton() {
-        return <button
-            className="btn btn-dark rounded-circle position-fixed bottom-0 end-0 m-2"
-            onClick={() => this.toggleTransactionModal()}
-            style={{ width: "50px", height: "50px" }}
-        ><i className="bi bi-database-fill-add"></i></button>;
     }
 
     saveDrafts = () => {
@@ -159,7 +150,6 @@ class TransactionsView extends React.Component {
         return (
             <div className="mb-2">
                 {this.getTransactions(filteredTransactions)}
-                {this.getAddButton()}
                 {this.getTagTransactionModal()}
                 {this.getCrudTransactionModal()}
                 <Modal show={!!this.state.deleteTransactionId} title="Delete Transaction"
