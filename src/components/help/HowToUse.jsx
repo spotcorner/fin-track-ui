@@ -34,6 +34,10 @@ const flow = [
         label: "Cashflow",
         options: ["Stats", "Summary", "Transactions", "Tag / edit / delete"],
     },
+    {
+        label: "Share Access",
+        options: ["Read Only", "Full Access", "Nicknames", "View As"],
+    },
 ];
 
 const steps = [
@@ -121,10 +125,12 @@ const steps = [
         title: "8. Share Access (Optional)",
         details: [
             "Go to Profile to share your data with family members.",
-            "Grant access by email — choose Read Only or Full Access.",
+            "Grant access by email — choose Read Only or Full Access. Optionally set a nickname.",
             "Read Only: can view all data but cannot make changes.",
             "Full Access: can view and edit everything (transactions, accounts, tags, drafts).",
-            "Use the View As dropdown in the navbar to switch between your data and shared accounts.",
+            "Both sides can set nicknames independently — owner names the member, member names the owner. Nicknames are private to each side.",
+            "Use the View As dropdown in the navbar to switch between your data and shared accounts. Your selection persists across reloads.",
+            "Edit access type or nickname anytime from the Profile page.",
         ],
     },
 ];

@@ -91,7 +91,7 @@ class FiltersView extends React.Component {
                         selected={filters.transactionTypeFilter} onChange={v => this.props.handleFilterChange("transactionTypeFilter", v)} countMap={counts.type} />
                 </div>
                 <div className="col-6 col-md-3 col-lg-2">
-                    <CheckDropdown label="Totals" options={[{ value: "0", label: "Included" }, { value: "1", label: "Excluded" }]}
+                    <CheckDropdown label="Totals" options={[{ value: "0", label: "Active" }, { value: "1", label: "Excluded" }]}
                         selected={filters.excludeFromTotalsFilter} onChange={v => this.props.handleFilterChange("excludeFromTotalsFilter", v)} countMap={counts.totals} />
                 </div>
                 <div className="col-6 col-md-3 col-lg-2">
@@ -118,7 +118,7 @@ class FiltersView extends React.Component {
         const { filters, accountsMap, tagsMap } = this.props;
         const chips = [];
         if (filters.transactionTypeFilter.length) filters.transactionTypeFilter.forEach(v => chips.push({ label: v === TRANSACTION_TYPES.DEBIT ? "Debit" : "Credit", onRemove: () => this.props.handleFilterChange("transactionTypeFilter", filters.transactionTypeFilter.filter(x => x !== v)) }));
-        filters.excludeFromTotalsFilter.forEach(v => chips.push({ label: v === "1" ? "Excluded" : "Included", onRemove: () => this.props.handleFilterChange("excludeFromTotalsFilter", filters.excludeFromTotalsFilter.filter(x => x !== v)) }));
+        filters.excludeFromTotalsFilter.forEach(v => chips.push({ label: v === "1" ? "Excluded" : "Active", onRemove: () => this.props.handleFilterChange("excludeFromTotalsFilter", filters.excludeFromTotalsFilter.filter(x => x !== v)) }));
         if (filters.minAmountFilter) chips.push({ label: "Min: ₹" + filters.minAmountFilter, onRemove: () => this.props.handleFilterChange("minAmountFilter", "") });
         if (filters.maxAmountFilter) chips.push({ label: "Max: ₹" + filters.maxAmountFilter, onRemove: () => this.props.handleFilterChange("maxAmountFilter", "") });
         filters.accountTypeFilter.forEach(type => chips.push({ label: ACCOUNT_TYPE_LABELS[type] || type, onRemove: () => this.props.handleFilterChange("accountTypeFilter", filters.accountTypeFilter.filter(v => v !== type)) }));
