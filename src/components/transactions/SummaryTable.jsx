@@ -23,6 +23,18 @@ export default class SummaryTable extends React.Component {
         return { owed, settled, pending: owed - settled };
     }
 
+    getEffectiveOpeningBalance(props, account) {
+        let openingBalance = 0;
+        if (props.isDraft) {
+            openingBalance = props.draftOpeningBalance || 0;
+        } else {
+            const prePeriod = props.prePeriodTotals[account._id] || {};
+            openingBalance = (account.openingBalance || 0)
+                + (prePeriod?.totalCredit || 0) - (prePeriod?.totalDebit || 0);
+        }
+        return openingBalance;
+    }
+
     getSummaries() {
         const { transactions, accounts } = this.props;
         const transactionAccountIds = _.uniq(transactions.map(tx => tx.accountId));
@@ -30,8 +42,11 @@ export default class SummaryTable extends React.Component {
 
         const accountSummaries = filteredAccounts.map((account) => {
             const accountId = account._id || account.id;
-            const openingBalance = this.props.isDraft ? (this.props.draftOpeningBalance || 0) : (account.openingBalance || 0);
             const isCreditCard = account.type === "credit_card";
+            let openingBalance = 0;
+            if (!isCreditCard) {
+                openingBalance = this.getEffectiveOpeningBalance(this.props, account);
+            }
             const filteredTransactions = transactions.filter(tx => tx.accountId === accountId);
             const grouped = _.groupBy(filteredTransactions, "type");
             const totalDebit = _.sumBy(grouped[TRANSACTION_TYPES.DEBIT], tx => tx.amount);

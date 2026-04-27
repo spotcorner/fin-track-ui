@@ -159,7 +159,8 @@ class TransactionsLayout extends React.Component {
         if (tab === "summary") {
             return <SummaryTable transactions={this.state.transactions} filteredTransactions={filteredTransactions}
                 accounts={this.props.accounts} isDraft={this.props.isDraft}
-                draftOpeningBalance={this.props.draftOpeningBalance} />;
+                draftOpeningBalance={this.props.draftOpeningBalance}
+                prePeriodTotals={this.state.prePeriodTotals} />;
         }
         return <TransactionsView isDraft={this.props.isDraft} draftId={this.props.draftId}
             transactions={this.state.transactions} filteredTransactions={filteredTransactions}
@@ -209,7 +210,7 @@ class TransactionsLayout extends React.Component {
     fetchTransactions = () => {
         this.setState({ transactions: [], transactionsLoading: true });
         transactionService.getAll(this.state.startDateFilter, this.state.endDateFilter, this.props.isDraft, this.props.sortByDate, this.props.draftId).then(data => {
-            this.setState({ transactions: data.transactions, transactionsLoading: false });
+            this.setState({ transactions: data.transactions, prePeriodTotals: data.prePeriodTotals || {}, transactionsLoading: false });
         }).catch(() => {
             this.setState({ transactionsLoading: false });
         });
