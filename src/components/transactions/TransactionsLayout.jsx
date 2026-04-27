@@ -158,7 +158,8 @@ class TransactionsLayout extends React.Component {
         }
         if (tab === "summary") {
             return <SummaryTable transactions={this.state.transactions} filteredTransactions={filteredTransactions}
-                accounts={this.props.accounts} isDraft={this.props.isDraft} />;
+                accounts={this.props.accounts} isDraft={this.props.isDraft}
+                draftOpeningBalance={this.props.draftOpeningBalance} />;
         }
         return <TransactionsView isDraft={this.props.isDraft} draftId={this.props.draftId}
             transactions={this.state.transactions} filteredTransactions={filteredTransactions}
@@ -196,7 +197,7 @@ class TransactionsLayout extends React.Component {
                 <div className="text-muted small page-header">{this.props.title}</div>
                 <HelpTip items={CASHFLOW_HELP} />
             </div>}
-            <FiltersView filters={this.getFilters()} transactions={this.state.transactions} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
+            <FiltersView filters={this.getFilters()} transactions={this.state.transactions} isDraft={this.props.isDraft} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
             {this.getLoader()}
             {this.state.transactions.length > 0 && <>
                 {this.getTabBar()}

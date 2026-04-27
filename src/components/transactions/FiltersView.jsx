@@ -97,15 +97,17 @@ class FiltersView extends React.Component {
                     <CheckDropdown label="Totals" options={[{ value: "0", label: "Active" }, { value: "1", label: "Excluded" }]}
                         selected={filters.excludeFromTotalsFilter} onChange={v => this.props.handleFilterChange("excludeFromTotalsFilter", v)} countMap={counts.totals} />
                 </div>
-                <div className="col-6 col-md-3 col-lg-2">
-                    <CheckDropdown label="Account Type" options={accountTypeOptions}
-                        selected={filters.accountTypeFilter} onChange={v => this.props.handleFilterChange("accountTypeFilter", v)} countMap={counts.accountType} />
-                </div>
-                <div className="col-6 col-md-3 col-lg-2">
-                    <CheckDropdown label="Account" options={accountOptions} searchable sortByLabel pinSelected
-                        selected={filters.accountIdFilter} onChange={v => this.props.handleFilterChange("accountIdFilter", v)} countMap={counts.account} />
-                </div>
-                <div className="col-12 col-md-12 col-lg-4 d-flex gap-2 justify-content-end align-items-center">
+                {!this.props.isDraft && <>
+                    <div className="col-6 col-md-3 col-lg-2">
+                        <CheckDropdown label="Account Type" options={accountTypeOptions}
+                            selected={filters.accountTypeFilter} onChange={v => this.props.handleFilterChange("accountTypeFilter", v)} countMap={counts.accountType} />
+                    </div>
+                    <div className="col-6 col-md-3 col-lg-2">
+                        <CheckDropdown label="Account" options={accountOptions} searchable sortByLabel pinSelected
+                            selected={filters.accountIdFilter} onChange={v => this.props.handleFilterChange("accountIdFilter", v)} countMap={counts.account} />
+                    </div>
+                </>}
+                <div className="col d-flex gap-2 justify-content-end align-items-center">
                     <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={this.props.clearFilters}>
                         <i className="bi bi-x-lg"></i> Clear All
                     </button>

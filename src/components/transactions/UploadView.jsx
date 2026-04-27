@@ -28,6 +28,7 @@ const UPLOAD_STATUS = {
 class Upload extends React.Component {
     initialState = () => ({
         accountId: "",
+        openingBalance: "",
         extractor: "AUTO",
         draftName: "",
         file: null,
@@ -104,7 +105,7 @@ class Upload extends React.Component {
             : selected.transactions;
         if (!transactions || transactions.length === 0) return;
         this.setState({ status: UPLOAD_STATUS.SAVING });
-        transactionService.createDrafts(this.state.accountId, this.state.draftName, transactions).then(data => {
+        transactionService.createDrafts(this.state.accountId, this.state.draftName, transactions, parseFloat(this.state.openingBalance) || 0).then(data => {
             this.setState({ status: UPLOAD_STATUS.SAVED });
         }).catch(() => {
             this.setState({ status: UPLOAD_STATUS.EXTRACTED });
@@ -166,6 +167,10 @@ class Upload extends React.Component {
         return !mapping?.isComplete;
     }
 
+    getSelectedAccount = () => this.props.accounts.find(a => a._id === this.state.accountId);
+
+    isCreditCard = () => this.getSelectedAccount()?.type === "credit_card";
+
     getConfirmationForm() {
         const { status } = this.state;
         const isSaved = status === UPLOAD_STATUS.SAVED;
@@ -177,9 +182,30 @@ class Upload extends React.Component {
                 <label className="form-label">Extractor</label>
                 <input type="text" className="form-control" value={EXTRACTOR_TYPE_LABELS[this.state.extractor] || this.state.extractor} disabled />
             </div> */}
-            <div className="mb-2">
-                <label className="form-label">File</label>
-                <input type="text" className="form-control" value={this.state.file?.name + (this.state.fromPage || this.state.toPage ? ` (Pages ${this.state.fromPage || "1"}-${this.state.toPage || "end"})` : "")} disabled />
+            <div className="row mb-2">
+                <div className="col">
+                    <label className="form-label">File</label>
+                    <input type="text" className="form-control" value={this.state.file?.name + (this.state.fromPage || this.state.toPage ? ` (Pages ${this.state.fromPage || "1"}-${this.state.toPage || "end"})` : "")} disabled />
+                </div>
+                <div className="col">
+                    <label className="form-label">Account</label>
+                    {isSaved
+                        ? <input type="text" className="form-control" value={labelUtil.getAccountLabel(this.getSelectedAccount())} disabled />
+                        : <div className="d-flex">
+                            <select className="form-select me-2" name="accountId" value={this.state.accountId} onChange={this.handleChange} required>
+                                <option value=""></option>
+                                {this.props.accounts.map((account, index) => (
+                                    <option key={index} value={account._id}>{labelUtil.getAccountLabel(account)}</option>
+                                ))}
+                            </select>
+                            <button type="button" className="btn btn-outline-dark" onClick={() => this.toggleAccountModal()}>+</button>
+                        </div>
+                    }
+                </div>
+                {this.state.accountId && !this.isCreditCard() && <div className="col">
+                    <label className="form-label">Opening Balance</label>
+                    <input type="number" className="form-control" name="openingBalance" value={this.state.openingBalance} onChange={this.handleChange} disabled={isSaved} />
+                </div>}
             </div>
             {!hasSelection
                 ? <div className="alert alert-info mb-2">Select an extractor result below to continue.</div>
@@ -189,21 +215,6 @@ class Upload extends React.Component {
                     <div className="mb-2">
                         <label className="form-label">Draft Name</label>
                         <input type="text" className="form-control" name="draftName" value={this.state.draftName} onChange={this.handleChange} required disabled={isSaved} />
-                    </div>
-                    <div className="mb-2">
-                        <label className="form-label">Account</label>
-                        {isSaved
-                            ? <input type="text" className="form-control" value={labelUtil.getAccountLabel(this.props.accounts.find(a => a._id === this.state.accountId))} disabled />
-                            : <div className="d-flex">
-                                <select className="form-select me-2" name="accountId" value={this.state.accountId} onChange={this.handleChange} required>
-                                    <option value=""></option>
-                                    {this.props.accounts.map((account, index) => (
-                                        <option key={index} value={account._id}>{labelUtil.getAccountLabel(account)}</option>
-                                    ))}
-                                </select>
-                                <button type="button" className="btn btn-outline-dark" onClick={() => this.toggleAccountModal()}>+</button>
-                            </div>
-                        }
                     </div>
                 </>}
             {isSaved
@@ -269,9 +280,17 @@ class Upload extends React.Component {
     renderBadge(type, amount, label) {
         if (amount <= 0) return null;
         const isCredit = type === "credit";
-        return <span className={`badge bg-${isCredit ? "success" : "danger"} bg-opacity-10 text-${isCredit ? "success" : "danger"} ms-2`}>
-            {label || (isCredit ? "Credit" : "Debit")} ₹{amountUtil.getFormattedAmount(amount)}
+        const isClosing = type === "closing";
+        return <span className={`badge bg-${isClosing ? "dark" : isCredit ? "success" : "danger"} bg-opacity-10 text-${isClosing ? "dark" : isCredit ? "success" : "danger"} ms-2`}>
+            {label || (isClosing ? "Closing" : isCredit ? "Credit" : "Debit")} ₹{amountUtil.getFormattedAmount(amount)}
         </span>;
+    }
+
+    getClosingBalance(totalDebit, totalCredit) {
+        const opening = parseFloat(this.state.openingBalance) || 0;
+        if (!opening || this.isCreditCard()) return null;
+        const closing = opening + totalCredit - totalDebit;
+        return this.renderBadge("closing", closing, "Closing");
     }
 
     getRowBadges(row, idx, mappedData) {
@@ -282,12 +301,13 @@ class Upload extends React.Component {
                 if (txn.type === "CREDIT") totalCredit += txn.amount;
                 else totalDebit += txn.amount;
             });
-            return <>{this.renderBadge("debit", totalDebit)}{this.renderBadge("credit", totalCredit)}</>;
+            return <>{this.renderBadge("debit", totalDebit)}{this.renderBadge("credit", totalCredit)}{this.getClosingBalance(totalDebit, totalCredit)}</>;
         }
         const isCS = row.extractor.includes("CS");
         return <>
             {this.renderBadge("debit", row.totalDebit, isCS ? "Spends" : null)}
             {this.renderBadge("credit", row.totalCredit, isCS ? "Payments" : null)}
+            {this.getClosingBalance(row.totalDebit, row.totalCredit)}
         </>;
     }
 

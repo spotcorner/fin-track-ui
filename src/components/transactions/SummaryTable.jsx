@@ -30,7 +30,7 @@ export default class SummaryTable extends React.Component {
 
         const accountSummaries = filteredAccounts.map((account) => {
             const accountId = account._id || account.id;
-            const openingBalance = account.openingBalance || 0;
+            const openingBalance = this.props.isDraft ? (this.props.draftOpeningBalance || 0) : (account.openingBalance || 0);
             const isCreditCard = account.type === "credit_card";
             const filteredTransactions = transactions.filter(tx => tx.accountId === accountId);
             const grouped = _.groupBy(filteredTransactions, "type");
