@@ -85,7 +85,7 @@ class CrudTransactionModal extends React.Component {
                             ))}
                         </select>
                     </div>
-                    <div className="col-auto">
+                    <div className="col">
                         <label className="form-label">Type</label>
                         <select className="form-select" name="type" value={type} onChange={this.handleChange} required>
                             <option value=""></option>

@@ -10,54 +10,14 @@
     background: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 6px;
-    padding: 10px 14px;
+    padding: 8px 10px;
 }
-
-.filter-bar-open {
-    border-radius: 6px 6px 0 0;
-}
-
-.filter-row { // FiltersView.jsx - date, search, funnel in one row
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.filter-date { max-width: 400px; } // FiltersView.jsx
-.filter-search { max-width: 280px; } // FiltersView.jsx
 
 .filter-chips { // FiltersView.jsx - active filter badges
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    padding: 6px 14px;
-}
-
-.filter-chips-with-panel {
-    border-radius: 0;
-    border-bottom: none;
+    padding-top: 6px;
 }
 
 .filter-chip { // FiltersView.jsx
     font-size: 0.75rem;
     cursor: pointer;
-}
-
-.filter-panel { // FiltersView.jsx - expandable filter controls
-    border: 1px solid #dee2e6;
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    padding: 14px;
-    background: #fff;
-}
-
-
-@media (max-width: 768px) {
-    .filter-row { flex-wrap: wrap; }
-    .filter-date { max-width: 100%; flex: 1 1 100%; }
-    .filter-search { max-width: none; flex: 1 1 auto; }
-    .filter-panel .col-md-6,
-    .filter-panel .col-md-3,
-    .filter-panel .col-md-4 { flex: 0 0 100%; max-width: 100%; }
 }

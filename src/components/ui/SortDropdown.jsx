@@ -36,7 +36,7 @@ class SortDropdown extends React.Component {
         const { options, selected } = this.props;
         const { open } = this.state;
         return <div className="sort-dropdown" ref={el => this.ref = el}>
-            <button className="btn btn-sm btn-outline-secondary" onClick={() => this.setState({ open: !open })}>
+            <button className="btn btn-sm btn-outline-secondary text-nowrap" onClick={() => this.setState({ open: !open })}>
                 {this.getLabel()}
             </button>
             {open && <div className="sort-dropdown-menu">

@@ -4,6 +4,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from "react-toastify";
 import transactionService from "@services/transactionService";
+import SortDropdown from "@components/ui/SortDropdown.jsx";
 import TagBadges from "@components/tags/TagBadges.jsx";
 import { TRANSACTION_TYPES } from "@config";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
@@ -103,6 +104,15 @@ class TransactionsView extends React.Component {
         </div>;
     }
 
+    getSortOptions() {
+        return [{ field: "date", label: "Date" }, { field: "amount", label: "Amount" }, { field: "updatedAt", label: "Updated" }];
+    }
+
+    handleSortChange = (field, direction) => {
+        this.props.handleFilterChange("sortField", field);
+        this.props.handleFilterChange("sortDirection", direction);
+    };
+
     getToolbar(filteredTransactions, isDraft) {
         return <div className="d-flex align-items-center mb-2">
             <div>
@@ -112,7 +122,12 @@ class TransactionsView extends React.Component {
                 </>}
             </div>
             <span className="text-muted mx-auto">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
-            <button className="btn btn-outline-dark btn-sm" style={{ width: 30, height: 30 }} onClick={() => this.toggleTransactionModal()}>+</button>
+            <div className="d-flex align-items-center gap-2">
+                <SortDropdown options={this.getSortOptions()}
+                    selected={{ field: this.props.sortField, direction: this.props.sortDirection }}
+                    onChange={this.handleSortChange} />
+                <button className="btn btn-outline-dark btn-sm" style={{ width: 30, height: 30 }} onClick={() => this.toggleTransactionModal()}>+</button>
+            </div>
         </div>;
     }
 

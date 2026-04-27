@@ -164,7 +164,9 @@ class TransactionsLayout extends React.Component {
             deleteTransaction={this.deleteTransaction}
             fetchTransactions={this.fetchTransactions}
             lastAppliedTagId={this.state.lastAppliedTagId}
-            clearLastAppliedTag={() => this.setState({ lastAppliedTagId: null })} />;
+            clearLastAppliedTag={() => this.setState({ lastAppliedTagId: null })}
+            sortField={this.state.sortField} sortDirection={this.state.sortDirection}
+            handleFilterChange={this.handleFilterChange} />;
     }
 
     getNoTransactionsLabel() {
