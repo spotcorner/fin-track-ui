@@ -2,6 +2,8 @@
 
 import React from "react";
 import Modal from "@components/modal/Modal.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { ACCESS_MODAL_HELP } from "@utils/helpContent";
 
 export default class CrudAccessModal extends React.Component {
 
@@ -42,7 +44,7 @@ export default class CrudAccessModal extends React.Component {
                     onChange={this.handleChange} required disabled={!isGrant} />
             </div>
             <div className="mb-2">
-                <label className="form-label">Access Type</label>
+                <label className="form-label d-flex align-items-center gap-1">Access Type <HelpTip text={ACCESS_MODAL_HELP.accessType} /></label>
                 <select className="form-select" name="accessType" value={this.state.accessType}
                     onChange={this.handleChange} disabled={isEditReceived}>
                     <option value="readonly">Read Only</option>
@@ -50,7 +52,7 @@ export default class CrudAccessModal extends React.Component {
                 </select>
             </div>
             <div className="mb-2">
-                <label className="form-label">Nickname</label>
+                <label className="form-label d-flex align-items-center gap-1">Nickname <HelpTip text={ACCESS_MODAL_HELP.nickname} /></label>
                 <input type="text" className="form-control" name="nickname" value={this.state.nickname}
                     onChange={this.handleChange} />
             </div>

@@ -8,6 +8,8 @@ import { setUserDetails, updateNicknameForOwnerRequest } from "@store";
 import { toast } from "react-toastify";
 import CrudAccessModal from "./CrudAccessModal.jsx";
 import Modal from "@components/modal/Modal.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { PROFILE_GRANTED_HELP, PROFILE_RECEIVED_HELP } from "@utils/helpContent";
 
 class Profile extends React.Component {
     state = {
@@ -91,8 +93,9 @@ class Profile extends React.Component {
     getGrantedSection() {
         const { granted } = this.state;
         return <div className="card shadow-sm p-3 mt-3">
-            <div className="d-flex align-items-center mb-2">
+            <div className="d-flex align-items-center gap-1 mb-2">
                 <h6 className="mb-0">Shared my data with</h6>
+                <HelpTip items={PROFILE_GRANTED_HELP} />
                 <button className="btn btn-outline-dark btn-sm ms-auto" onClick={this.openGrantModal}>+</button>
             </div>
             {granted.length === 0 && <div className="text-muted small">No access granted yet.</div>}
@@ -114,7 +117,10 @@ class Profile extends React.Component {
         const { receivedAccessList } = this.props;
         if (!receivedAccessList || receivedAccessList.length === 0) return null;
         return <div className="card shadow-sm p-3 mt-3">
-            <h6>Shared with me</h6>
+            <div className="d-flex align-items-center gap-1 mb-2">
+                <h6 className="mb-0">Shared with me</h6>
+                <HelpTip items={PROFILE_RECEIVED_HELP} />
+            </div>
             {receivedAccessList.map((a, i) => <div key={i} className="d-flex align-items-center justify-content-between py-1 border-bottom">
                 <div className="d-flex align-items-center gap-2">
                     <div className="small">{a.user.email}</div>

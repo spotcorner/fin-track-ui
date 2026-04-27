@@ -109,6 +109,23 @@ export const EXTRACTION_RESULT_HELP = {
     ],
 };
 
+export const PROFILE_GRANTED_HELP = [
+    "Share your financial data with other users.",
+    <><b>Full Access</b> — can view and modify your transactions, accounts, and tags.</>,
+    <><b>Read Only</b> — can only view your data.</>,
+    <><b>Nickname</b> — a private label only you see, to identify this person.</>,
+];
+
+export const PROFILE_RECEIVED_HELP = [
+    "Data shared with you by other users. Use the View As dropdown in the header to switch.",
+    <><b>Nickname</b> — a private label only you see, to identify this person's data.</>,
+];
+
+export const ACCESS_MODAL_HELP = {
+    accessType: "Full Access allows viewing and modifying data. Read Only is view-only.",
+    nickname: "A private label only you see. Each side sets their own.",
+};
+
 export const TAG_SELECTION_HELP = [
     <><b>Badges</b> — currently applied tags. Click × to remove. Greyed-out tags were removed — click to restore.</>,
     <><b>Search</b> — filter the tag list by name.</>,
