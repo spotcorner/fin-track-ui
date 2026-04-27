@@ -1,137 +1,95 @@
 "use strict";
 
 import React from "react";
+import {
+    ACCOUNTS_HELP, TAGS_VIEW_HELP, TAG_MODAL_HELP,
+    UPLOAD_HELP, EXTRACTION_RESULT_HELP,
+    DRAFTS_HELP, TRANSACTIONS_HELP, TRANSACTIONS_DRAFT_HELP, TRANSACTION_MODAL_HELP,
+    CASHFLOW_HELP, STATS_HELP, SUMMARY_HELP,
+    PROFILE_GRANTED_HELP, PROFILE_RECEIVED_HELP,
+} from "@utils/helpContent";
 
 const flow = [
-    {
-        label: "Create Accounts",
-        options: ["Savings", "Credit Card", "Wallet", "Others"],
-    },
-    {
-        label: "Set Up Tags",
-        options: ["Keyword rules", "Regex patterns", "Priority", "Linked tags"],
-    },
-    {
-        label: "Upload PDF Statement",
-        options: ["Password protected"],
-    },
-    {
-        label: "Auto Extraction",
-        options: ["Table with headers", "Table without headers", "Text-based"],
-    },
-    {
-        label: "Map Columns (if unmapped)",
-        options: ["Debit/Credit", "Suffix mapper", "Keyword mapper", "Balance inference", "Manual date"],
-    },
-    {
-        label: "Save as Drafts",
-    },
-    {
-        label: "Review & Edit Drafts",
-        options: ["Stats", "Summary", "Edit / delete", "Tag transactions", "Save All → Cashflow"],
-    },
-    {
-        label: "Cashflow",
-        options: ["Stats", "Summary", "Transactions", "Tag / edit / delete"],
-    },
-    {
-        label: "Share Access",
-        options: ["Read Only", "Full Access", "Nicknames", "View As"],
-    },
+    { label: "Create Accounts", options: ["Savings", "Credit Card", "Wallet", "Others"] },
+    { label: "Set Up Tags", options: ["Keyword rules", "Regex patterns", "Priority", "Linked tags"] },
+    { label: "Upload PDF Statement", options: ["Password protected"] },
+    { label: "Auto Extraction", options: ["Table with headers", "Table without headers", "Text-based"] },
+    { label: "Map Columns (if unmapped)", options: ["Debit/Credit", "Suffix mapper", "Keyword mapper", "Balance inference", "Manual date"] },
+    { label: "Save as Drafts" },
+    { label: "Review & Edit Drafts", options: ["Stats", "Summary", "Edit / delete", "Tag transactions", "Save All → Cashflow"] },
+    { label: "Cashflow", options: ["Stats", "Summary", "Transactions", "Tag / edit / delete"] },
+    { label: "Share Access", options: ["Read Only", "Full Access", "Nicknames", "View As"] },
 ];
 
 const steps = [
     {
         title: "1. Create Accounts",
-        details: [
-            "Go to Accounts and create your bank accounts.",
-            "Supported types: Savings, Credit Card, Wallet, Others.",
-            "Set an opening balance — this is used to calculate closing balance in the Summary tab.",
-        ],
+        intro: ["Go to Accounts and create your bank accounts."],
+        help: ACCOUNTS_HELP,
     },
     {
         title: "2. Set Up Tags",
-        details: [
+        intro: [
             "Go to Tags and create tags with auto-tagging rules.",
-            "Rule types: keyword (exact match) or regex pattern.",
-            "Case-sensitive matching is optional per rule.",
-            "Priority: when multiple tags match, the highest priority tag wins.",
-            "Linked tags: set a parent tag that auto-applies when the child tag matches.",
-            "Tags are auto-applied when transactions are loaded. You can also manually apply or remove tags per transaction in Drafts or Cashflow.",
+        ],
+        help: [
+            ...TAGS_VIEW_HELP,
+            { label: "Auto-tagging", items: [...TAG_MODAL_HELP.overview, ...TAG_MODAL_HELP.rules] },
         ],
     },
     {
         title: "3. Upload Bank Statements",
-        details: [
+        intro: [
             "Go to Upload Statement and select a PDF bank statement.",
-            "Choose the account the statement belongs to.",
-            "Supports password-protected PDFs — check the password option and enter it.",
-            "Click Extract — the system runs multiple extraction engines and shows all results.",
-            "Use the Source Preview toggle to view the original PDF alongside the extracted data.",
         ],
+        help: UPLOAD_HELP,
     },
     {
-        title: "4. Pick an Extraction Result",
-        details: [
+        title: "3.1 Pick an Extraction Result",
+        intro: [
             "The system tries three extraction engines on your PDF:",
             "— Table with headers: detects table structures with column headers (e.g. Date, Description, Amount). Produces mapped results ready to save.",
             "— Table without headers: detects table structures without recognizable headers. Produces unmapped results that need column mapping.",
             "— Text-based: reads raw text line by line when no table structure is found. Produces unmapped results.",
-            "Each engine may produce multiple results — the system groups extracted data by page ranges and number of amount columns. For example, a statement where page 1-3 has 4 columns and page 4-5 has 3 columns will appear as two separate results.",
-            "All results are shown as preview tables. Compare them and pick the one that looks most accurate for your statement format.",
-            "Mapped results are ready to save. Unmapped results need column mapping first.",
+            "All results are shown as preview tables. Compare them and pick the one that looks most accurate.",
+        ],
+        help: [EXTRACTION_RESULT_HELP.mapped],
+    },
+    {
+        title: "3.2 Map Columns (Unmapped Results)",
+        intro: [],
+        help: EXTRACTION_RESULT_HELP.unmapped,
+    },
+    {
+        title: "4. Review Drafts",
+        intro: [
+            "Go to Drafts to review extracted transactions before finalizing.",
+        ],
+        help: [
+            ...DRAFTS_HELP,
+            { label: "Transactions", items: [...TRANSACTIONS_HELP, ...TRANSACTIONS_DRAFT_HELP] },
         ],
     },
     {
-        title: "5. Map Columns (Unmapped Results)",
-        details: [
-            "For unmapped results, use the dropdowns in each column header to assign: Date, Description, Amount, Balance.",
-            "Choose how amounts are classified into Debit/Credit:",
-            "— Suffix: amount values end with Cr/Dr or similar suffixes.",
-            "— Description keyword: a keyword in the description indicates the type.",
-            "— Balance inference: compare with the balance column to determine type.",
-            "— Simple: two separate amount columns, one for debit and one for credit.",
-            "For rows without a date, use the inline date picker or toggle to exclude them.",
-            "Yellow highlights indicate incomplete columns or missing dates.",
+        title: "5. Track in Cashflow",
+        intro: [],
+        help: [
+            ...CASHFLOW_HELP,
+            { label: "Stats", items: STATS_HELP.overview },
+            { label: "Summary", items: SUMMARY_HELP },
+            { label: "Transactions", items: [
+                ...TRANSACTIONS_HELP,
+                ...TRANSACTION_MODAL_HELP,
+            ] },
         ],
     },
     {
-        title: "6. Review Drafts",
-        details: [
-            "Extracted transactions are saved as drafts with a name you provide.",
-            "Go to Drafts to review them. Each draft is a batch you can select from the dropdown.",
-            "Drafts have the same Stats, Summary, and Transactions tabs as Cashflow — use it as a sandbox to verify everything looks correct before finalizing.",
-            "Edit or delete individual transactions. Create new transactions manually using the + button.",
-            "Tags are auto-applied based on your rules. Manually apply or remove tags per transaction. Quick-apply: after tagging one transaction, the same tag appears as a one-click option on other untagged transactions.",
-            "Use Save All to finalize — transactions move to Cashflow. Use Delete All to discard.",
-            "Close Draft when you're done to remove it from the list.",
-        ],
-    },
-    {
-        title: "7. Track in Cashflow",
-        details: [
-            "Cashflow has three tabs: Stats, Summary, and Transactions.",
-            "Stats: visual charts for spending analysis. Pick which charts to show, group by time period (daily/weekly/monthly/yearly), expand charts to fullscreen, and sort chart data.",
-            "Summary: account-wise balance breakdown — opening, debit, credit, closing. Split summary shows owed vs settled amounts.",
-            "Transactions: full list with edit, delete, and tag actions. Create new transactions manually using the + button.",
-            "Use filters: date range, tags, search (with regex support), amount range, account, transaction type.",
-            "Sort by date, amount, or last updated.",
-            "Quick-apply lets you rapidly tag multiple transactions with the same tag.",
-            "Split amount: track shared expenses (owed/settled). Comments: add notes to any transaction.",
-            "Exclude from totals: flag transactions that shouldn't count in summaries.",
-        ],
-    },
-    {
-        title: "8. Share Access (Optional)",
-        details: [
+        title: "6. Share Access (Optional)",
+        intro: [
             "Go to Profile to share your data with family members.",
-            "Grant access by email — choose Read Only or Full Access. Optionally set a nickname.",
-            "Read Only: can view all data but cannot make changes.",
-            "Full Access: can view and edit everything (transactions, accounts, tags, drafts).",
-            "Both sides can set nicknames independently — owner names the member, member names the owner. Nicknames are private to each side.",
             "Use the View As dropdown in the navbar to switch between your data and shared accounts. Your selection persists across reloads.",
-            "Edit access type or nickname anytime from the Profile page.",
         ],
+        help: [...PROFILE_GRANTED_HELP, ...PROFILE_RECEIVED_HELP],
     },
 ];
 
@@ -157,7 +115,10 @@ export default function HowToUse() {
                 {steps.map((step, i) => <div key={i} className="mb-3">
                     <div className="fw-bold">{step.title}</div>
                     <ul className="text-muted small mb-0 ps-3">
-                        {step.details.map((d, j) => <li key={j}>{d}</li>)}
+                        {[...step.intro, ...step.help].map((d, j) => d?.label
+                            ? <li key={j}>{d.label}<ul className="ps-3">{d.items.map((item, k) => <li key={k}>{item}</li>)}</ul></li>
+                            : <li key={j}>{d}</li>
+                        )}
                     </ul>
                 </div>)}
             </div>

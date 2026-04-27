@@ -4,6 +4,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from "react-toastify";
 import Modal from "@modal/Modal.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { TRANSACTION_MODAL_HELP } from "@utils/helpContent";
 import { TRANSACTION_TYPES } from "@config";
 import transactionService from "@services/transactionService";
 import labelUtil from "@utils/labelUtil";
@@ -57,7 +59,8 @@ class CrudTransactionModal extends React.Component {
     };
 
     getModalTitle() {
-        return this.props.transaction ? "Edit Transaction" : "Add Transaction";
+        const title = this.props.transaction ? "Edit Transaction" : "Add Transaction";
+        return <span className="d-flex align-items-center gap-1">{title}<HelpTip items={TRANSACTION_MODAL_HELP} /></span>;
     }
 
     onSubmitClick = () => {

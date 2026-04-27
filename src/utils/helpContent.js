@@ -104,8 +104,14 @@ export const EXTRACTION_RESULT_HELP = {
     unmapped: [
         "Raw table data — date and amount columns need to be mapped before saving. Description is auto-detected.",
         <><b>Date columns</b> — map to Date or Ignore.</>,
-        <><b>Amount columns</b> — Debit/Credit (separate columns), Use suffix (e.g. CR/DR after amount), Use desc keyword (debit/credit keyword in description), Infer from balance (derive type from running balance), or Ignore.</>,
+        <><b>Amount columns</b> — choose how amounts are classified into Debit/Credit:</>,
+        "— Debit/Credit: two separate amount columns, one for each.",
+        "— Use suffix: amount values end with CR/DR or similar suffixes.",
+        "— Use desc keyword: a keyword in the description indicates the type.",
+        "— Infer from balance: derive type by comparing with the balance column.",
         <><b>Preview</b> — after mapping, preview the final transactions before saving.</>,
+        "For rows without a date, use the inline date picker or toggle to exclude them.",
+        "Yellow highlights indicate incomplete columns or missing dates.",
     ],
 };
 
@@ -125,6 +131,12 @@ export const ACCESS_MODAL_HELP = {
     accessType: "Full Access allows viewing and modifying data. Read Only is view-only.",
     nickname: "A private label only you see. Each side sets their own.",
 };
+
+export const TRANSACTION_MODAL_HELP = [
+    <><b>Split</b> — track shared expenses. For debits, enter the amount owed. For credits, enter the amount settled.</>,
+    <><b>Exclude from totals</b> — flag this transaction so it doesn't count in summaries.</>,
+    <><b>Comments</b> — add notes to this transaction.</>,
+];
 
 export const TAG_SELECTION_HELP = [
     <><b>Badges</b> — currently applied tags. Click × to remove. Greyed-out tags were removed — click to restore.</>,
