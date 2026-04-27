@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 import CheckDropdown from "@components/ui/CheckDropdown.jsx";
 import SortDropdown from "@components/ui/SortDropdown.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
+import { STATS_HELP } from "@utils/helpContent";
 
 class StatsView extends React.Component {
 
@@ -52,8 +53,9 @@ class StatsView extends React.Component {
         const chartExpanded = this.state.expandedCharts[chart.key];
         return <div key={chart.key} className={chartExpanded ? "col-12 mb-3" : chart.className}>
             <div className="card shadow-sm p-3">
-                <h5 className="card-title d-flex align-items-center">
+                <h5 className="card-title d-flex align-items-center gap-1">
                     {chart.title}
+                    {STATS_HELP[chart.key] && <HelpTip text={STATS_HELP[chart.key]} />}
                     <div className="ms-auto d-flex align-items-center gap-2">
                         {chart.sortOptions && <SortDropdown
                             options={chart.sortOptions}
@@ -87,15 +89,6 @@ class StatsView extends React.Component {
         return charts.map(this.getChartCard).filter(c => c != null);
     }
 
-    getStatsHelp() {
-        return <ul className="mb-0 ps-3">
-            <li><b>Amount by Tags</b> — debit (red) and credit (green) totals per tag. Stacked bars with counts. Sort by amount or name.</li>
-            <li><b>Amount by Range</b> — transaction amounts grouped by range brackets (e.g. 0-100, 100-500).</li>
-            <li><b>Amount by Period</b> — debit vs credit over time. Use the period dropdown to group by day, week, month, year, or overall.</li>
-            <li>Use the <b>Charts</b> dropdown to show/hide charts.</li>
-        </ul>;
-    }
-
     render() {
         const { filteredTransactions } = this.props;
         if (filteredTransactions.length == 0) return <div />;
@@ -104,7 +97,7 @@ class StatsView extends React.Component {
             <div className="">
                 <div className="mb-2 d-flex align-items-center gap-1">
                     <div className="text-muted small page-header mb-0">Stats</div>
-                    <HelpTip content={this.getStatsHelp()} />
+                    <HelpTip map={STATS_HELP} />
                     <div className="ms-auto stats-chart-dropdown"><CheckDropdown label="Charts" options={charts.map(c => ({ value: c.key, label: c.title }))}
                         selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts })} searchable /></div>
                 </div>

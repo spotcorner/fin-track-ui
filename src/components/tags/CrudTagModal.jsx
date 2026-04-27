@@ -5,13 +5,15 @@ import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import Modal from "@modal/Modal.jsx";
 import CheckDropdown from "@components/ui/CheckDropdown.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { TAG_MODAL_HELP } from "@utils/helpContent";
 import { upsertTagRequest } from "@store";
 
 function getDerivedStateFromProps(props) {
     return {
         _id: props.tag?._id || "",
         name: props.tag?.name || "",
-        rules: props.tag?.rules || [],
+        rules: props.tag?.rules || (props.tag?._id ? [] : [{ type: "keyword", value: "", caseSensitive: false }]),
         linkedTags: props.tag?.linkedTags || [],
         priority: props.tag?.priority || 0,
         description: props.tag?.description || "",
@@ -26,7 +28,7 @@ class CrudTagModal extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.tag !== this.props.tag) {
+        if (prevProps.show !== this.props.show && this.props.show) {
             this.setState(getDerivedStateFromProps(this.props));
         }
     }
@@ -74,7 +76,8 @@ class CrudTagModal extends React.Component {
     };
 
     getModalTitle() {
-        return this.props.tag?._id ? "Edit Tag" : "Create Tag";
+        const label = this.props.tag?._id ? "Edit Tag" : "Create Tag";
+        return <div className="d-flex align-items-center gap-1">{label} <HelpTip items={TAG_MODAL_HELP.overview} /></div>;
     }
 
     onSubmitClick = () => {
@@ -94,13 +97,10 @@ class CrudTagModal extends React.Component {
                     </select>
                     {(rule.type === "keyword" || rule.type === "pattern") && <input type="text" className="form-control" value={rule.value}
                         onChange={(e) => this.handleRuleChange(index, "value", e.target.value)} placeholder={rule.type === "keyword" ? "Keyword" : "Regex pattern"} />}
+                    <button type="button" className={"btn " + (rule.caseSensitive ? "btn-dark" : "btn-outline-secondary")}
+                        title="Case Sensitive" onClick={() => this.handleRuleChange(index, "caseSensitive", !rule.caseSensitive)}>Aa</button>
                     <button type="button" className="btn btn-outline-danger" onClick={() => this.removeRule(index)}>&times;</button>
                 </div>
-                {(rule.type === "keyword" || rule.type === "pattern") && <div className="form-check mt-1">
-                    <input type="checkbox" className="form-check-input" id={`cs-${index}`}
-                        checked={rule.caseSensitive} onChange={() => this.handleRuleChange(index, "caseSensitive", !rule.caseSensitive)} />
-                    <label className="form-check-label" htmlFor={`cs-${index}`}>Case sensitive</label>
-                </div>}
             </div>
         ));
     }
@@ -109,7 +109,10 @@ class CrudTagModal extends React.Component {
         const { tags } = this.props;
         const options = tags.filter(t => t._id !== this.state._id).map(t => ({ value: t._id, label: t.name }));
         return <div className="mb-2">
-            <label className="form-label">Linked Tags</label>
+            <div className="d-flex align-items-center gap-1 mb-1">
+                <label className="form-label mb-0">Linked Tags</label>
+                <HelpTip text={TAG_MODAL_HELP.linkedTags} />
+            </div>
             <CheckDropdown label="Select tags" options={options} searchable sortByLabel inline pinSelected
                 selected={this.state.linkedTags} onChange={v => this.setState({ linkedTags: v })} />
         </div>;
@@ -125,15 +128,23 @@ class CrudTagModal extends React.Component {
                 </div>
                 <div className="mb-2">
                     <div className="d-flex justify-content-between align-items-center mb-1">
-                        <label className="form-label mb-0">Rules</label>
+                        <div className="d-flex align-items-center gap-1">
+                            <label className="form-label mb-0">Rules</label>
+                            <HelpTip items={TAG_MODAL_HELP.rules} />
+                        </div>
                         <button type="button" className="btn btn-outline-dark btn-sm" onClick={this.addRule}>+</button>
                     </div>
                     {this.getRuleRows()}
                 </div>
                 {this.getLinkedTagsSection()}
                 <div className="mb-2">
-                    <label className="form-label">Priority <span className="text-muted small">(higher wins when multiple tags match)</span></label>
-                    <input type="number" className="form-control" name="priority" value={this.state.priority} onChange={this.handleChange} min="0" />
+                    <div className="d-flex align-items-center gap-1">
+                        <input type="checkbox" className="form-check-input" checked={this.state.priority > 0}
+                            onChange={() => this.setState({ priority: this.state.priority > 0 ? 0 : 1 })} />
+                        <label className="form-label mb-0">Set Priority</label>
+                        <HelpTip text={TAG_MODAL_HELP.priority} />
+                    </div>
+                    {this.state.priority > 0 && <input type="number" className="form-control mt-1" name="priority" value={this.state.priority} onChange={this.handleChange} min="1" />}
                 </div>
             </form>
         );

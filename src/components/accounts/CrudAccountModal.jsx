@@ -25,7 +25,7 @@ class CrudAccountModal extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.account !== this.props.account) {
+        if (prevProps.show !== this.props.show && this.props.show) {
             this.setState(getDerivedStateFromProps(this.props));
         }
     }

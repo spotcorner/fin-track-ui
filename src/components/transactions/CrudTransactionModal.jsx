@@ -34,7 +34,7 @@ class CrudTransactionModal extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.transaction !== this.props.transaction) {
+        if (prevProps.show !== this.props.show && this.props.show) {
             this.setState(getDerivedStateFromProps(this.props));
         }
     }

@@ -8,6 +8,8 @@ import TagBadges from "@components/tags/TagBadges.jsx";
 import { TRANSACTION_TYPES } from "@config";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil.js";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { TAG_SELECTION_HELP } from "@utils/helpContent";
 
 const CREATE_NEW = "__CREATE_NEW__";
 
@@ -153,7 +155,7 @@ class TagTransactionModal extends React.Component {
                 {this.getTagList(filtered)}
             </div>
         );
-        return <Modal show={true} title="Tag Transaction" body={body}
+        return <Modal show={true} title={<div className="d-flex align-items-center gap-1">Tag Transaction <HelpTip items={TAG_SELECTION_HELP} /></div>} body={body}
             onClose={this.props.onClose} onSubmitClick={this.handleSave} />;
     }
 

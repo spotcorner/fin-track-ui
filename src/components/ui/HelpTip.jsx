@@ -21,13 +21,25 @@ export default class HelpTip extends React.Component {
         }
     };
 
+    getContent() {
+        const { items, text, map, content } = this.props;
+        if (content) return content;
+        if (text) return <div>{text}</div>;
+        let list = items;
+        if (map) {
+            list = [];
+            Object.values(map).forEach(v => Array.isArray(v) ? list.push(...v) : list.push(v));
+        }
+        if (list) return <ul className="mb-0 ps-3">{list.map((item, i) => <li key={i}>{item}</li>)}</ul>;
+        return null;
+    }
+
     render() {
-        const { content } = this.props;
         const { open } = this.state;
         return <div className="help-tip" ref={el => this.ref = el}>
             <i className="bi bi-info-circle help-tip-icon cursor-pointer"
                 onClick={() => this.setState({ open: !open })}></i>
-            {open && <div className="help-tip-content">{content}</div>}
+            {open && <div className="help-tip-content">{this.getContent()}</div>}
         </div>;
     }
 }
