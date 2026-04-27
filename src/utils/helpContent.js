@@ -88,6 +88,27 @@ export const TAG_MODAL_HELP = {
     priority: "When multiple tags match a transaction, only the highest priority tag is applied.",
 };
 
+export const UPLOAD_HELP = [
+    "Upload a bank PDF statement to extract transactions automatically.",
+    <><b>Password protected</b> — check this for encrypted PDFs. Password is never stored.</>,
+    <><b>Source Preview</b> — view the uploaded PDF inline for reference while reviewing results.</>,
+    <><b>Extractor results</b> — multiple extraction methods are tried. Results are grouped by page range and column structure, shown as separate results with transaction count and debit/credit totals.</>,
+    <><b>Unmapped results</b> — raw table data that needs column mapping (date, amount) before saving.</>,
+    <><b>Confirm & Save as Draft</b> — select a result, name the draft, pick an account, and save for review in Edit Drafts.</>,
+];
+
+export const SOURCE_PREVIEW_HELP = "View the uploaded PDF inline. Use this to cross-check extracted transactions against the original statement.";
+
+export const EXTRACTION_RESULT_HELP = {
+    mapped: "Transactions were auto-detected with date, description, amount, and type. Select this result and save as draft.",
+    unmapped: [
+        "Raw table data — date and amount columns need to be mapped before saving. Description is auto-detected.",
+        <><b>Date columns</b> — map to Date or Ignore.</>,
+        <><b>Amount columns</b> — Debit/Credit (separate columns), Use suffix (e.g. CR/DR after amount), Use desc keyword (debit/credit keyword in description), Infer from balance (derive type from running balance), or Ignore.</>,
+        <><b>Preview</b> — after mapping, preview the final transactions before saving.</>,
+    ],
+};
+
 export const TAG_SELECTION_HELP = [
     <><b>Badges</b> — currently applied tags. Click × to remove. Greyed-out tags were removed — click to restore.</>,
     <><b>Search</b> — filter the tag list by name.</>,

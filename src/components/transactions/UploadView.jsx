@@ -14,6 +14,8 @@ import { getUnmappedColumns, getFlattenedResults, applyMapping } from "@utils/tr
 import { getDefaultMapping, isMappingComplete } from "@utils/columnMappingUtil";
 import ColumnMappingTable from "@components/transactions/ColumnMappingTable.jsx";
 import TransactionPreview from "@components/transactions/TransactionPreview.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { UPLOAD_HELP, SOURCE_PREVIEW_HELP, EXTRACTION_RESULT_HELP } from "@utils/helpContent";
 
 const UPLOAD_STATUS = {
     IDLE: "IDLE",
@@ -293,13 +295,14 @@ class Upload extends React.Component {
     getPreviewRowHeader(row, i, mappedData) {
         const isComplete = !row.unmapped || !!mappedData;
         const isExpanded = this.state.expanded[`row_${i}`];
-        return <div className="d-flex align-items-center p-2 cursor-pointer flex-wrap" onClick={() => this.toggleExpand(i)}>
+        return <div className="d-flex align-items-center p-2 flex-wrap">
             {isComplete
                 ? <input type="radio" className="form-check-input me-2" checked={this.state.selectedResult === i}
                     onClick={(e) => this.selectResult(e, i)} readOnly />
                 : <span className="badge bg-warning bg-opacity-10 text-warning me-2">Unmapped</span>}
-            <div className="me-2 small fw-bold">{row.label}</div>
-            <span className="text-muted small">{row.transactions.length} transactions</span>
+            <div className="me-2 small fw-bold cursor-pointer" onClick={() => this.toggleExpand(i)}>{row.label}</div>
+            <div className="me-2"><HelpTip {...(row.unmapped ? { items: EXTRACTION_RESULT_HELP.unmapped } : { text: EXTRACTION_RESULT_HELP.mapped })} /></div>
+            <span className="text-muted small cursor-pointer" onClick={() => this.toggleExpand(i)}>{row.transactions.length} transactions</span>
             {this.getRowBadges(row, i, mappedData)}
             <span className="ms-auto d-flex align-items-center gap-2">
                 {row.unmapped && isComplete &&
@@ -307,7 +310,7 @@ class Upload extends React.Component {
                         onClick={(e) => this.togglePreview(e, i)}>
                         {this.state.showMappedPreview[i] ? "Show Mapping" : "Preview"}
                     </button>}
-                <i className={"bi " + (isExpanded ? "bi-chevron-up" : "bi-chevron-down")}></i>
+                <i className={"bi cursor-pointer " + (isExpanded ? "bi-chevron-up" : "bi-chevron-down")} onClick={() => this.toggleExpand(i)}></i>
             </span>
         </div>;
     }
@@ -342,10 +345,10 @@ class Upload extends React.Component {
         const { file, showPdfPreview } = this.state;
         if (!file) return null;
         return <div className="mb-2">
-            <div className="d-flex align-items-center cursor-pointer mb-2"
-                onClick={() => this.setState({ showPdfPreview: !showPdfPreview })}>
-                <div className="text-muted small page-header mb-0">Source Preview</div>
-                <i className={"bi ms-auto " + (showPdfPreview ? "bi-dash-square" : "bi-plus-square")}></i>
+            <div className="d-flex align-items-center mb-2 gap-1">
+                <div className="text-muted small page-header mb-0 cursor-pointer" onClick={() => this.setState({ showPdfPreview: !showPdfPreview })}>Source Preview</div>
+                <HelpTip text={SOURCE_PREVIEW_HELP} />
+                <i className={"bi ms-auto cursor-pointer " + (showPdfPreview ? "bi-dash-square" : "bi-plus-square")} onClick={() => this.setState({ showPdfPreview: !showPdfPreview })}></i>
             </div>
             {showPdfPreview && <iframe src={this.state.pdfUrl} width="100%" height="600px" style={{ border: "1px solid #dee2e6", borderRadius: "4px" }} />}
         </div>;
@@ -354,7 +357,10 @@ class Upload extends React.Component {
     render() {
         return (
             <div className="mb-2">
-                <div className="text-muted small mb-2 page-header">Upload Statement</div>
+                <div className="d-flex align-items-center gap-1 mb-2">
+                    <div className="text-muted small page-header mb-0">Upload Statement</div>
+                    <HelpTip items={UPLOAD_HELP} />
+                </div>
                 {this.getExtractionForm()}
                 {this.getConfirmationForm()}
                 {this.getSavedAlert()}
