@@ -4,6 +4,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { ACCOUNT_TYPE_LABELS, TRANSACTION_TYPES } from "@config";
 import CheckDropdown from "@components/ui/CheckDropdown.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
 import labelUtil from "@utils/labelUtil";
 import "@styles/filtersView.scss";
 
@@ -29,10 +30,29 @@ class FiltersView extends React.Component {
         ];
     }
 
+    getFilterHelp() {
+        return <ul className="mb-0 ps-3">
+            <li><b>Date</b> — filter by date range. Changing dates refetches from server.</li>
+            <li><b>Tags</b> — show transactions matching selected tags. "Untagged" shows transactions with no tags.</li>
+            <li><b>₹ Min/Max</b> — filter by transaction amount range.</li>
+            <li><b>Search</b> — search in description. Supports case-sensitive (Aa) and regex (.*) modes.</li>
+            <li><b>Type</b> — filter by Debit or Credit.</li>
+            <li><b>Totals</b> — Active: counts in summaries. Excluded: flagged to not count.</li>
+            <li><b>Account Type</b> — filter by account category (Savings, Credit Card, etc.).</li>
+            <li><b>Account</b> — filter by specific account.</li>
+            <li><b>Chips</b> — active filters shown as badges below. Click a chip to remove that filter.</li>
+            <li><b>Clear All</b> — removes all filters including defaults.</li>
+            <li><b>Reset</b> — restores filters to default state.</li>
+            <li><b>Pin</b> — toggle to keep filters sticky on scroll.</li>
+            <li><b>Collapse</b> — hide/show the filter controls.</li>
+        </ul>;
+    }
+
     getHeader() {
         const { collapsed, sticky } = this.state;
-        return <div className="d-flex align-items-center mb-1">
+        return <div className="d-flex align-items-center gap-1 mb-1">
             <div className="text-muted small page-header mb-0">Filters</div>
+            <HelpTip content={this.getFilterHelp()} />
             <div className="ms-auto d-flex align-items-center gap-2">
                 <i className={"bi cursor-pointer " + (sticky ? "bi-pin-fill" : "bi-pin")}
                     onClick={() => this.setState({ sticky: !sticky })}></i>

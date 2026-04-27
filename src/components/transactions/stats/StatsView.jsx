@@ -7,6 +7,7 @@ import { charts } from "@utils/statsChartUtilV2"
 import { connect } from "react-redux";
 import CheckDropdown from "@components/ui/CheckDropdown.jsx";
 import SortDropdown from "@components/ui/SortDropdown.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
 
 class StatsView extends React.Component {
 
@@ -66,8 +67,10 @@ class StatsView extends React.Component {
                             <option value="yearly">Yearly</option>
                             <option value="overall">Overall</option>
                         </select>}
+                        {/* TODO: re-enable expand toggle button
                         <i className={"bi " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
                             onClick={(e) => this.toggleExpand(chart.key, e)}></i>
+                        */}
                     </div>
                 </h5>
                 <div className={"chart-container" + (chartExpanded ? " chart-expanded" : "")} key={chartExpanded}
@@ -84,14 +87,24 @@ class StatsView extends React.Component {
         return charts.map(this.getChartCard).filter(c => c != null);
     }
 
+    getStatsHelp() {
+        return <ul className="mb-0 ps-3">
+            <li><b>Amount by Tags</b> — debit (red) and credit (green) totals per tag. Stacked bars with counts. Sort by amount or name.</li>
+            <li><b>Amount by Range</b> — transaction amounts grouped by range brackets (e.g. 0-100, 100-500).</li>
+            <li><b>Amount by Period</b> — debit vs credit over time. Use the period dropdown to group by day, week, month, year, or overall.</li>
+            <li>Use the <b>Charts</b> dropdown to show/hide charts.</li>
+        </ul>;
+    }
+
     render() {
         const { filteredTransactions } = this.props;
         if (filteredTransactions.length == 0) return <div />;
         const chartViews = this.getChartCards();
         return (
             <div className="">
-                <div className="mb-2 d-flex align-items-center">
+                <div className="mb-2 d-flex align-items-center gap-1">
                     <div className="text-muted small page-header mb-0">Stats</div>
+                    <HelpTip content={this.getStatsHelp()} />
                     <div className="ms-auto stats-chart-dropdown"><CheckDropdown label="Charts" options={charts.map(c => ({ value: c.key, label: c.title }))}
                         selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts })} searchable /></div>
                 </div>
