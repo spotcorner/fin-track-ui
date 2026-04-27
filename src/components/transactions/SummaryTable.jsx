@@ -4,6 +4,8 @@ import React from "react";
 import { TRANSACTION_TYPES } from "@config";
 import amountUtil from "@utils/amountUtil.js";
 import labelUtil from "@utils/labelUtil";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { SUMMARY_HELP } from "@utils/helpContent";
 
 const fmt = amountUtil.getFormattedAmount;
 
@@ -137,8 +139,9 @@ export default class SummaryTable extends React.Component {
 
         return (
             <div className="mb-2">
-                <div className="mb-2 d-flex align-items-center">
+                <div className="mb-2 d-flex align-items-center gap-1">
                     <div className="text-muted small page-header mb-0">Summary</div>
+                    <HelpTip items={SUMMARY_HELP} />
                 </div>
                 {this.renderBankSummary(bankSummaries, bankCumulative)}
                 {this.renderCreditCardSummary(ccSummaries, ccCumulative)}

@@ -1,5 +1,16 @@
 import React from "react";
 
+export const ACCOUNTS_HELP = [
+    "Create and manage your bank accounts used for tracking transactions.",
+    "Supported types: Savings, Credit Card, Wallet, Others.",
+    "Opening balance is used to calculate closing balance in the Summary tab.",
+];
+
+export const ACCOUNT_MODAL_HELP = [
+    <><b>Account Type</b> — category of the account. Credit cards don't have opening balance.</>,
+    <><b>Opening Balance</b> — starting balance used to calculate closing balance in Summary.</>,
+];
+
 export const FILTERS_HELP = [
     <><b>Date</b> — filter by date range. Changing dates refetches from server.</>,
     <><b>Tags</b> — show transactions matching selected tags. "Untagged" shows transactions with no tags.</>,
@@ -17,11 +28,43 @@ export const FILTERS_HELP = [
 ];
 
 export const STATS_HELP = {
-    tags: <><b>Amount by Tags</b> — debit (red) and credit (green) totals per tag. Stacked bars with counts. Sort by amount or name.</>,
-    range: <><b>Amount by Range</b> — transaction amounts grouped by range brackets (e.g. 0-100, 100-500).</>,
-    trends: <><b>Amount by Period</b> — debit vs credit over time. Use the period dropdown to group by day, week, month, year, or overall.</>,
-    charts: <>Use the <b>Charts</b> dropdown to show/hide charts.</>,
+    overview: [
+        "Visual charts for spending analysis across your transactions.",
+        <>Use the <b>Charts</b> dropdown to show/hide charts.</>,
+    ],
+    tags: "Debit (red) and credit (green) totals per tag. Stacked bars with counts. Sort by amount or name.",
+    range: "Transaction amounts grouped by range brackets (e.g. 0-100, 100-500).",
+    trends: "Debit vs credit over time. Use the period dropdown to group by day, week, month, year, or overall.",
 };
+export const DRAFTS_HELP = [
+    "Drafts are extracted transactions saved for review before finalizing.",
+    "Use Stats, Summary, and Transactions tabs as a sandbox to verify data.",
+    "Use Save All and Delete All in the Transactions tab to finalize or discard.",
+    <><b>Close Draft</b> — removes the draft from the list.</>,
+];
+
+export const TRANSACTIONS_HELP = [
+    "Full list of transactions with date, account, amount, description, and tags.",
+    "Edit, delete, or tag transactions using the action buttons on each row.",
+    "Quick-apply: after tagging one transaction, the same tag appears as a one-click option on other untagged transactions.",
+];
+
+export const TRANSACTIONS_DRAFT_HELP = [
+    <><b>Save All</b> — finalize and move all draft transactions to Cashflow.</>,
+    <><b>Delete All</b> — discard all draft transactions.</>,
+];
+
+export const SUMMARY_HELP = [
+    "Account-wise balance breakdown — opening, debit, credit, and closing balance.",
+    "Credit card accounts show spends and payments separately.",
+    "Split summary shows owed vs settled amounts for shared expenses.",
+];
+
+export const CASHFLOW_HELP = [
+    "View and manage your saved transactions across three tabs: Stats, Summary, and Transactions.",
+    "Use filters to narrow down by date, tags, amount, account, and more.",
+    "Transactions can be created, edited, deleted, and tagged.",
+];
 
 export const TAGS_VIEW_HELP = [
     "Tags are auto-applied to transactions when their rules match the description.",

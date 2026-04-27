@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import draftService from "@services/draftService";
 import TransactionsLayout from "./TransactionsLayout.jsx";
 import Modal from "@components/modal/Modal.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { DRAFTS_HELP } from "@utils/helpContent";
 import uiUtil from "@utils/uiUtil";
 
 export default class DraftsLayout extends React.Component {
@@ -52,12 +54,15 @@ export default class DraftsLayout extends React.Component {
         }
 
         return <div>
-            <div className="text-muted small mb-2 page-header">Drafts</div>
-            <div className="mb-2 d-flex gap-2 align-items-center">
-                <select className="form-select" value={selectedDraftId} onChange={this.handleDraftChange}>
-                    {drafts.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
-                </select>
-                <button className="btn btn-outline-secondary text-nowrap" onClick={() => this.setState({ showCloseModal: true })}>Close Draft</button>
+            <div className="d-flex align-items-center gap-1 mb-2">
+                <div className="text-muted small page-header">Drafts</div>
+                <HelpTip items={DRAFTS_HELP} />
+                <div className="ms-auto d-flex align-items-center gap-2">
+                    <select className="form-select form-select-sm" style={{ width: "auto" }} value={selectedDraftId} onChange={this.handleDraftChange}>
+                        {drafts.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
+                    </select>
+                    <button className="btn btn-outline-secondary btn-sm text-nowrap" onClick={() => this.setState({ showCloseModal: true })}>Close Draft</button>
+                </div>
             </div>
             <Modal show={this.state.showCloseModal} title="Close Draft"
                 body="Are you sure you want to close this draft?"

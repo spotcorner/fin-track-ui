@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import CrudAccountModal from "./CrudAccountModal.jsx";
 import SortDropdown from "@components/ui/SortDropdown.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { ACCOUNTS_HELP } from "@utils/helpContent";
 import Modal from "@components/modal/Modal.jsx";
 import { deleteAccountRequest } from "@store";
 import { ACCOUNT_TYPE_LABELS } from "@config";
@@ -117,8 +119,9 @@ class Accounts extends React.Component {
     render() {
         return (
             <div className="container mt-3">
-                <div className="d-flex align-items-center mb-2">
+                <div className="d-flex align-items-center gap-1 mb-2">
                     <div className="text-muted small page-header">Accounts</div>
+                    <HelpTip items={ACCOUNTS_HELP} />
                     <div className="ms-auto d-flex align-items-center gap-2">
                         <SortDropdown options={this.getSortOptions()}
                             selected={{ field: this.state.sortField, direction: this.state.sortDirection }}

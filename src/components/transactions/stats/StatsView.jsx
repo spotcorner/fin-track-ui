@@ -97,7 +97,7 @@ class StatsView extends React.Component {
             <div className="">
                 <div className="mb-2 d-flex align-items-center gap-1">
                     <div className="text-muted small page-header mb-0">Stats</div>
-                    <HelpTip map={STATS_HELP} />
+                    <HelpTip items={STATS_HELP.overview} />
                     <div className="ms-auto stats-chart-dropdown"><CheckDropdown label="Charts" options={charts.map(c => ({ value: c.key, label: c.title }))}
                         selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts })} searchable /></div>
                 </div>

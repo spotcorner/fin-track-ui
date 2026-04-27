@@ -10,6 +10,8 @@ import TransactionsView from "@components/transactions/TransactionsView.jsx";
 import StatsView from "./stats/StatsView.jsx";
 import SummaryTable from "./SummaryTable.jsx";
 import transactionUtil from "@utils/transactionUtil";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { CASHFLOW_HELP } from "@utils/helpContent";
 import uiUtil from "@utils/uiUtil";
 
 const TABS = [
@@ -190,7 +192,10 @@ class TransactionsLayout extends React.Component {
     render() {
         const filteredTransactions = this.getFilteredTransactions();
         return <div className="">
-            {this.props.title !== undefined && <div className="text-muted small mb-2 page-header">{this.props.title}</div>}
+            {this.props.title !== undefined && <div className="d-flex align-items-center gap-1 mb-2">
+                <div className="text-muted small page-header">{this.props.title}</div>
+                <HelpTip items={CASHFLOW_HELP} />
+            </div>}
             <FiltersView filters={this.getFilters()} transactions={this.state.transactions} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
             {this.getLoader()}
             {this.state.transactions.length > 0 && <>

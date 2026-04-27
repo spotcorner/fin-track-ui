@@ -4,6 +4,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from 'react-toastify';
 import Modal from "@modal/Modal.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { ACCOUNT_MODAL_HELP } from "@utils/helpContent";
 import { upsertAccountRequest } from "@store";
 import { ACCOUNT_TYPE_LABELS } from "@config";
 
@@ -46,7 +48,8 @@ class CrudAccountModal extends React.Component {
     };
 
     getModalTitle() {
-        return this.props.account ? "Edit Account" : "Create Account";
+        const label = this.props.account ? "Edit Account" : "Create Account";
+        return <div className="d-flex align-items-center gap-1">{label} <HelpTip items={ACCOUNT_MODAL_HELP} /></div>;
     }
 
     onSubmitClick = () => {

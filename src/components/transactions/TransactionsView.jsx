@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import { toast } from "react-toastify";
 import transactionService from "@services/transactionService";
 import SortDropdown from "@components/ui/SortDropdown.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { TRANSACTIONS_HELP, TRANSACTIONS_DRAFT_HELP } from "@utils/helpContent";
 import TagBadges from "@components/tags/TagBadges.jsx";
 import { TRANSACTION_TYPES } from "@config";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
@@ -114,21 +116,23 @@ class TransactionsView extends React.Component {
     };
 
     getToolbar(filteredTransactions, isDraft) {
-        return <div className="d-flex align-items-center mb-2">
-            <div>
-                {isDraft && <>
-                    <button className="btn btn-outline-success btn-sm me-2" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
-                    <button className="btn btn-outline-danger btn-sm" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
-                </>}
+        return <>
+            <div className="d-flex align-items-center gap-1 mb-2">
+                <div className="text-muted small page-header mb-0">Transactions</div>
+                <HelpTip items={isDraft ? [...TRANSACTIONS_HELP, ...TRANSACTIONS_DRAFT_HELP] : TRANSACTIONS_HELP} />
+                <span className="text-muted mx-auto">Showing {filteredTransactions.length} of {this.props.transactions.length} entries</span>
+                <div className="d-flex align-items-center gap-2">
+                    {isDraft && <>
+                        <button className="btn btn-outline-success btn-sm text-nowrap" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
+                        <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
+                    </>}
+                    <SortDropdown options={this.getSortOptions()}
+                        selected={{ field: this.props.sortField, direction: this.props.sortDirection }}
+                        onChange={this.handleSortChange} />
+                    <button className="btn btn-outline-dark btn-sm" style={{ width: 30, height: 30 }} onClick={() => this.toggleTransactionModal()}>+</button>
+                </div>
             </div>
-            <span className="text-muted mx-auto">Showing {filteredTransactions.length} of {this.props.transactions.length} transactions.</span>
-            <div className="d-flex align-items-center gap-2">
-                <SortDropdown options={this.getSortOptions()}
-                    selected={{ field: this.props.sortField, direction: this.props.sortDirection }}
-                    onChange={this.handleSortChange} />
-                <button className="btn btn-outline-dark btn-sm" style={{ width: 30, height: 30 }} onClick={() => this.toggleTransactionModal()}>+</button>
-            </div>
-        </div>;
+        </>;
     }
 
     getTransactions(filteredTransactions) {
