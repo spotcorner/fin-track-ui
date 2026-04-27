@@ -35,7 +35,7 @@ class FiltersView extends React.Component {
         const { collapsed, sticky } = this.state;
         return <div className="d-flex align-items-center gap-1 mb-1">
             <div className="text-muted small page-header mb-0">Filters</div>
-            <HelpTip items={FILTERS_HELP} />
+            <HelpTip items={FILTERS_HELP(this.props.isDraft)} />
             <div className="ms-auto d-flex align-items-center gap-2">
                 <i className={"bi cursor-pointer " + (sticky ? "bi-pin-fill" : "bi-pin")}
                     onClick={() => this.setState({ sticky: !sticky })}></i>

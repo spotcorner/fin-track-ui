@@ -76,7 +76,7 @@ const steps = [
         help: [
             ...CASHFLOW_HELP,
             { label: "Stats", items: STATS_HELP.overview },
-            { label: "Summary", items: SUMMARY_HELP },
+            { label: "Summary", items: SUMMARY_HELP() },
             { label: "Transactions", items: [
                 ...TRANSACTIONS_HELP,
                 ...TRANSACTION_MODAL_HELP,

@@ -11,15 +11,17 @@ export const ACCOUNT_MODAL_HELP = [
     <><b>Opening Balance</b> — starting balance used to calculate closing balance in Summary.</>,
 ];
 
-export const FILTERS_HELP = [
+export const FILTERS_HELP = (isDraft) => [
     <><b>Date</b> — filter by date range. Changing dates refetches from server.</>,
     <><b>Tags</b> — show transactions matching selected tags. "Untagged" shows transactions with no tags.</>,
     <><b>₹ Min/Max</b> — filter by transaction amount range.</>,
     <><b>Search</b> — search in description. Supports case-sensitive (Aa) and regex (.*) modes.</>,
     <><b>Type</b> — filter by Debit or Credit.</>,
     <><b>Totals</b> — Active: counts in summaries. Excluded: flagged to not count.</>,
-    <><b>Account Type</b> — filter by account category (Savings, Credit Card, etc.).</>,
-    <><b>Account</b> — filter by specific account.</>,
+    ...(!isDraft ? [
+        <><b>Account Type</b> — filter by account category (Savings, Credit Card, etc.).</>,
+        <><b>Account</b> — filter by specific account.</>,
+    ] : []),
     <><b>Chips</b> — active filters shown as badges below. Click a chip to remove that filter.</>,
     <><b>Clear All</b> — removes all filters including defaults.</>,
     <><b>Reset</b> — restores filters to default state.</>,
@@ -40,6 +42,8 @@ export const DRAFTS_HELP = [
     "Drafts are extracted transactions saved for review before finalizing.",
     "Use Stats, Summary, and Transactions tabs as a sandbox to verify data.",
     "Use Save All and Delete All in the Transactions tab to finalize or discard.",
+    <><b>Opening Balance</b> — shown as a badge for bank accounts. Used in Summary to calculate closing balance.</>,
+    <><b>Edit draft</b> — use the pencil button to update draft name or opening balance.</>,
     <><b>Close Draft</b> — removes the draft from the list.</>,
 ];
 
@@ -54,8 +58,9 @@ export const TRANSACTIONS_DRAFT_HELP = [
     <><b>Delete All</b> — discard all draft transactions.</>,
 ];
 
-export const SUMMARY_HELP = [
+export const SUMMARY_HELP = (isDraft) => [
     "Account-wise balance breakdown — opening, debit, credit, and closing balance.",
+    ...(isDraft ? ["Opening balance comes from the draft setting instead of the account."] : []),
     "Credit card accounts show spends and payments separately.",
     "Split summary shows owed vs settled amounts for shared expenses.",
 ];
@@ -91,6 +96,8 @@ export const TAG_MODAL_HELP = {
 export const UPLOAD_HELP = [
     "Upload a bank PDF statement to extract transactions automatically.",
     <><b>Password protected</b> — check this for encrypted PDFs. Password is never stored.</>,
+    <><b>Account</b> — select the account this statement belongs to. Always visible after extraction.</>,
+    <><b>Opening Balance</b> — set for bank accounts to calculate closing balance. Shown on extractor results as a Closing badge.</>,
     <><b>Source Preview</b> — view the uploaded PDF inline for reference while reviewing results.</>,
     <><b>Extractor results</b> — multiple extraction methods are tried. Results are grouped by page range and column structure, shown as separate results with transaction count and debit/credit totals.</>,
     <><b>Unmapped results</b> — raw table data that needs column mapping (date, amount) before saving.</>,
