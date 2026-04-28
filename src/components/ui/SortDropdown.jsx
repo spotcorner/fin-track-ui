@@ -2,13 +2,22 @@
 
 import React from "react";
 import "@styles/sortDropdown.scss";
+import PreferenceStore from "@utils/PreferenceStore";
 
 class SortDropdown extends React.Component {
+
+    sortPref = this.props.prefStoreKey ? new PreferenceStore(this.props.prefStoreKey, this.props.selected) : null;
 
     state = { open: false };
 
     componentDidMount() {
         document.addEventListener("mousedown", this.handleClickOutside);
+        if (this.sortPref) {
+            const pref = this.sortPref.get();
+            if (pref) {
+                this.props.onChange(pref.field, pref.direction);
+            }
+        }
     }
 
     componentWillUnmount() {
@@ -22,6 +31,9 @@ class SortDropdown extends React.Component {
     };
 
     select = (field, direction) => {
+        if (this.sortPref) {
+            this.sortPref.set({ field, direction });
+        }
         this.props.onChange(field, direction);
         this.setState({ open: false });
     };

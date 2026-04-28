@@ -95,7 +95,7 @@ class Tags extends React.Component {
                     <div className="text-muted small page-header">Tags</div>
                     <HelpTip items={TAGS_VIEW_HELP} />
                     <div className="ms-auto d-flex align-items-center gap-2">
-                        <SortDropdown options={this.getSortOptions()}
+                        <SortDropdown options={this.getSortOptions()} prefStoreKey="tags.sort"
                             selected={{ field: this.state.sortField, direction: this.state.sortDirection }}
                             onChange={(field, direction) => this.setState({ sortField: field, sortDirection: direction })} />
                         <button className="btn btn-outline-dark btn-sm" style={{ width: 30, height: 30 }} onClick={() => this.toggleModal()}>+</button>
