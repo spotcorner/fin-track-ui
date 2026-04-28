@@ -23,7 +23,7 @@ const TABS = [
 
 class TransactionsLayout extends React.Component {
 
-    filterCache = new PreferenceStore(this.getCacheKey(), this.getInitialFilters());
+    filterCache = new PreferenceStore(`${this.getPrefStoreKey()}.filters`, this.getInitialFilters());
 
     state = {
         ...this.filterCache.get(),
@@ -31,9 +31,10 @@ class TransactionsLayout extends React.Component {
         transactionsLoading: false,
     }
 
-    getCacheKey() {
+    getPrefStoreKey() {
         return this.props.isDraft ? `draft.${this.props.draftId}` : "cashflow";
     }
+
     getInitialDateFilters() {
         return {
             startDateFilter: this.props.isDraft ? "" : moment().startOf("year").format("YYYY-MM-DD"),
@@ -159,7 +160,7 @@ class TransactionsLayout extends React.Component {
     getTabContent(filteredTransactions) {
         const tab = this.props.tab || "stats";
         if (tab === "stats") {
-            return <StatsView filteredTransactions={filteredTransactions} isDraft={this.props.isDraft} />;
+            return <StatsView filteredTransactions={filteredTransactions} prefStoreKey={this.getPrefStoreKey()} />;
         }
         if (tab === "summary") {
             return <SummaryTable transactions={this.state.transactions} filteredTransactions={filteredTransactions}

@@ -14,7 +14,7 @@ import uiUtil from "@utils/uiUtil";
 import amountUtil from "@utils/amountUtil";
 import PreferenceStore from "@utils/PreferenceStore";
 
-const draftPref = new PreferenceStore("drafts", { selectedDraftId: "" });
+const draftPref = new PreferenceStore("drafts.selection", { selectedDraftId: "" });
 
 class DraftsLayout extends React.Component {
 

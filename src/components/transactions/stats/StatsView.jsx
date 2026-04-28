@@ -2,24 +2,28 @@
 
 import React from "react";
 import "chart.js/auto";
-import { setStatsGroupByPeriod } from "@store";
 import { charts } from "@utils/statsChartUtilV2"
 import { connect } from "react-redux";
 import CheckDropdown from "@components/ui/CheckDropdown.jsx";
 import SortDropdown from "@components/ui/SortDropdown.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { STATS_HELP } from "@utils/helpContent";
+import PreferenceStore from "@utils/PreferenceStore";
+
+const STATS_DEFAULTS = {
+    visibleCharts: charts.map(c => c.key),
+    sortBy: {},
+    groupByPeriod: "weekly",
+};
 
 class StatsView extends React.Component {
 
-    state = {
-        visibleCharts: charts.map(c => c.key),
-        expandedCharts: _.fromPairs(charts.map(c => [c.key, true])),
-        sortBy: {},
-    }
+    statsPref = new PreferenceStore(`${this.props.prefStoreKey}.stats`, STATS_DEFAULTS);
+
+    state = this.statsPref.get()
 
     handleChange = (e) => {
-        this.props.dispatch(setStatsGroupByPeriod(e.target.value));
+        this.setState({ groupByPeriod: e.target.value }, this.savePrefs);
     }
 
     getApplicableTransactions(transactions, filters) {
@@ -38,19 +42,23 @@ class StatsView extends React.Component {
         }));
     }
 
+    savePrefs = () => {
+        this.statsPref.set(_.pick(this.state, ["visibleCharts", "sortBy", "groupByPeriod"]));
+    }
+
     handleSortChange = (key, field, direction) => {
-        this.setState(prev => ({ sortBy: { ...prev.sortBy, [key]: { field, direction } } }));
+        this.setState(prev => ({ sortBy: { ...prev.sortBy, [key]: { field, direction } } }), this.savePrefs);
     }
 
     getChartCard = (chart) => {
-        const { statsGroupByPeriod, filteredTransactions, accountsMap, tags } = this.props;
+        const { filteredTransactions, accountsMap, tags } = this.props;
         if (!this.state.visibleCharts.includes(chart.key)) return null;
         const applicableTransactions = this.getApplicableTransactions(filteredTransactions, chart.filters);
         if (applicableTransactions.length == 0) return null;
         const sortBy = this.state.sortBy[chart.key] || chart.defaultSort;
-        const chartData = chart.getData(applicableTransactions, accountsMap, statsGroupByPeriod, tags, sortBy);
+        const chartData = chart.getData(applicableTransactions, accountsMap, this.state.groupByPeriod, tags, sortBy);
         if (chartData.labels.length == 0) return null;
-        const chartExpanded = this.state.expandedCharts[chart.key];
+        const chartExpanded = true; // this.state.expandedCharts[chart.key];
         return <div key={chart.key} className={chartExpanded ? "col-12 mb-3" : chart.className}>
             <div className="card shadow-sm p-3">
                 <h5 className="card-title d-flex align-items-center gap-1">
@@ -61,7 +69,7 @@ class StatsView extends React.Component {
                             options={chart.sortOptions}
                             selected={sortBy}
                             onChange={(field, direction) => this.handleSortChange(chart.key, field, direction)} />}
-                        {chart.hasTimeFilter && <select className="form-select form-select-sm w-auto" value={statsGroupByPeriod}
+                        {chart.hasTimeFilter && <select className="form-select form-select-sm w-auto" value={this.state.groupByPeriod}
                             onChange={this.handleChange} onClick={e => e.stopPropagation()}>
                             <option value="daily">Daily</option>
                             <option value="weekly">Weekly</option>
@@ -99,12 +107,12 @@ class StatsView extends React.Component {
                     <div className="text-muted small page-header mb-0">Stats</div>
                     <HelpTip items={STATS_HELP.overview} />
                     <div className="ms-auto stats-chart-dropdown"><CheckDropdown label="Charts" options={charts.map(c => ({ value: c.key, label: c.title }))}
-                        selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts })} searchable /></div>
+                        selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts }, this.savePrefs)} searchable /></div>
                 </div>
-                <div className="row">{chartViews}</div>
+                <div className="row">{chartViews.length > 0 ? chartViews : <div className="text-muted small ms-1">No charts selected. Use the Charts dropdown to show charts.</div>}</div>
             </div>
         );
     }
 };
 
-export default connect(state => _.pick(state.user, ["statsGroupByPeriod", "accountsMap", "tags"]))(StatsView);
+export default connect(state => _.pick(state.user, ["accountsMap", "tags"]))(StatsView);
