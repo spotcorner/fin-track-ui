@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { Link, withRouter } from "react-router-dom";
 import { fetchAccountsRequest, fetchTagsRequest, fetchReceivedAccessRequest, switchViewAs } from "@store";
 
-class HomeLayout extends React.Component {
+class AppLayout extends React.Component {
 
     getProfileLink() {
         return <Link to="/profile" className="nav-link">
@@ -93,4 +93,4 @@ class HomeLayout extends React.Component {
     }
 }
 
-export default withRouter(connect(state => ({ userInfo: state.user.info, receivedAccessList: state.user.receivedAccessList, viewAsUserId: state.user.viewAsUserId }))(HomeLayout));
+export default withRouter(connect(state => ({ userInfo: state.user.info, receivedAccessList: state.user.receivedAccessList, viewAsUserId: state.user.viewAsUserId }))(AppLayout));

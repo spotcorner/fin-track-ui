@@ -4,7 +4,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Switch, Route, Redirect } from "react-router-dom";
 import LazyLoad from "@components/lazy-load/LazyLoad.jsx";
-import HomeLayout from "@components/layout/HomeLayout.jsx";
+import AppLayout from "@components/layout/AppLayout.jsx";
 
 const cashflowComponent = () => import("@components/transactions/TransactionsLayout.jsx");
 const draftsComponent = () => import("@components/transactions/DraftsLayout.jsx");
@@ -40,5 +40,5 @@ export default function App() {
         return <LazyLoad component={() => import('@components/login/Login.jsx')} />;
     }
 
-    return <HomeLayout LayoutBody={getRoutes()} />;
+    return <AppLayout LayoutBody={getRoutes()} />;
 }
