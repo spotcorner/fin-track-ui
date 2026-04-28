@@ -2,6 +2,7 @@
 
 import React from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import userService from "@services/userService";
 import accessService from "@services/accessService";
 import { setUserDetails, updateNicknameForOwnerRequest } from "@store";
@@ -22,6 +23,7 @@ class Profile extends React.Component {
         userService.logout().then(data => {
             if (data.success) {
                 this.props.dispatch(setUserDetails({}));
+                this.props.history.push("/");
             }
         });
     }
@@ -172,7 +174,7 @@ class Profile extends React.Component {
     }
 }
 
-export default connect(state => ({
+export default withRouter(connect(state => ({
     userInfo: state.user.info,
     receivedAccessList: state.user.receivedAccessList,
-}))(Profile);
+}))(Profile));
