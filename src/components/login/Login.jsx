@@ -4,6 +4,7 @@ import { GOOGLE_CLIENT_ID } from "@config";
 import userService from "@services/userService";
 import { connect } from "react-redux";
 import { setUserDetails } from "@store";
+import About, { AboutHeader } from "@components/home/About.jsx";
 
 class Login extends React.Component {
 
@@ -21,23 +22,18 @@ class Login extends React.Component {
         console.log("Google Login Failed");
     }
 
-    getGoogleLoginButton() {
-        return (<div className="d-flex justify-content-center">
-            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                <GoogleLogin onSuccess={this.onSuccess} onError={this.onError} />
-            </GoogleOAuthProvider>
-        </div>);
-    }
-
     render() {
-        return (<div className="bg-dark d-flex" style={{width: "100vw", height: "100vh"}}>
-            <div className="container text-center mt-5">
-                <div className="card p-4 shadow-sm mx-auto" style={{ maxWidth: "400px" }}>
-                    <h2 className="mb-3">Welcome to Finance Tracker</h2>
-                    {this.getGoogleLoginButton()}
+        return <div className="bg-dark text-light" style={{ minHeight: "100vh" }}>
+            <div className="container py-3">
+                <AboutHeader dark />
+                <div className="d-flex justify-content-center mb-4">
+                    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                        <GoogleLogin onSuccess={this.onSuccess} onError={this.onError} />
+                    </GoogleOAuthProvider>
                 </div>
+                <About dark />
             </div>
-        </div>);
+        </div>;
     }
 }
 

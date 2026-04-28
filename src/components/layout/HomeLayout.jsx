@@ -9,11 +9,12 @@ class HomeLayout extends React.Component {
 
     getProfileLink() {
         return <Link to="/profile" className="nav-link">
-            <img src={this.props.userInfo.picture} className="rounded-circle border" style={{ width: "50px", height: "50px", objectFit: "cover" }} />
+            <img src={this.props.userInfo.picture} className="rounded-circle border" style={{ width: "35px", height: "35px", objectFit: "cover" }} />
         </Link>;
     }
 
     getActiveStatus(to) {
+        if (to === "/") return this.props.location.pathname === "/" ? "active" : "";
         return this.props.location.pathname.startsWith(to) ? "active" : "";
     }
 
@@ -36,14 +37,17 @@ class HomeLayout extends React.Component {
     render() {
         const { LayoutBody } = this.props;
         return <div>
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+            <nav className="navbar navbar-expand-lg navbar-dark bg-dark p-0">
                 <div className="container-fluid">
-                    <div className="navbar-brand">Finance Tracker</div>
+                    <Link to="/" className="navbar-brand"><img src="/assets/images/favicon.png" alt="" style={{ width: 40, height: 40 }} className="me-1" />fin-track</Link>
                     <button className="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li className="nav-item">
+                                {this.getNavLink("/", "Home")}
+                            </li>
                             <li className="nav-item">
                                 {this.getNavLink("/cashflow", "Cashflow")}
                             </li>
