@@ -12,6 +12,7 @@ import SummaryTable from "./SummaryTable.jsx";
 import transactionUtil from "@utils/transactionUtil";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { CASHFLOW_HELP } from "@utils/helpContent";
+import PreferenceStore from "@utils/PreferenceStore";
 import uiUtil from "@utils/uiUtil";
 
 const TABS = [
@@ -22,13 +23,17 @@ const TABS = [
 
 class TransactionsLayout extends React.Component {
 
+    filterCache = new PreferenceStore(this.getCacheKey(), this.getInitialFilters());
+
     state = {
-        ...this.getInitialDateFilters(),
-        ...this.getInitialFilters(),
+        ...this.filterCache.get(),
         transactions: [],
         transactionsLoading: false,
     }
 
+    getCacheKey() {
+        return this.props.isDraft ? `draft.${this.props.draftId}` : "cashflow";
+    }
     getInitialDateFilters() {
         return {
             startDateFilter: this.props.startDateFilter || "",
@@ -57,6 +62,7 @@ class TransactionsLayout extends React.Component {
 
     getInitialFilters() {
         return {
+            ...this.getInitialDateFilters(),
             minAmountFilter: "",
             maxAmountFilter: "",
             accountTypeFilter: [],
@@ -72,16 +78,20 @@ class TransactionsLayout extends React.Component {
         };
     }
 
-    handleDateFilterChange = (name, value) => {
-        this.setState({ [name]: value }, this.fetchTransactions);
-    };
+    cacheFiltersState = () => {
+        this.filterCache.set(this.getFilters());
+    }
 
     resetDateFilter = () => {
-        this.setState(this.getInitialDateFilters(), this.fetchTransactions);
+        this.setState(this.getInitialDateFilters(), () => {
+            this.cacheFiltersState();
+            this.fetchTransactions();
+        });
     }
 
     handleFilterChange = (name, value) => {
         this.setState({ [name]: value }, () => {
+            this.cacheFiltersState();
             if (name == "startDateFilter" || name == "endDateFilter") {
                 this.fetchTransactions();
             }
@@ -89,11 +99,11 @@ class TransactionsLayout extends React.Component {
     };
 
     resetFilters = () => {
-        this.setState(this.getInitialFilters());
+        this.setState(this.getInitialFilters(), this.cacheFiltersState);
     }
 
     clearFilters = () => {
-        this.setState({ ...this.getInitialFilters(), excludeFromTotalsFilter: [] });
+        this.setState({ ...this.getInitialFilters(), excludeFromTotalsFilter: [] }, this.cacheFiltersState);
     }
 
     getFilteredTransactions() {
@@ -217,7 +227,6 @@ class TransactionsLayout extends React.Component {
     }
 
     componentDidMount() {
-        console.log("componentDidMount")
         this.fetchTransactions();
     }
 }
