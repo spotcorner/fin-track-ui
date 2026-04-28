@@ -14,7 +14,7 @@ class SortDropdown extends React.Component {
         document.addEventListener("mousedown", this.handleClickOutside);
         if (this.sortPref) {
             const pref = this.sortPref.get();
-            if (pref) {
+            if (pref && this.props.options.some(o => o.field === pref.field)) {
                 this.props.onChange(pref.field, pref.direction);
             }
         }
