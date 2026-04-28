@@ -106,7 +106,7 @@ class Upload extends React.Component {
         if (!transactions || transactions.length === 0) return;
         this.setState({ status: UPLOAD_STATUS.SAVING });
         transactionService.createDrafts(this.state.accountId, this.state.draftName, transactions, parseFloat(this.state.openingBalance) || 0).then(data => {
-            this.setState({ status: UPLOAD_STATUS.SAVED });
+            this.setState({ status: UPLOAD_STATUS.SAVED, savedDraftId: data.draftId });
         }).catch(() => {
             this.setState({ status: UPLOAD_STATUS.EXTRACTED });
         });
@@ -235,7 +235,7 @@ class Upload extends React.Component {
         const count = this.getSelectedResult()?.transactions?.length || 0;
         return <div className="mb-2 alert alert-success">
             <span>Saved {count} transactions as draft. </span>
-            {count > 0 && <span>Visit <Link to="/drafts">Edit Drafts</Link> page to review.</span>}
+            {count > 0 && <span>Visit <Link to={`/drafts?draftId=${this.state.savedDraftId}`}>Edit Drafts</Link> page to review.</span>}
         </div>;
     }
 

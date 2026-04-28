@@ -36,9 +36,9 @@ class TransactionsLayout extends React.Component {
     }
     getInitialDateFilters() {
         return {
-            startDateFilter: this.props.startDateFilter || "",
-            endDateFilter: this.props.endDateFilter || "",
-        }
+            startDateFilter: this.props.isDraft ? "" : moment().startOf("year").format("YYYY-MM-DD"),
+            endDateFilter: this.props.isDraft ? "" : moment().format("YYYY-MM-DD"),
+        };
     }
 
     getFilters() {
@@ -146,23 +146,18 @@ class TransactionsLayout extends React.Component {
         });
     }
 
-    getActiveTab() {
-        const tab = _.find(TABS, t => _.endsWith(this.props.location.pathname, t.key));
-        return tab ? tab.key : "stats";
-    }
-
     getTabBar() {
         const basePath = this.props.basePath || "/";
         return <ul className="nav nav-tabs mb-2">
             {TABS.map(tab => <li key={tab.key} className="nav-item">
-                <NavLink className="nav-link" activeClassName="active"
-                    to={basePath === "/" ? `/${tab.key}` : `${basePath}/${tab.key}`}>{tab.label}</NavLink>
+                <NavLink className="nav-link" activeClassName="active" exact={tab.key === "stats"}
+                    to={tab.key === "stats" ? basePath : `${basePath}/${tab.key}`}>{tab.label}</NavLink>
             </li>)}
         </ul>;
     }
 
     getTabContent(filteredTransactions) {
-        const tab = this.getActiveTab();
+        const tab = this.props.tab || "stats";
         if (tab === "stats") {
             return <StatsView filteredTransactions={filteredTransactions} isDraft={this.props.isDraft} />;
         }

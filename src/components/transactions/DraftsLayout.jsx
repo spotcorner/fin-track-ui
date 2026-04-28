@@ -2,6 +2,7 @@
 
 import React from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import { toast } from "react-toastify";
 import draftService from "@services/draftService";
 import TransactionsLayout from "./TransactionsLayout.jsx";
@@ -11,6 +12,9 @@ import HelpTip from "@components/ui/HelpTip.jsx";
 import { DRAFTS_HELP } from "@utils/helpContent";
 import uiUtil from "@utils/uiUtil";
 import amountUtil from "@utils/amountUtil";
+import PreferenceStore from "@utils/PreferenceStore";
+
+const draftPref = new PreferenceStore("drafts", { selectedDraftId: "" });
 
 class DraftsLayout extends React.Component {
 
@@ -22,22 +26,36 @@ class DraftsLayout extends React.Component {
         showEditModal: false,
     }
 
+    getQueryDraftId() {
+        return new URLSearchParams(this.props.location.search).get("draftId") || "";
+    }
+
+    setQueryDraftId(id) {
+        const params = new URLSearchParams(this.props.location.search);
+        if (id) params.set("draftId", id); else params.delete("draftId");
+        this.props.history.replace({ search: params.toString() });
+    }
+
     fetchDrafts = () => {
         this.setState({ loading: true });
         draftService.getAll().then(data => {
             const drafts = data.drafts;
-            this.setState({
-                drafts,
-                selectedDraftId: drafts.length > 0 ? drafts[0]._id : "",
-                loading: false,
-            });
+            const queryId = this.getQueryDraftId();
+            const prefId = draftPref.get().selectedDraftId;
+            const selectedDraftId = [queryId, prefId].find(id => id && drafts.find(d => d._id === id)) || (drafts.length > 0 ? drafts[0]._id : "");
+            this.setQueryDraftId(selectedDraftId);
+            draftPref.set({ selectedDraftId });
+            this.setState({ drafts, selectedDraftId, loading: false });
         }).catch(() => {
             this.setState({ loading: false });
         });
     }
 
     handleDraftChange = (e) => {
-        this.setState({ selectedDraftId: e.target.value });
+        const selectedDraftId = e.target.value;
+        this.setQueryDraftId(selectedDraftId);
+        draftPref.set({ selectedDraftId });
+        this.setState({ selectedDraftId });
     }
 
     closeDraft = () => {
@@ -94,13 +112,19 @@ class DraftsLayout extends React.Component {
                 onClose={() => this.setState({ showEditModal: false })} />
             {selectedDraftId && <TransactionsLayout key={selectedDraftId}
                 isDraft={1} draftId={selectedDraftId} draftOpeningBalance={selectedDraft?.openingBalance || 0}
-                sortByDate={1} basePath={"/drafts"} />}
+                sortByDate={1} basePath={"/drafts"} tab={this.props.tab} />}
         </div>;
     }
 
     componentDidMount() {
         this.fetchDrafts();
     }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.location.search !== this.props.location.search && !this.getQueryDraftId() && this.state.selectedDraftId) {
+            this.setQueryDraftId(this.state.selectedDraftId);
+        }
+    }
 }
 
-export default connect(state => _.pick(state.user, ["accountsMap"]))(DraftsLayout);
+export default withRouter(connect(state => _.pick(state.user, ["accountsMap"]))(DraftsLayout));
