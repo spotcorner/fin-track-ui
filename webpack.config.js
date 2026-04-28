@@ -66,6 +66,7 @@ const developmentConfig = {
     },
     plugins: [
         // new BundleAnalyzerPlugin(),
+        new webpack.DefinePlugin({ 'process.env.ASSET_BASE': JSON.stringify('') }),
     ]
 }
 
@@ -73,6 +74,9 @@ const productionConfig = {
     output: {
         publicPath: 'https://spotcorner.github.io/fin-track-cdn/assets/js/bundle/',
     },
+    plugins: [
+        new webpack.DefinePlugin({ 'process.env.ASSET_BASE': JSON.stringify('https://spotcorner.github.io/fin-track-cdn') }),
+    ],
 }
 
 module.exports = (env, args) => {

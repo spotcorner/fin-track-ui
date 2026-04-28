@@ -27,7 +27,7 @@ function FeatureCard({ feature, linkable, dark }) {
 
 export function AboutHeader({ dark }) {
     return <div className="text-center mb-4">
-        <img src="/assets/images/favicon.png" alt="" style={{ width: 60, height: 60 }} />
+        <img src={`${process.env.ASSET_BASE}/assets/images/favicon.png`} alt="" style={{ width: 60, height: 60 }} />
         <h4 className="fw-bold">fin-track</h4>
         <p className={dark ? "text-secondary" : "text-muted"}>Extract, tag, and track your spending from bank statements</p>
     </div>;
