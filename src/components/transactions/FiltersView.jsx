@@ -4,8 +4,10 @@ import React from "react";
 import { connect } from "react-redux";
 import { ACCOUNT_TYPE_LABELS, TRANSACTION_TYPES } from "@config";
 import CheckDropdown from "@components/ui/CheckDropdown.jsx";
+import DateFilter from "@components/ui/DateFilter.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { FILTERS_HELP } from "@utils/helpContent";
+import { formatDateRange } from "@utils/datePresetUtil";
 import labelUtil from "@utils/labelUtil";
 import "@styles/filtersView.scss";
 
@@ -51,29 +53,15 @@ class FiltersView extends React.Component {
         const accountOptions = _.values(accountsMap).map(a => ({ value: a._id, label: labelUtil.getAccountLabel(a) }));
         return <>
             <div className="row g-2 mb-2">
-                <div className="col-12 col-md-6 col-lg-4">
-                    <div className="input-group input-group-sm">
-                        <span className="input-group-text">From</span>
-                        <input type="date" name="startDateFilter" value={filters.startDateFilter} className="form-control" onChange={this.handleFilterChange} />
-                        <span className="input-group-text">To</span>
-                        <input type="date" name="endDateFilter" value={filters.endDateFilter} className="form-control" onChange={this.handleFilterChange} />
-                        <button className="btn btn-outline-secondary btn-sm" onClick={this.props.resetDateFilter}>
-                            <i className="bi bi-x-lg"></i>
-                        </button>
-                    </div>
+                <div className="col-12 col-lg-6">
+                    <DateFilter startDate={filters.startDateFilter} endDate={filters.endDateFilter}
+                        preset={filters.datePreset} onChange={this.props.handleDateChange} />
                 </div>
-                <div className="col-6 col-md-3 col-lg-2">
+                <div className="col-12 col-md-6 col-lg-3">
                     <CheckDropdown label="Tags" options={this.getTagOptions()} searchable sortByLabel pinSelected
                         selected={filters.tagFilter} onChange={v => this.props.handleFilterChange("tagFilter", v)} countMap={counts.tag} />
                 </div>
-                <div className="col-6 col-md-3 col-lg-3">
-                    <div className="input-group input-group-sm">
-                        <span className="input-group-text">₹</span>
-                        <input type="number" name="minAmountFilter" value={filters.minAmountFilter} className="form-control" placeholder="Min" onChange={this.handleFilterChange} />
-                        <input type="number" name="maxAmountFilter" value={filters.maxAmountFilter} className="form-control" placeholder="Max" onChange={this.handleFilterChange} />
-                    </div>
-                </div>
-                <div className="col-12 col-md-12 col-lg-3">
+                <div className="col-12 col-md-6 col-lg-3">
                     <div className="input-group input-group-sm">
                         <span className="input-group-text"><i className="bi bi-search"></i></span>
                         <input type="search" name="searchFilter" value={filters.searchFilter} className="form-control" placeholder="Search..." onChange={this.handleFilterChange} />
@@ -89,7 +77,14 @@ class FiltersView extends React.Component {
                 </div>
             </div>
             <div className="row g-2">
-                <div className="col-6 col-md-3 col-lg-2">
+                <div className="col-12 col-md-6 col-lg-3">
+                    <div className="input-group input-group-sm">
+                        <span className="input-group-text">₹</span>
+                        <input type="number" name="minAmountFilter" value={filters.minAmountFilter} className="form-control" placeholder="Min" onChange={this.handleFilterChange} />
+                        <input type="number" name="maxAmountFilter" value={filters.maxAmountFilter} className="form-control" placeholder="Max" onChange={this.handleFilterChange} />
+                    </div>
+                </div>
+                <div className="col-6 col-md-3 col-lg-1">
                     <CheckDropdown label="Type" options={[{ value: TRANSACTION_TYPES.DEBIT, label: "Debit" }, { value: TRANSACTION_TYPES.CREDIT, label: "Credit" }]}
                         selected={filters.transactionTypeFilter} onChange={v => this.props.handleFilterChange("transactionTypeFilter", v)} countMap={counts.type} />
                 </div>
@@ -122,6 +117,9 @@ class FiltersView extends React.Component {
     getChips() {
         const { filters, accountsMap, tagsMap } = this.props;
         const chips = [];
+        const defaultPreset = this.props.isDraft ? "allTime" : "currentMonth";
+        const isDefaultDate = filters.datePreset === defaultPreset;
+        if (filters.startDateFilter || filters.endDateFilter) chips.push({ label: formatDateRange(filters.startDateFilter, filters.endDateFilter, filters.datePreset), onRemove: isDefaultDate ? null : this.props.resetDateFilter });
         if (filters.transactionTypeFilter.length) filters.transactionTypeFilter.forEach(v => chips.push({ label: v === TRANSACTION_TYPES.DEBIT ? "Debit" : "Credit", onRemove: () => this.props.handleFilterChange("transactionTypeFilter", filters.transactionTypeFilter.filter(x => x !== v)) }));
         filters.excludeFromTotalsFilter.forEach(v => chips.push({ label: v === "1" ? "Excluded" : "Active", onRemove: () => this.props.handleFilterChange("excludeFromTotalsFilter", filters.excludeFromTotalsFilter.filter(x => x !== v)) }));
         if (filters.minAmountFilter) chips.push({ label: "Min: ₹" + filters.minAmountFilter, onRemove: () => this.props.handleFilterChange("minAmountFilter", "") });
@@ -131,8 +129,8 @@ class FiltersView extends React.Component {
         filters.tagFilter.forEach(id => chips.push({ label: id === "__NONE__" ? "Untagged" : (tagsMap[id]?.name || id), onRemove: () => this.props.handleFilterChange("tagFilter", filters.tagFilter.filter(v => v !== id)) }));
         if (!chips.length) return null;
         return <div className="filter-chips d-flex flex-wrap gap-1">
-            {chips.map((chip, i) => <span key={i} className="badge bg-dark filter-chip" onClick={chip.onRemove}>
-                {chip.label} &times;
+            {chips.map((chip, i) => <span key={i} className={"badge bg-dark filter-chip" + (chip.onRemove ? " cursor-pointer" : "")} onClick={chip.onRemove}>
+                {chip.label}{chip.onRemove && " ×"}
             </span>)}
         </div>;
     }

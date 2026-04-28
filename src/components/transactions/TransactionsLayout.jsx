@@ -13,6 +13,7 @@ import transactionUtil from "@utils/transactionUtil";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { CASHFLOW_HELP } from "@utils/helpContent";
 import PreferenceStore from "@utils/PreferenceStore";
+import { getDateRange } from "@utils/datePresetUtil";
 import uiUtil from "@utils/uiUtil";
 
 const TABS = [
@@ -35,17 +36,17 @@ class TransactionsLayout extends React.Component {
         return this.props.isDraft ? `draft.${this.props.draftId}` : "cashflow";
     }
 
-    getInitialDateFilters() {
-        return {
-            startDateFilter: this.props.isDraft ? "" : moment().startOf("year").format("YYYY-MM-DD"),
-            endDateFilter: this.props.isDraft ? "" : moment().format("YYYY-MM-DD"),
-        };
+    getInitialDateFilters({ clearAll } = {}) {
+        if (this.props.isDraft || clearAll) return { startDateFilter: "", endDateFilter: "", datePreset: "allTime" };
+        const range = getDateRange("currentMonth");
+        return { startDateFilter: range.start, endDateFilter: range.end, datePreset: "currentMonth" };
     }
 
     getFilters() {
         return {
             startDateFilter: this.state.startDateFilter,
             endDateFilter: this.state.endDateFilter,
+            datePreset: this.state.datePreset,
             minAmountFilter: this.state.minAmountFilter,
             maxAmountFilter: this.state.maxAmountFilter,
             excludeFromTotalsFilter: this.state.excludeFromTotalsFilter,
@@ -61,16 +62,16 @@ class TransactionsLayout extends React.Component {
         };
     }
 
-    getInitialFilters() {
+    getInitialFilters({ clearAll } = {}) {
         return {
-            ...this.getInitialDateFilters(),
+            ...this.getInitialDateFilters({ clearAll }),
             minAmountFilter: "",
             maxAmountFilter: "",
             accountTypeFilter: [],
             accountIdFilter: [],
             transactionTypeFilter: [],
             tagFilter: [],
-            excludeFromTotalsFilter: ["0"],
+            excludeFromTotalsFilter: clearAll ? [] : ["0"],
             searchFilter: "",
             searchCaseSensitive: false,
             searchRegex: false,
@@ -83,19 +84,21 @@ class TransactionsLayout extends React.Component {
         this.filterCache.set(this.getFilters());
     }
 
-    resetDateFilter = () => {
-        this.setState(this.getInitialDateFilters(), () => {
+    handleDateChange = (startDateFilter, endDateFilter, datePreset) => {
+        this.setState({ startDateFilter, endDateFilter, datePreset }, () => {
             this.cacheFiltersState();
             this.fetchTransactions();
         });
     }
 
+    resetDateFilter = () => {
+        const { startDateFilter, endDateFilter, datePreset } = this.getInitialDateFilters();
+        this.handleDateChange(startDateFilter, endDateFilter, datePreset);
+    }
+
     handleFilterChange = (name, value) => {
         this.setState({ [name]: value }, () => {
             this.cacheFiltersState();
-            if (name == "startDateFilter" || name == "endDateFilter") {
-                this.fetchTransactions();
-            }
         });
     };
 
@@ -104,7 +107,10 @@ class TransactionsLayout extends React.Component {
     }
 
     clearFilters = () => {
-        this.setState({ ...this.getInitialFilters(), excludeFromTotalsFilter: [] }, this.cacheFiltersState);
+        this.setState(this.getInitialFilters({ clearAll: true }), () => {
+            this.cacheFiltersState();
+            this.fetchTransactions();
+        });
     }
 
     getFilteredTransactions() {
@@ -204,7 +210,7 @@ class TransactionsLayout extends React.Component {
                 <div className="text-muted small page-header">{this.props.title}</div>
                 <HelpTip items={CASHFLOW_HELP} />
             </div>}
-            <FiltersView filters={this.getFilters()} transactions={this.state.transactions} isDraft={this.props.isDraft} handleFilterChange={this.handleFilterChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
+            <FiltersView filters={this.getFilters()} transactions={this.state.transactions} isDraft={this.props.isDraft} handleFilterChange={this.handleFilterChange} handleDateChange={this.handleDateChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
             {this.getLoader()}
             {this.state.transactions.length > 0 && <>
                 {this.getTabBar()}
