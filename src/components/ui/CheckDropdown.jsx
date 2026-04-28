@@ -33,7 +33,7 @@ class CheckDropdown extends React.Component {
     };
 
     render() {
-        const { label, options, selected = [], sortByLabel, searchable, inline, pinSelected, countMap } = this.props;
+        const { label, options, selected = [], sortByLabel, searchable, inline, pinSelected, countMap, showSelectAll, disabled } = this.props;
         const { open, search } = this.state;
         const hasSelection = selected.length > 0;
         const toggleLabel = !hasSelection ? label : selected.length === 1 ? `${label}: ${options.find(o => o.value === selected[0])?.label || selected[0]}` : `${label} (${selected.length})`;
@@ -59,7 +59,7 @@ class CheckDropdown extends React.Component {
             {open && <div className={"check-dropdown-menu" + (inline ? " check-dropdown-inline" : "")}>
                 {searchable && <input type="text" className="check-dropdown-search" placeholder="Search..."
                     value={search} onChange={e => this.setState({ search: e.target.value })} onClick={e => e.stopPropagation()} />}
-                {searchable && (() => {
+                {(showSelectAll !== false && searchable) && (() => {
                     const values = filtered.filter(o => !o.separator).map(o => o.value);
                     const allSelected = values.length > 0 && values.every(v => selected.includes(v));
                     return <div className="check-dropdown-select-all" onClick={() => this.toggleAll(values, allSelected)}>
@@ -67,8 +67,8 @@ class CheckDropdown extends React.Component {
                         Select all ({values.length})
                     </div>;
                 })()}
-                {filtered.map(opt => <div key={opt.value} className={"check-dropdown-item" + (opt.separator ? " check-dropdown-separator" : "")}
-                    onClick={() => this.toggle(opt.value)}>
+                {filtered.map(opt => <div key={opt.value} className={"check-dropdown-item" + (opt.separator ? " check-dropdown-separator" : "") + (disabled ? " disabled" : "")}
+                    onClick={() => !disabled && this.toggle(opt.value)}>
                     <input type="checkbox" checked={selected.includes(opt.value)} readOnly />
                     <span className="check-dropdown-item-label">{opt.label}</span>
                     {countMap && <span className="check-dropdown-count">{countMap[opt.value] || 0}</span>}

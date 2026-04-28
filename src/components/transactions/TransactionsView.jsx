@@ -8,6 +8,7 @@ import SortDropdown from "@components/ui/SortDropdown.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { TRANSACTIONS_HELP, TRANSACTIONS_DRAFT_HELP } from "@utils/helpContent";
 import TagBadges from "@components/tags/TagBadges.jsx";
+import CheckDropdown from "@components/ui/CheckDropdown.jsx";
 import { TRANSACTION_TYPES } from "@config";
 import CrudTransactionModal from "./CrudTransactionModal.jsx";
 import TagTransactionModal from "./TagTransactionModal.jsx";
@@ -24,6 +25,8 @@ class TransactionsView extends React.Component {
         deleteTransactionId: null,
         showSaveDraftsModal: false,
         showDeleteDraftsModal: false,
+        selectionMode: false,
+        selectedIds: {},
     }
 
     getSelectedTransaction() {
@@ -82,6 +85,60 @@ class TransactionsView extends React.Component {
         </div>;
     }
 
+    toggleSelection = (id) => {
+        this.setState(prev => {
+            const selectedIds = { ...prev.selectedIds };
+            if (selectedIds[id]) delete selectedIds[id]; else selectedIds[id] = true;
+            return { selectedIds };
+        });
+    }
+
+    selectAll = () => {
+        const allSelected = this.getSelectedCount() === this.props.filteredTransactions.length;
+        if (allSelected) {
+            this.setState({ selectedIds: {} });
+        } else {
+            const selectedIds = {};
+            this.props.filteredTransactions.forEach(t => selectedIds[t._id] = true);
+            this.setState({ selectedIds });
+        }
+    }
+
+    clearSelection = () => {
+        this.setState({ selectedIds: {}, selectionMode: false });
+    }
+
+    getSelectedCount() {
+        return Object.keys(this.state.selectedIds).length;
+    }
+
+    getCommonTagIds() {
+        const selectedIds = Object.keys(this.state.selectedIds);
+        if (!selectedIds.length) return [];
+        const selected = this.props.filteredTransactions.filter(t => this.state.selectedIds[t._id]);
+        if (!selected.length) return [];
+        const first = new Set(_.keys(_.pickBy(selected[0].appliedTags, v => v >= 1)));
+        return [...first].filter(tagId => selected.every(t => t.appliedTags?.[tagId] >= 1));
+    }
+
+    bulkApplyTag = (newSelected) => {
+        const commonTags = this.getCommonTagIds();
+        const transactionIds = Object.keys(this.state.selectedIds);
+        const added = newSelected.find(id => !commonTags.includes(id));
+        const removed = commonTags.find(id => !newSelected.includes(id));
+        if (added) {
+            transactionService.bulkUpdateTags(transactionIds, added, 1).then(() => {
+                toast.info(`Tagged ${transactionIds.length} transactions ✅`);
+                this.props.fetchTransactions();
+            });
+        } else if (removed) {
+            transactionService.bulkUpdateTags(transactionIds, removed, -1).then(() => {
+                toast.info(`Untagged ${transactionIds.length} transactions ✅`);
+                this.props.fetchTransactions();
+            });
+        }
+    }
+
     getActionButtons(transaction) {
         return <div className="d-flex gap-1 flex-nowrap">
             <span className="badge badge-outline-primary cursor-pointer" onClick={() => this.toggleTagModal(transaction)}><i className="bi bi-tag"></i></span>
@@ -96,6 +153,9 @@ class TransactionsView extends React.Component {
         const accountLabel = transaction.account && labelUtil.getAccountLabel(transaction.account);
         return <div key={transactionIndex} className={"list-group-item " + typeClass}>
             <div className="d-flex align-items-center gap-3">
+                {this.state.selectionMode && <input type="checkbox" className="form-check-input flex-shrink-0"
+                    checked={!!this.state.selectedIds[transaction._id]}
+                    onChange={() => this.toggleSelection(transaction._id)} />}
                 <div className="text-muted small text-nowrap">{moment(transaction.date, "YYYY-MM-DD").format("MMM D, YYYY")}</div>
                 {accountLabel && <div className="text-muted small text-nowrap">{accountLabel}</div>}
                 <span className={"fw-bold text-nowrap " + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
@@ -115,6 +175,25 @@ class TransactionsView extends React.Component {
         this.props.handleFilterChange("sortDirection", direction);
     };
 
+    getSelectionControls(filteredTransactions) {
+        if (!this.state.selectionMode) return null;
+        const selectedCount = this.getSelectedCount();
+        return <div className="d-flex align-items-center gap-2 mb-2">
+            <label className="form-check-label small text-muted text-nowrap d-flex align-items-center gap-1 cursor-pointer">
+                <input type="checkbox" className="form-check-input"
+                    checked={selectedCount > 0 && selectedCount === filteredTransactions.length}
+                    onChange={this.selectAll} />
+                Select All
+            </label>
+            <div className="ms-auto" style={{ minWidth: 200 }}>
+                <CheckDropdown label={`Tag (${selectedCount})`}
+                    options={this.props.tags.map(t => ({ value: t._id, label: t.name }))}
+                    selected={this.getCommonTagIds()} onChange={this.bulkApplyTag} searchable showSelectAll={false}
+                    disabled={selectedCount === 0} />
+            </div>
+        </div>;
+    }
+
     getToolbar(filteredTransactions, isDraft) {
         return <>
             <div className="d-flex align-items-center gap-1 mb-2">
@@ -122,6 +201,10 @@ class TransactionsView extends React.Component {
                 <HelpTip items={isDraft ? [...TRANSACTIONS_HELP, ...TRANSACTIONS_DRAFT_HELP] : TRANSACTIONS_HELP} />
                 <span className="text-muted mx-auto">Showing {filteredTransactions.length} of {this.props.transactions.length} entries</span>
                 <div className="d-flex align-items-center gap-2">
+                    <button className={"btn btn-sm text-nowrap " + (this.state.selectionMode ? "btn-dark" : "btn-outline-secondary")}
+                        onClick={() => this.setState(prev => ({ selectionMode: !prev.selectionMode, selectedIds: {} }))}>
+                        <i className="bi bi-check2-square"></i>
+                    </button>
                     {isDraft && <>
                         <button className="btn btn-outline-success btn-sm text-nowrap" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
                         <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
@@ -139,6 +222,7 @@ class TransactionsView extends React.Component {
         const isDraft = this.props.isDraft == 1 && this.props.transactions.length > 0;
         return <div>
             {this.getToolbar(filteredTransactions, isDraft)}
+            {this.getSelectionControls(filteredTransactions)}
             <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>{filteredTransactions.map(this.getListTransaction)}</div></div>
         </div>;
     }
@@ -188,4 +272,4 @@ class TransactionsView extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accountsMap", "accounts", "tagsMap"]))(TransactionsView);
+export default connect(state => _.pick(state.user, ["accountsMap", "accounts", "tagsMap", "tags"]))(TransactionsView);

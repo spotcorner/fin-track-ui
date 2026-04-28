@@ -19,5 +19,6 @@ export default {
     getAll: (startDate, endDate, isDraft, sortByDate, draftId) => http.get("/api/v1/transactions", {startDate, endDate, isDraft, sortByDate, draftId}),
     upsert: (transaction) => http.post("/api/v1/transaction", transaction),
     updateTags: (_id, appliedTags) => http.patch(`/api/v1/transaction/${_id}/tags`, { appliedTags }),
+    bulkUpdateTags: (transactionIds, tagId, status) => http.patch("/api/v1/transactions/tags", { transactionIds, tagId, status }),
     delete: (transactionId) => http.delete(`/api/v1/transaction/${transactionId}`),
 }

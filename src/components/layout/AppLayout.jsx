@@ -37,7 +37,7 @@ class AppLayout extends React.Component {
     render() {
         const { LayoutBody } = this.props;
         return <div>
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark p-0">
+            <nav className="navbar navbar-expand-lg navbar-dark bg-dark p-1">
                 <div className="container-fluid">
                     <Link to="/" className="navbar-brand"><img src="/assets/images/favicon.png" alt="" style={{ width: 40, height: 40 }} className="me-1" />fin-track</Link>
                     <button className="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">

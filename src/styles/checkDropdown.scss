@@ -27,6 +27,16 @@
     border-bottom: none;
 }
 
+.check-dropdown-toggle.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.check-dropdown-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .check-dropdown-menu {
     position: absolute;
     top: 100%;
