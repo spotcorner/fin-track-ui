@@ -12,8 +12,8 @@ import labelUtil from "@utils/labelUtil";
 import amountUtil from "@utils/amountUtil";
 import { getUnmappedColumns, getFlattenedResults, applyMapping } from "@utils/transactionGroupUtil";
 import { getDefaultMapping, isMappingComplete } from "@utils/columnMappingUtil";
-import ColumnMappingTable from "@components/transactions/ColumnMappingTable.jsx";
-import TransactionPreview from "@components/transactions/TransactionPreview.jsx";
+import ColumnMappingTable from "./ColumnMappingTable.jsx";
+import TransactionPreview from "./TransactionPreview.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { UPLOAD_HELP, SOURCE_PREVIEW_HELP, EXTRACTION_RESULT_HELP } from "@utils/helpContent";
 
