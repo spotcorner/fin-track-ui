@@ -92,7 +92,7 @@ class TransactionsLayout extends React.Component {
     }
 
     resetDateFilter = () => {
-        const { startDateFilter, endDateFilter, datePreset } = this.getInitialDateFilters();
+        const { startDateFilter, endDateFilter, datePreset } = this.getInitialDateFilters({ clearAll: true });
         this.handleDateChange(startDateFilter, endDateFilter, datePreset);
     }
 

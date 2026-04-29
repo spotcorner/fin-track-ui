@@ -131,9 +131,8 @@ class FiltersView extends React.Component {
     getChips() {
         const { filters, accountsMap, tagsMap } = this.props;
         const chips = [];
-        const defaultPreset = this.props.isDraft ? "allTime" : "currentMonth";
-        const isDefaultDate = filters.datePreset === defaultPreset;
-        if (filters.startDateFilter || filters.endDateFilter) chips.push({ label: formatDateRange(filters.startDateFilter, filters.endDateFilter, filters.datePreset), onRemove: isDefaultDate ? null : this.props.resetDateFilter });
+        const isAllTime = filters.datePreset === "allTime" && !filters.startDateFilter && !filters.endDateFilter;
+        if (filters.startDateFilter || filters.endDateFilter || isAllTime) chips.push({ label: formatDateRange(filters.startDateFilter, filters.endDateFilter, filters.datePreset), onRemove: isAllTime ? null : this.props.resetDateFilter });
         if (filters.transactionTypeFilter.length) filters.transactionTypeFilter.forEach(v => chips.push({ label: v === TRANSACTION_TYPES.DEBIT ? "Debit" : "Credit", onRemove: () => this.props.handleFilterChange("transactionTypeFilter", filters.transactionTypeFilter.filter(x => x !== v)) }));
         filters.excludeFromTotalsFilter.forEach(v => chips.push({ label: v === "1" ? "Excluded" : "Active", onRemove: () => this.props.handleFilterChange("excludeFromTotalsFilter", filters.excludeFromTotalsFilter.filter(x => x !== v)) }));
         if (filters.minAmountFilter) chips.push({ label: "Min: ₹" + filters.minAmountFilter, onRemove: () => this.props.handleFilterChange("minAmountFilter", "") });
