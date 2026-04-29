@@ -1,14 +1,20 @@
 "use strict";
 
 import React from "react";
+import PreferenceStore from "@utils/PreferenceStore";
 import "@styles/checkDropdown.scss";
 
 class CheckDropdown extends React.Component {
 
+    selectionPref = this.props.prefStoreKey ? new PreferenceStore(this.props.prefStoreKey, this.props.selected) : null;
     state = { open: false, search: "" };
 
     componentDidMount() {
         document.addEventListener("mousedown", this.handleClickOutside);
+        if (this.selectionPref) {
+            const pref = this.selectionPref.get();
+            this.props.onChange(pref.filter(v => this.props.options.some(o => o.value === v)));
+        }
     }
 
     componentWillUnmount() {
@@ -21,15 +27,19 @@ class CheckDropdown extends React.Component {
         }
     };
 
+    update = (updated) => {
+        if (this.selectionPref) this.selectionPref.set(updated);
+        this.props.onChange(updated);
+    };
+
     toggle = (value) => {
         const selected = this.props.selected || [];
-        const updated = selected.includes(value) ? selected.filter(v => v !== value) : [...selected, value];
-        this.props.onChange(updated);
+        this.update(selected.includes(value) ? selected.filter(v => v !== value) : [...selected, value]);
     };
 
     toggleAll = (filteredValues, allSelected) => {
         const selected = this.props.selected || [];
-        this.props.onChange(allSelected ? selected.filter(v => !filteredValues.includes(v)) : [...new Set([...selected, ...filteredValues])]);
+        this.update(allSelected ? selected.filter(v => !filteredValues.includes(v)) : [...new Set([...selected, ...filteredValues])]);
     };
 
     render() {

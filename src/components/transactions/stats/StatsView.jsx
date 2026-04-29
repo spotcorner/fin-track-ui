@@ -10,20 +10,18 @@ import HelpTip from "@components/ui/HelpTip.jsx";
 import { STATS_HELP } from "@utils/helpContent";
 import PreferenceStore from "@utils/PreferenceStore";
 
-const STATS_DEFAULTS = {
-    visibleCharts: charts.map(c => c.key),
-    sortBy: {},
-    groupByPeriod: "weekly",
-};
-
 class StatsView extends React.Component {
 
-    statsPref = new PreferenceStore(`${this.props.prefStoreKey}.stats`, STATS_DEFAULTS);
+    groupByPeriodPref = new PreferenceStore(`${this.props.prefStoreKey}.stats.groupByPeriod`, "weekly");
 
-    state = this.statsPref.get()
+    state = {
+        visibleCharts: charts.map(c => c.key),
+        groupByPeriod: this.groupByPeriodPref.get(),
+        sortBy: {},
+    }
 
-    handleChange = (e) => {
-        this.setState({ groupByPeriod: e.target.value }, this.savePrefs);
+    handleGroupByPeriodChange = (e) => {
+        this.setState({ groupByPeriod: e.target.value }, () => this.groupByPeriodPref.set(this.state.groupByPeriod));
     }
 
     getApplicableTransactions(transactions, filters) {
@@ -42,12 +40,36 @@ class StatsView extends React.Component {
         }));
     }
 
-    savePrefs = () => {
-        this.statsPref.set(_.pick(this.state, ["visibleCharts", "sortBy", "groupByPeriod"]));
+    handleChartSortChange = (key, field, direction) => {
+        this.setState(prev => ({ sortBy: { ...prev.sortBy, [key]: { field, direction } } }));
     }
 
-    handleSortChange = (key, field, direction) => {
-        this.setState(prev => ({ sortBy: { ...prev.sortBy, [key]: { field, direction } } }), this.savePrefs);
+    getChartSortDropdown(chart, sortBy) {
+        if (!chart.sortOptions) return null;
+        return <SortDropdown
+            options={chart.sortOptions}
+            selected={sortBy}
+            prefStoreKey={`${this.props.prefStoreKey}.stats.sort.${chart.key}`}
+            onChange={(field, direction) => this.handleChartSortChange(chart.key, field, direction)} />;
+    }
+
+    getGroupByPeriodSelect(chart) {
+        if (!chart.hasTimeFilter) return null;
+        return <select className="form-select form-select-sm w-auto" value={this.state.groupByPeriod}
+            onChange={this.handleGroupByPeriodChange} onClick={e => e.stopPropagation()}>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="overall">Overall</option>
+        </select>;
+    }
+
+    getChartControls(chart, sortBy) {
+        return <div className="ms-auto d-flex align-items-center gap-2">
+            {this.getChartSortDropdown(chart, sortBy)}
+            {this.getGroupByPeriodSelect(chart)}
+        </div>;
     }
 
     getChartCard = (chart) => {
@@ -64,24 +86,7 @@ class StatsView extends React.Component {
                 <h5 className="card-title d-flex align-items-center gap-1">
                     {chart.title}
                     {STATS_HELP[chart.key] && <HelpTip text={STATS_HELP[chart.key]} />}
-                    <div className="ms-auto d-flex align-items-center gap-2">
-                        {chart.sortOptions && <SortDropdown
-                            options={chart.sortOptions}
-                            selected={sortBy}
-                            onChange={(field, direction) => this.handleSortChange(chart.key, field, direction)} />}
-                        {chart.hasTimeFilter && <select className="form-select form-select-sm w-auto" value={this.state.groupByPeriod}
-                            onChange={this.handleChange} onClick={e => e.stopPropagation()}>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
-                            <option value="overall">Overall</option>
-                        </select>}
-                        {/* TODO: re-enable expand toggle button
-                        <i className={"bi " + (chartExpanded ? "bi-fullscreen-exit" : "bi-arrows-fullscreen")}
-                            onClick={(e) => this.toggleExpand(chart.key, e)}></i>
-                        */}
-                    </div>
+                    {this.getChartControls(chart, sortBy)}
                 </h5>
                 <div className={"chart-container" + (chartExpanded ? " chart-expanded" : "")} key={chartExpanded}
                     style={chart.getHeight ? { height: chart.getHeight(chartData) } : {}}>
@@ -107,7 +112,8 @@ class StatsView extends React.Component {
                     <div className="text-muted small page-header mb-0">Stats</div>
                     <HelpTip items={STATS_HELP.overview} />
                     <div className="ms-auto stats-chart-dropdown"><CheckDropdown label="Charts" options={charts.map(c => ({ value: c.key, label: c.title }))}
-                        selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts }, this.savePrefs)} searchable /></div>
+                        selected={this.state.visibleCharts} onChange={visibleCharts => this.setState({ visibleCharts })} searchable
+                        prefStoreKey={`${this.props.prefStoreKey}.stats.visibleCharts`} /></div>
                 </div>
                 <div className="row">{chartViews.length > 0 ? chartViews : <div className="text-muted small ms-1">No charts selected. Use the Charts dropdown to show charts.</div>}</div>
             </div>

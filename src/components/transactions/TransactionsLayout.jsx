@@ -27,7 +27,7 @@ class TransactionsLayout extends React.Component {
     filterCache = new PreferenceStore(`${this.getPrefStoreKey()}.filters`, this.getInitialFilters());
 
     state = {
-        ...this.filterCache.get(),
+        ...this.filterCache.getMap(),
         transactions: [],
         transactionsLoading: false,
     }

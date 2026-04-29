@@ -41,7 +41,7 @@ class DraftsLayout extends React.Component {
         draftService.getAll().then(data => {
             const drafts = data.drafts;
             const queryId = this.getQueryDraftId();
-            const prefId = draftPref.get().selectedDraftId;
+            const prefId = draftPref.getMap().selectedDraftId;
             const selectedDraftId = [queryId, prefId].find(id => id && drafts.find(d => d._id === id)) || (drafts.length > 0 ? drafts[0]._id : "");
             this.setQueryDraftId(selectedDraftId);
             draftPref.set({ selectedDraftId });

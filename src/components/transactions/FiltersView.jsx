@@ -15,7 +15,7 @@ import "@styles/filtersView.scss";
 class FiltersView extends React.Component {
 
     prefStore = new PreferenceStore(`${this.props.prefStoreKey}.filtersCard`, { collapsed: false, sticky: true });
-    state = this.prefStore.get();
+    state = this.prefStore.getMap();
 
     cacheState = () => {
         this.prefStore.set(this.state);
