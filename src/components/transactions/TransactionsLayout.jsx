@@ -33,7 +33,7 @@ class TransactionsLayout extends React.Component {
     }
 
     getPrefStoreKey() {
-        return this.props.isDraft ? `draft.${this.props.draftId}` : "cashflow";
+        return this.props.isDraft ? "draft" : "cashflow";
     }
 
     getInitialDateFilters({ clearAll } = {}) {

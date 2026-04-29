@@ -11,12 +11,15 @@ import CrudAccessModal from "./CrudAccessModal.jsx";
 import Modal from "@components/modal/Modal.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { PROFILE_GRANTED_HELP, PROFILE_RECEIVED_HELP } from "@utils/helpContent";
+import PreferenceStore from "@utils/PreferenceStore";
+import { getFilterLabels } from "@utils/filterUtil";
 
 class Profile extends React.Component {
     state = {
         granted: [],
         modalData: null,
         deleteId: null,
+        storedPrefs: PreferenceStore.getStored(),
     }
 
     handleLogout = () => {
@@ -82,6 +85,44 @@ class Profile extends React.Component {
             toast.info("Access revoked");
             this.setState(prev => ({ granted: prev.granted.filter(a => a._id !== prev.deleteId), deleteId: null }));
         });
+    }
+
+    clearPref = (key) => {
+        PreferenceStore.clearKey(key);
+        this.setState({ storedPrefs: PreferenceStore.getStored() });
+    }
+
+    clearAllPrefs = () => {
+        PreferenceStore.clearAll();
+        this.setState({ storedPrefs: PreferenceStore.getStored() });
+    }
+
+    formatPrefValue(entry) {
+        if (entry.key.endsWith(".filters")) {
+            const labels = getFilterLabels(entry.value, this.props.accountsMap, this.props.tagsMap);
+            return labels.length ? labels.join(", ") : "Default";
+        }
+        return JSON.stringify(entry.value);
+    }
+
+    getPreferencesSection() {
+        const { storedPrefs } = this.state;
+        const grouped = _.groupBy(storedPrefs, "group");
+        return <div className="card shadow-sm p-3 mt-3">
+            <div className="d-flex align-items-center gap-1 mb-2">
+                <h6 className="mb-0">Stored Preferences</h6>
+                {storedPrefs.length > 0 && <button className="btn btn-outline-danger btn-sm ms-auto" onClick={this.clearAllPrefs}>Clear All</button>}
+            </div>
+            {storedPrefs.length === 0 && <div className="text-muted small">No stored preferences.</div>}
+            {_.map(grouped, (entries, group) => <div key={group} className="mb-2">
+                <div className="small fw-bold text-muted mb-1">{group}</div>
+                {entries.map(entry => <div key={entry.key} className="d-flex align-items-center py-1 border-bottom">
+                    <div className="small"><i className={"bi " + entry.icon + " me-1"}></i>{entry.label}</div>
+                    <span className="text-muted small text-break ms-2" style={{ fontSize: "0.7rem" }}>{this.formatPrefValue(entry)}</span>
+                    <span className="badge badge-outline-danger cursor-pointer ms-auto" onClick={() => this.clearPref(entry.key)}><i className="bi bi-trash"></i></span>
+                </div>)}
+            </div>)}
+        </div>;
     }
 
     getAccessBadge(accessType) {
@@ -157,6 +198,7 @@ class Profile extends React.Component {
                 </div>
                 {this.getGrantedSection()}
                 {this.getReceivedSection()}
+                {this.getPreferencesSection()}
                 <CrudAccessModal show={!!this.state.modalData} mode={this.state.modalData?.mode}
                     data={this.state.modalData}
                     onSubmit={this.state.modalData?.onSubmit}
@@ -177,4 +219,6 @@ class Profile extends React.Component {
 export default withRouter(connect(state => ({
     userInfo: state.user.info,
     receivedAccessList: state.user.receivedAccessList,
+    accountsMap: state.user.accountsMap,
+    tagsMap: state.user.tagsMap,
 }))(Profile));
