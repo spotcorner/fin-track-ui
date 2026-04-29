@@ -97,6 +97,11 @@ class Profile extends React.Component {
         this.setState({ storedPrefs: PreferenceStore.getStored() });
     }
 
+    clearGroupPrefs = (group) => {
+        this.state.storedPrefs.filter(p => p.group === group).forEach(p => PreferenceStore.clearKey(p.key));
+        this.setState({ storedPrefs: PreferenceStore.getStored() });
+    }
+
     formatPrefValue(entry) {
         if (entry.key.endsWith(".filters")) {
             const labels = getFilterLabels(entry.value, this.props.accountsMap, this.props.tagsMap);
@@ -115,7 +120,10 @@ class Profile extends React.Component {
             </div>
             {storedPrefs.length === 0 && <div className="text-muted small">No stored preferences.</div>}
             {_.map(grouped, (entries, group) => <div key={group} className="mb-2">
-                <div className="small fw-bold text-muted mb-1">{group}</div>
+                <div className="d-flex align-items-center mb-1">
+                    <div className="small fw-bold text-muted">{group}</div>
+                    <span className="badge badge-outline-danger cursor-pointer ms-auto" onClick={() => this.clearGroupPrefs(group)}><i className="bi bi-trash"></i></span>
+                </div>
                 {entries.map(entry => <div key={entry.key} className="d-flex align-items-center py-1 border-bottom">
                     <div className="small"><i className={"bi " + entry.icon + " me-1"}></i>{entry.label}</div>
                     <span className="text-muted small text-break ms-2" style={{ fontSize: "0.7rem" }}>{this.formatPrefValue(entry)}</span>
