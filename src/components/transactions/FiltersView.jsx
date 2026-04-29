@@ -23,19 +23,11 @@ class FiltersView extends React.Component {
         this.props.handleFilterChange(e.target.name, e.target.value);
     };
 
-    getActiveFilterCount() {
+    hasActiveFilters() {
         const { filters } = this.props;
-        let count = 0;
-        if (filters.startDateFilter || filters.endDateFilter) count++;
-        if (filters.minAmountFilter) count++;
-        if (filters.maxAmountFilter) count++;
-        count += filters.transactionTypeFilter.length;
-        count += filters.excludeFromTotalsFilter.length;
-        count += filters.accountTypeFilter.length;
-        count += filters.accountIdFilter.length;
-        count += filters.tagFilter.length;
-        if (filters.searchFilter) count++;
-        return count;
+        return filters.minAmountFilter || filters.maxAmountFilter || filters.transactionTypeFilter.length
+            || filters.excludeFromTotalsFilter.length || filters.accountTypeFilter.length
+            || filters.accountIdFilter.length || filters.tagFilter.length || filters.searchFilter;
     }
 
     getTagOptions() {
@@ -64,9 +56,8 @@ class FiltersView extends React.Component {
 
     getHeader(chips) {
         const { collapsed, sticky } = this.state;
-        const count = this.getActiveFilterCount();
         return <div className="d-flex align-items-center gap-1 mb-1">
-            {count > 0 && <span className={"badge cursor-pointer " + (this.state.showChips ? "bg-dark text-white" : "bg-dark bg-opacity-10 text-dark")} onClick={this.handleShowChipsChange}>{count}</span>}
+            {chips.length > 0 && <span className={"badge cursor-pointer " + (this.state.showChips ? "bg-dark text-white" : "bg-dark bg-opacity-10 text-dark")} onClick={this.handleShowChipsChange}>{chips.length}</span>}
             <div className="text-muted small page-header mb-0">Filters</div>
             <HelpTip items={FILTERS_HELP(this.props.isDraft)} />
             {!this.state.showChips && this.getFilterSummary(chips)}
@@ -135,9 +126,9 @@ class FiltersView extends React.Component {
                     </div>
                 </>}
                 <div className="col d-flex gap-2 justify-content-end align-items-center">
-                    <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={this.props.clearFilters}>
+                    {this.hasActiveFilters() && <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={this.props.clearFilters}>
                         <i className="bi bi-x-lg"></i> Clear All
-                    </button>
+                    </button>}
                     <button className="btn btn-outline-dark btn-sm text-nowrap" onClick={this.props.resetFilters}>
                         <i className="bi bi-arrow-counterclockwise"></i> Reset to Default
                     </button>
