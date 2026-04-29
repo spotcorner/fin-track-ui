@@ -25,6 +25,7 @@ class FiltersView extends React.Component {
     getActiveFilterCount() {
         const { filters } = this.props;
         let count = 0;
+        if (filters.startDateFilter || filters.endDateFilter) count++;
         if (filters.minAmountFilter) count++;
         if (filters.maxAmountFilter) count++;
         count += filters.transactionTypeFilter.length;
