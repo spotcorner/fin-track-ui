@@ -19,7 +19,7 @@ class Profile extends React.Component {
         granted: [],
         modalData: null,
         deleteId: null,
-        storedPrefs: PreferenceStore.getStored(),
+        storedPrefs: PreferenceStore.getRegistry(),
     }
 
     handleLogout = () => {
@@ -87,19 +87,43 @@ class Profile extends React.Component {
         });
     }
 
+    refreshPrefs = () => {
+        this.setState({ storedPrefs: PreferenceStore.getRegistry() });
+    }
+
     clearPref = (key) => {
         PreferenceStore.clearKey(key);
-        this.setState({ storedPrefs: PreferenceStore.getStored() });
+        this.refreshPrefs();
     }
 
     clearAllPrefs = () => {
         PreferenceStore.clearAll();
-        this.setState({ storedPrefs: PreferenceStore.getStored() });
+        this.refreshPrefs();
     }
 
     clearGroupPrefs = (group) => {
-        this.state.storedPrefs.filter(p => p.group === group).forEach(p => PreferenceStore.clearKey(p.key));
-        this.setState({ storedPrefs: PreferenceStore.getStored() });
+        this.state.storedPrefs.filter(p => p.group === group && p.stored).forEach(p => PreferenceStore.clearKey(p.key));
+        this.refreshPrefs();
+    }
+
+    clearSubgroupPrefs = (group, subgroup) => {
+        this.state.storedPrefs.filter(p => p.group === group && p.subgroup === subgroup && p.stored).forEach(p => PreferenceStore.clearKey(p.key));
+        this.refreshPrefs();
+    }
+
+    togglePref = (key, enabled) => {
+        PreferenceStore.setEnabled(key, enabled);
+        this.refreshPrefs();
+    }
+
+    toggleGroupPrefs = (group, enabled) => {
+        this.state.storedPrefs.filter(p => p.group === group).forEach(p => PreferenceStore.setEnabled(p.key, enabled));
+        this.refreshPrefs();
+    }
+
+    toggleSubgroupPrefs = (group, subgroup, enabled) => {
+        this.state.storedPrefs.filter(p => p.group === group && p.subgroup === subgroup).forEach(p => PreferenceStore.setEnabled(p.key, enabled));
+        this.refreshPrefs();
     }
 
     formatPrefValue(entry) {
@@ -113,23 +137,46 @@ class Profile extends React.Component {
     getPreferencesSection() {
         const { storedPrefs } = this.state;
         const grouped = _.groupBy(storedPrefs, "group");
+        const hasStored = storedPrefs.some(p => p.stored);
         return <div className="card shadow-sm p-3 mt-3">
             <div className="d-flex align-items-center gap-1 mb-2">
-                <h6 className="mb-0">Stored Preferences</h6>
-                {storedPrefs.length > 0 && <button className="btn btn-outline-danger btn-sm ms-auto" onClick={this.clearAllPrefs}>Clear All</button>}
+                <h6 className="mb-0">Preferences</h6>
+                {hasStored && <button className="btn btn-outline-danger btn-sm ms-auto" onClick={this.clearAllPrefs}>Clear All</button>}
             </div>
-            {storedPrefs.length === 0 && <div className="text-muted small">No stored preferences.</div>}
-            {_.map(grouped, (entries, group) => <div key={group} className="mb-2">
-                <div className="d-flex align-items-center mb-1">
-                    <div className="small fw-bold text-muted">{group}</div>
-                    <span className="badge badge-outline-danger cursor-pointer ms-auto" onClick={() => this.clearGroupPrefs(group)}><i className="bi bi-trash"></i></span>
-                </div>
-                {entries.map(entry => <div key={entry.key} className="d-flex align-items-center py-1 border-bottom">
-                    <div className="small"><i className={"bi " + entry.icon + " me-1"}></i>{entry.label}</div>
-                    <span className="text-muted small text-break ms-2" style={{ fontSize: "0.7rem" }}>{this.formatPrefValue(entry)}</span>
-                    <span className="badge badge-outline-danger cursor-pointer ms-auto" onClick={() => this.clearPref(entry.key)}><i className="bi bi-trash"></i></span>
-                </div>)}
-            </div>)}
+            {_.map(grouped, (entries, group) => {
+                const groupAllEnabled = entries.every(e => e.enabled);
+                const groupHasStored = entries.some(e => e.stored);
+                const subgrouped = _.groupBy(entries, e => e.subgroup || "");
+                return <div key={group} className="mb-3">
+                    <div className="d-flex align-items-center mb-1">
+                        <input type="checkbox" className="form-check-input me-2" checked={groupAllEnabled}
+                            onChange={() => this.toggleGroupPrefs(group, !groupAllEnabled)} />
+                        <div className="fw-bold text-muted">{group}</div>
+                        {groupHasStored && <span className="badge badge-outline-danger cursor-pointer ms-auto" onClick={() => this.clearGroupPrefs(group)}><i className="bi bi-trash"></i></span>}
+                    </div>
+                    {_.map(subgrouped, (subEntries, subgroup) => {
+                        const subAllEnabled = subEntries.every(e => e.enabled);
+                        const subHasStored = subEntries.some(e => e.stored);
+                        return <div key={subgroup} className="ms-3">
+                            {subgroup && <div className="d-flex align-items-center mt-1 mb-1">
+                                <input type="checkbox" className="form-check-input me-2" checked={subAllEnabled}
+                                    onChange={() => this.toggleSubgroupPrefs(group, subgroup, !subAllEnabled)} />
+                                <div className="small fw-bold text-muted">{subgroup}</div>
+                                {subHasStored && <span className="badge badge-outline-danger cursor-pointer ms-auto" onClick={() => this.clearSubgroupPrefs(group, subgroup)}><i className="bi bi-trash"></i></span>}
+                            </div>}
+                            {subEntries.map(entry => <div key={entry.key} className="d-flex align-items-center py-1 border-bottom ms-3">
+                                <input type="checkbox" className="form-check-input me-2" checked={entry.enabled}
+                                    onChange={() => this.togglePref(entry.key, !entry.enabled)} />
+                                <div className="small"><i className={"bi " + entry.icon + " me-1"}></i>{entry.label}</div>
+                                {entry.stored && <>
+                                    <span className="text-muted small text-break ms-2" style={{ fontSize: "0.7rem" }}>{this.formatPrefValue(entry)}</span>
+                                    <span className="badge badge-outline-danger cursor-pointer ms-auto" onClick={() => this.clearPref(entry.key)}><i className="bi bi-trash"></i></span>
+                                </>}
+                            </div>)}
+                        </div>;
+                    })}
+                </div>;
+            })}
         </div>;
     }
 

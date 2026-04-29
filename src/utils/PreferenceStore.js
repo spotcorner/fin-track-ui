@@ -17,26 +17,33 @@
  */
 
 const REGISTRY = [
-    { key: "cashflow.filters", label: "Filters", icon: "bi-funnel", group: "Cashflow" },
-    { key: "cashflow.filters.collapsed", label: "Filters Collapsed", icon: "bi-funnel", group: "Cashflow" },
-    { key: "cashflow.filters.sticky", label: "Filters Sticky", icon: "bi-pin", group: "Cashflow" },
-    { key: "cashflow.filters.showChips", label: "Filters Show Chips", icon: "bi-tags", group: "Cashflow" },
-    { key: "cashflow.stats.visibleCharts", label: "Visible Charts", icon: "bi-bar-chart", group: "Cashflow" },
-    { key: "cashflow.stats.groupByPeriod", label: "Group By Period", icon: "bi-calendar", group: "Cashflow" },
-    { key: "cashflow.stats.sort.tags", label: "Tags Chart Sort", icon: "bi-sort-down", group: "Cashflow" },
-    { key: "cashflow.transactionSort", label: "Transaction Sort", icon: "bi-sort-down", group: "Cashflow" },
+    { key: "cashflow.filters", label: "Filters", icon: "bi-funnel", group: "Cashflow", subgroup: "Filters" },
+    { key: "cashflow.filters.collapsed", label: "Filters Collapsed", icon: "bi-funnel", group: "Cashflow", subgroup: "Filters" },
+    { key: "cashflow.filters.sticky", label: "Filters Sticky", icon: "bi-pin", group: "Cashflow", subgroup: "Filters" },
+    { key: "cashflow.filters.showChips", label: "Filters Show Chips", icon: "bi-tags", group: "Cashflow", subgroup: "Filters" },
+    { key: "cashflow.stats.visibleCharts", label: "Visible Charts", icon: "bi-bar-chart", group: "Cashflow", subgroup: "Stats" },
+    { key: "cashflow.stats.groupByPeriod", label: "Trends — Group By Period", icon: "bi-calendar", group: "Cashflow", subgroup: "Stats" },
+    { key: "cashflow.stats.sort.tags", label: "Amount by Tags — Sort", icon: "bi-sort-down", group: "Cashflow", subgroup: "Stats" },
+    { key: "cashflow.transactionSort", label: "Transaction Sort", icon: "bi-sort-down", group: "Cashflow", subgroup: "Transactions" },
     { key: "drafts.selection", label: "Selected Draft", icon: "bi-file-text", group: "Drafts" },
-    { key: "draft.filters", label: "Filters", icon: "bi-funnel", group: "Drafts" },
-    { key: "draft.filters.collapsed", label: "Filters Collapsed", icon: "bi-funnel", group: "Drafts" },
-    { key: "draft.filters.sticky", label: "Filters Sticky", icon: "bi-pin", group: "Drafts" },
-    { key: "draft.filters.showChips", label: "Filters Show Chips", icon: "bi-tags", group: "Drafts" },
-    { key: "draft.stats.visibleCharts", label: "Visible Charts", icon: "bi-bar-chart", group: "Drafts" },
-    { key: "draft.stats.groupByPeriod", label: "Group By Period", icon: "bi-calendar", group: "Drafts" },
-    { key: "draft.stats.sort.tags", label: "Tags Chart Sort", icon: "bi-sort-down", group: "Drafts" },
-    { key: "draft.transactionSort", label: "Transaction Sort", icon: "bi-sort-down", group: "Drafts" },
+    { key: "draft.filters", label: "Filters", icon: "bi-funnel", group: "Drafts", subgroup: "Filters" },
+    { key: "draft.filters.collapsed", label: "Filters Collapsed", icon: "bi-funnel", group: "Drafts", subgroup: "Filters" },
+    { key: "draft.filters.sticky", label: "Filters Sticky", icon: "bi-pin", group: "Drafts", subgroup: "Filters" },
+    { key: "draft.filters.showChips", label: "Filters Show Chips", icon: "bi-tags", group: "Drafts", subgroup: "Filters" },
+    { key: "draft.stats.visibleCharts", label: "Visible Charts", icon: "bi-bar-chart", group: "Drafts", subgroup: "Stats" },
+    { key: "draft.stats.groupByPeriod", label: "Trends — Group By Period", icon: "bi-calendar", group: "Drafts", subgroup: "Stats" },
+    { key: "draft.stats.sort.tags", label: "Amount by Tags — Sort", icon: "bi-sort-down", group: "Drafts", subgroup: "Stats" },
+    { key: "draft.transactionSort", label: "Transaction Sort", icon: "bi-sort-down", group: "Drafts", subgroup: "Transactions" },
     { key: "accounts.sort", label: "Sort", icon: "bi-sort-down", group: "Accounts" },
     { key: "tags.sort", label: "Sort", icon: "bi-sort-down", group: "Tags" },
 ];
+
+const DISABLED_KEY = "preferences.disabled";
+
+function getDisabledKeys() {
+    try { return JSON.parse(localStorage.getItem(DISABLED_KEY)) || []; }
+    catch { return []; }
+}
 
 export default class PreferenceStore {
     constructor(key, defaults) {
@@ -65,9 +72,10 @@ export default class PreferenceStore {
         }
     }
 
-    /** Saves value to localStorage. Works for any JSON-serializable type. */
+    /** Saves value to localStorage. Skipped if key is disabled. */
     set(value) {
         try {
+            if (getDisabledKeys().includes(this.key)) return;
             localStorage.setItem(this.key, JSON.stringify(value));
         } catch {}
     }
@@ -77,7 +85,18 @@ export default class PreferenceStore {
         localStorage.removeItem(this.key);
     }
 
-    /** Returns all stored preferences matching the registry, grouped. */
+    /** Returns the full registry with stored values and enabled status. */
+    static getRegistry() {
+        const disabled = getDisabledKeys();
+        return REGISTRY.map(entry => ({
+            ...entry,
+            value: (() => { try { const s = localStorage.getItem(entry.key); return s ? JSON.parse(s) : null; } catch { return null; } })(),
+            stored: localStorage.getItem(entry.key) !== null,
+            enabled: !disabled.includes(entry.key),
+        }));
+    }
+
+    /** Returns all stored preferences matching the registry. */
     static getStored() {
         return REGISTRY
             .filter(entry => localStorage.getItem(entry.key) !== null)
@@ -92,5 +111,13 @@ export default class PreferenceStore {
     /** Removes a single preference by key. */
     static clearKey(key) {
         localStorage.removeItem(key);
+    }
+
+    /** Enables or disables caching for a key. Clears stored value when disabled. */
+    static setEnabled(key, enabled) {
+        const disabled = getDisabledKeys();
+        const updated = enabled ? disabled.filter(k => k !== key) : [...new Set([...disabled, key])];
+        localStorage.setItem(DISABLED_KEY, JSON.stringify(updated));
+        if (!enabled) localStorage.removeItem(key);
     }
 }
