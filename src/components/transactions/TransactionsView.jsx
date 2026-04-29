@@ -27,6 +27,8 @@ class TransactionsView extends React.Component {
         showDeleteDraftsModal: false,
         selectionMode: false,
         selectedIds: {},
+        sortField: "date",
+        sortDirection: "desc",
     }
 
     getSelectedTransaction() {
@@ -171,9 +173,12 @@ class TransactionsView extends React.Component {
     }
 
     handleSortChange = (field, direction) => {
-        this.props.handleFilterChange("sortField", field);
-        this.props.handleFilterChange("sortDirection", direction);
-    };
+        this.setState({ sortField: field, sortDirection: direction });
+    }
+
+    getSortedTransactions() {
+        return _.orderBy(this.props.filteredTransactions, [this.state.sortField], [this.state.sortDirection]);
+    }
 
     getSelectionControls(filteredTransactions) {
         if (!this.state.selectionMode) return null;
@@ -209,8 +214,8 @@ class TransactionsView extends React.Component {
                         <button className="btn btn-outline-success btn-sm text-nowrap" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
                         <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
                     </>}
-                    <SortDropdown options={this.getSortOptions()}
-                        selected={{ field: this.props.sortField, direction: this.props.sortDirection }}
+                    <SortDropdown options={this.getSortOptions()} prefStoreKey={`${this.props.prefStoreKey}.transactionSort`}
+                        selected={{ field: this.state.sortField, direction: this.state.sortDirection }}
                         onChange={this.handleSortChange} />
                     <button className="btn btn-outline-dark btn-sm" style={{ width: 30, height: 30 }} onClick={() => this.toggleTransactionModal()}>+</button>
                 </div>
@@ -249,7 +254,7 @@ class TransactionsView extends React.Component {
     }
 
     render() {
-        const filteredTransactions = this.props.filteredTransactions;
+        const filteredTransactions = this.getSortedTransactions();
         return (
             <div className="mb-2">
                 {this.getTransactions(filteredTransactions)}

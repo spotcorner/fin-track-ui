@@ -57,8 +57,6 @@ class TransactionsLayout extends React.Component {
             searchFilter: this.state.searchFilter,
             searchCaseSensitive: this.state.searchCaseSensitive,
             searchRegex: this.state.searchRegex,
-            sortField: this.state.sortField,
-            sortDirection: this.state.sortDirection,
         };
     }
 
@@ -75,8 +73,6 @@ class TransactionsLayout extends React.Component {
             searchFilter: "",
             searchCaseSensitive: false,
             searchRegex: false,
-            sortField: "date",
-            sortDirection: "desc",
         };
     }
 
@@ -181,8 +177,7 @@ class TransactionsLayout extends React.Component {
             fetchTransactions={this.fetchTransactions}
             lastAppliedTagId={this.state.lastAppliedTagId}
             clearLastAppliedTag={() => this.setState({ lastAppliedTagId: null })}
-            sortField={this.state.sortField} sortDirection={this.state.sortDirection}
-            handleFilterChange={this.handleFilterChange} />;
+            prefStoreKey={this.getPrefStoreKey()} />;
     }
 
     getNoTransactionsLabel() {

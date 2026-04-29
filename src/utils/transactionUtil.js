@@ -30,6 +30,6 @@ export default {
             }
             return true;
         });
-        return _.orderBy(filtered, [filters.sortField], [filters.sortDirection]);
+        return filtered;
     }
 }
