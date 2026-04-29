@@ -20,6 +20,7 @@ class Profile extends React.Component {
         modalData: null,
         deleteId: null,
         storedPrefs: PreferenceStore.getRegistry(),
+        prefsExpanded: false,
     }
 
     handleLogout = () => {
@@ -135,15 +136,19 @@ class Profile extends React.Component {
     }
 
     getPreferencesSection() {
-        const { storedPrefs } = this.state;
+        const { storedPrefs, prefsExpanded } = this.state;
         const grouped = _.groupBy(storedPrefs, "group");
         const hasStored = storedPrefs.some(p => p.stored);
         return <div className="card shadow-sm p-3 mt-3">
-            <div className="d-flex align-items-center gap-1 mb-2">
+            <div className="d-flex align-items-center gap-1">
                 <h6 className="mb-0">Local Preferences</h6>
                 <HelpTip text="Your filters, sort, and display settings are cached in this browser. Uncheck to stop caching, or clear stored values." />
-                {hasStored && <button className="btn btn-outline-danger btn-sm ms-auto" onClick={this.clearAllPrefs}>Clear All</button>}
+                <div className="ms-auto d-flex align-items-center gap-2">
+                    <i className={"bi cursor-pointer " + (prefsExpanded ? "bi-dash-square" : "bi-plus-square")}
+                        onClick={() => this.setState({ prefsExpanded: !prefsExpanded })}></i>
+                </div>
             </div>
+            {prefsExpanded && <>
             {_.map(grouped, (entries, group) => {
                 const groupAllEnabled = entries.every(e => e.enabled);
                 const groupHasStored = entries.some(e => e.stored);
@@ -178,6 +183,8 @@ class Profile extends React.Component {
                     })}
                 </div>;
             })}
+            {hasStored && <div className="mt-2 text-end"><button className="btn btn-outline-danger btn-sm" onClick={this.clearAllPrefs}>Clear All</button></div>}
+            </>}
         </div>;
     }
 
