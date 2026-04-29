@@ -67,7 +67,7 @@ class FiltersView extends React.Component {
             <div className="ms-auto d-flex align-items-center gap-2">
                 <i className={"bi cursor-pointer " + (sticky ? "bi-pin-fill" : "bi-pin")}
                     onClick={this.handleStickyChange}></i>
-                <i className={"bi cursor-pointer " + (collapsed ? "bi-plus-square" : "bi-dash-square")}
+                <i className={"bi cursor-pointer " + (collapsed ? "bi-funnel" : "bi-funnel-fill")}
                     onClick={this.handleCollapsedChange}></i>
             </div>
         </div>;
