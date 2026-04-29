@@ -9,11 +9,17 @@ import HelpTip from "@components/ui/HelpTip.jsx";
 import { FILTERS_HELP } from "@utils/helpContent";
 import { formatDateRange } from "@utils/datePresetUtil";
 import labelUtil from "@utils/labelUtil";
+import PreferenceStore from "@utils/PreferenceStore";
 import "@styles/filtersView.scss";
 
 class FiltersView extends React.Component {
 
-    state = { collapsed: false, sticky: true }
+    prefStore = new PreferenceStore(`${this.props.prefStoreKey}.filtersCard`, { collapsed: false, sticky: true });
+    state = this.prefStore.get();
+
+    cacheState = () => {
+        this.prefStore.set(this.state);
+    }
 
     handleFilterChange = (e) => {
         this.props.handleFilterChange(e.target.name, e.target.value);
@@ -33,6 +39,14 @@ class FiltersView extends React.Component {
         ];
     }
 
+    handleStickyChange = () => {
+        this.setState({ sticky: !this.state.sticky }, this.cacheState);
+    }
+
+    handleCollapsedChange = () => {
+        this.setState({ collapsed: !this.state.collapsed }, this.cacheState);
+    }
+
     getHeader() {
         const { collapsed, sticky } = this.state;
         return <div className="d-flex align-items-center gap-1 mb-1">
@@ -40,9 +54,9 @@ class FiltersView extends React.Component {
             <HelpTip items={FILTERS_HELP(this.props.isDraft)} />
             <div className="ms-auto d-flex align-items-center gap-2">
                 <i className={"bi cursor-pointer " + (sticky ? "bi-pin-fill" : "bi-pin")}
-                    onClick={() => this.setState({ sticky: !sticky })}></i>
+                    onClick={this.handleStickyChange}></i>
                 <i className={"bi cursor-pointer " + (collapsed ? "bi-plus-square" : "bi-dash-square")}
-                    onClick={() => this.setState({ collapsed: !collapsed })}></i>
+                    onClick={this.handleCollapsedChange}></i>
             </div>
         </div>;
     }

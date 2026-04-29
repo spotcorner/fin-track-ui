@@ -210,7 +210,7 @@ class TransactionsLayout extends React.Component {
                 <div className="text-muted small page-header">{this.props.title}</div>
                 <HelpTip items={CASHFLOW_HELP} />
             </div>}
-            <FiltersView filters={this.getFilters()} transactions={this.state.transactions} isDraft={this.props.isDraft} handleFilterChange={this.handleFilterChange} handleDateChange={this.handleDateChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} />
+            <FiltersView filters={this.getFilters()} transactions={this.state.transactions} isDraft={this.props.isDraft} handleFilterChange={this.handleFilterChange} handleDateChange={this.handleDateChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} prefStoreKey={this.getPrefStoreKey()} />
             {this.getLoader()}
             {this.state.transactions.length > 0 && <>
                 {this.getTabBar()}
