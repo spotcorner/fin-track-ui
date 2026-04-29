@@ -138,14 +138,15 @@ class FiltersView extends React.Component {
         const { filters, accountsMap, tagsMap } = this.props;
         const chips = [];
         const isAllTime = filters.datePreset === "allTime" && !filters.startDateFilter && !filters.endDateFilter;
-        if (filters.startDateFilter || filters.endDateFilter || isAllTime) chips.push({ label: formatDateRange(filters.startDateFilter, filters.endDateFilter, filters.datePreset), onRemove: isAllTime ? null : this.props.resetDateFilter });
+        if (filters.startDateFilter || filters.endDateFilter || isAllTime) chips.push({ label: <><i className="bi bi-calendar"></i> {formatDateRange(filters.startDateFilter, filters.endDateFilter, filters.datePreset)}</>, onRemove: isAllTime ? null : this.props.resetDateFilter });
         if (filters.transactionTypeFilter.length) filters.transactionTypeFilter.forEach(v => chips.push({ label: v === TRANSACTION_TYPES.DEBIT ? "Debit" : "Credit", onRemove: () => this.props.handleFilterChange("transactionTypeFilter", filters.transactionTypeFilter.filter(x => x !== v)) }));
         filters.excludeFromTotalsFilter.forEach(v => chips.push({ label: v === "1" ? "Excluded" : "Active", onRemove: () => this.props.handleFilterChange("excludeFromTotalsFilter", filters.excludeFromTotalsFilter.filter(x => x !== v)) }));
         if (filters.minAmountFilter) chips.push({ label: "Min: ₹" + filters.minAmountFilter, onRemove: () => this.props.handleFilterChange("minAmountFilter", "") });
         if (filters.maxAmountFilter) chips.push({ label: "Max: ₹" + filters.maxAmountFilter, onRemove: () => this.props.handleFilterChange("maxAmountFilter", "") });
         filters.accountTypeFilter.forEach(type => chips.push({ label: ACCOUNT_TYPE_LABELS[type] || type, onRemove: () => this.props.handleFilterChange("accountTypeFilter", filters.accountTypeFilter.filter(v => v !== type)) }));
         filters.accountIdFilter.forEach(id => chips.push({ label: labelUtil.getAccountLabel(accountsMap[id]) || id, onRemove: () => this.props.handleFilterChange("accountIdFilter", filters.accountIdFilter.filter(v => v !== id)) }));
-        filters.tagFilter.forEach(id => chips.push({ label: id === "__NONE__" ? "Untagged" : (tagsMap[id]?.name || id), onRemove: () => this.props.handleFilterChange("tagFilter", filters.tagFilter.filter(v => v !== id)) }));
+        filters.tagFilter.forEach(id => chips.push({ label: <><i className="bi bi-tag"></i> {id === "__NONE__" ? "Untagged" : (tagsMap[id]?.name || id)}</>, onRemove: () => this.props.handleFilterChange("tagFilter", filters.tagFilter.filter(v => v !== id)) }));
+        if (filters.searchFilter) chips.push({ label: <><i className="bi bi-search"></i> {filters.searchFilter}</>, onRemove: () => this.props.handleFilterChange("searchFilter", "") });
         if (!chips.length) return null;
         return <div className="filter-chips d-flex flex-wrap gap-1">
             {chips.map((chip, i) => <span key={i} className={"badge bg-dark filter-chip" + (chip.onRemove ? " cursor-pointer" : "")} onClick={chip.onRemove}>
