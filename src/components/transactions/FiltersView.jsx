@@ -14,12 +14,9 @@ import "@styles/filtersView.scss";
 
 class FiltersView extends React.Component {
 
-    prefStore = new PreferenceStore(`${this.props.prefStoreKey}.filtersCard`, { collapsed: false, sticky: true });
-    state = this.prefStore.getMap();
-
-    cacheState = () => {
-        this.prefStore.set(this.state);
-    }
+    collapsedPref = new PreferenceStore(`${this.props.prefStoreKey}.filters.collapsed`, false);
+    stickyPref = new PreferenceStore(`${this.props.prefStoreKey}.filters.sticky`, true);
+    state = { collapsed: this.collapsedPref.get(), sticky: this.stickyPref.get() }
 
     handleFilterChange = (e) => {
         this.props.handleFilterChange(e.target.name, e.target.value);
@@ -40,11 +37,11 @@ class FiltersView extends React.Component {
     }
 
     handleStickyChange = () => {
-        this.setState({ sticky: !this.state.sticky }, this.cacheState);
+        this.setState({ sticky: !this.state.sticky }, () => this.stickyPref.set(this.state.sticky));
     }
 
     handleCollapsedChange = () => {
-        this.setState({ collapsed: !this.state.collapsed }, this.cacheState);
+        this.setState({ collapsed: !this.state.collapsed }, () => this.collapsedPref.set(this.state.collapsed));
     }
 
     getHeader() {
