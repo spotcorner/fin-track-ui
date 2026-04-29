@@ -245,6 +245,7 @@ class Upload extends React.Component {
 
     selectResult = (e, i) => {
         e.stopPropagation();
+        if (this.state.status === UPLOAD_STATUS.SAVED) return;
         const row = this.state.flattened[i];
         if (row.unmapped && !this.getMapping(i)?.isComplete) return;
         const deselect = this.state.selectedResult === i;
@@ -318,7 +319,7 @@ class Upload extends React.Component {
         return <div className="d-flex align-items-center p-2 flex-wrap">
             {isComplete
                 ? <input type="radio" className="form-check-input me-2" checked={this.state.selectedResult === i}
-                    onClick={(e) => this.selectResult(e, i)} readOnly />
+                    onClick={(e) => this.selectResult(e, i)} readOnly disabled={this.state.status === UPLOAD_STATUS.SAVED} />
                 : <span className="badge bg-warning bg-opacity-10 text-warning me-2">Unmapped</span>}
             <div className="me-2 small fw-bold cursor-pointer" onClick={() => this.toggleExpand(i)}>{row.label}</div>
             <div className="me-2"><HelpTip {...(row.unmapped ? { items: EXTRACTION_RESULT_HELP.unmapped } : { text: EXTRACTION_RESULT_HELP.mapped })} /></div>
