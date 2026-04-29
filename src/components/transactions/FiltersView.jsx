@@ -22,11 +22,18 @@ class FiltersView extends React.Component {
         this.props.handleFilterChange(e.target.name, e.target.value);
     };
 
-    hasActiveFilters() {
+    getActiveFilterCount() {
         const { filters } = this.props;
-        return filters.minAmountFilter || filters.maxAmountFilter || filters.transactionTypeFilter.length
-            || filters.excludeFromTotalsFilter.length || filters.accountTypeFilter.length
-            || filters.accountIdFilter.length || filters.tagFilter.length || filters.searchFilter;
+        let count = 0;
+        if (filters.minAmountFilter) count++;
+        if (filters.maxAmountFilter) count++;
+        count += filters.transactionTypeFilter.length;
+        count += filters.excludeFromTotalsFilter.length;
+        count += filters.accountTypeFilter.length;
+        count += filters.accountIdFilter.length;
+        count += filters.tagFilter.length;
+        if (filters.searchFilter) count++;
+        return count;
     }
 
     getTagOptions() {
@@ -46,7 +53,9 @@ class FiltersView extends React.Component {
 
     getHeader() {
         const { collapsed, sticky } = this.state;
+        const count = this.getActiveFilterCount();
         return <div className="d-flex align-items-center gap-1 mb-1">
+            {count > 0 && <span className="badge bg-dark bg-opacity-10 text-dark">{count}</span>}
             <div className="text-muted small page-header mb-0">Filters</div>
             <HelpTip items={FILTERS_HELP(this.props.isDraft)} />
             <div className="ms-auto d-flex align-items-center gap-2">
