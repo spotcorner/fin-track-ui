@@ -140,7 +140,8 @@ class Profile extends React.Component {
         const hasStored = storedPrefs.some(p => p.stored);
         return <div className="card shadow-sm p-3 mt-3">
             <div className="d-flex align-items-center gap-1 mb-2">
-                <h6 className="mb-0">Preferences</h6>
+                <h6 className="mb-0">Local Preferences</h6>
+                <HelpTip text="Your filters, sort, and display settings are cached in this browser. Uncheck to stop caching, or clear stored values." />
                 {hasStored && <button className="btn btn-outline-danger btn-sm ms-auto" onClick={this.clearAllPrefs}>Clear All</button>}
             </div>
             {_.map(grouped, (entries, group) => {
