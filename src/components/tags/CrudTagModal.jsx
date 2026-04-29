@@ -71,7 +71,7 @@ class CrudTagModal extends React.Component {
         this.props.dispatch(upsertTagRequest(payload)).unwrap().then(data => {
             toast.info("Tag saved ✅");
             const onSave = this.props.onSave || this.props.onClose || (() => { });
-            onSave(data.payload);
+            onSave(data);
         });
     };
 

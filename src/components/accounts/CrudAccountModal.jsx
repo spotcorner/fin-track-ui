@@ -43,7 +43,7 @@ class CrudAccountModal extends React.Component {
         this.props.dispatch(upsertAccountRequest(this.state)).unwrap().then(data => {
             toast.info("Account saved ✅");
             const onSave = this.props.onSave || this.props.onClose || (() => { });
-            onSave(data.payload);
+            onSave(data);
         });
     };
 
