@@ -16,7 +16,8 @@ class FiltersView extends React.Component {
 
     collapsedPref = new PreferenceStore(`${this.props.prefStoreKey}.filters.collapsed`, false);
     stickyPref = new PreferenceStore(`${this.props.prefStoreKey}.filters.sticky`, true);
-    state = { collapsed: this.collapsedPref.get(), sticky: this.stickyPref.get() }
+    showChipsPref = new PreferenceStore(`${this.props.prefStoreKey}.filters.showChips`, true);
+    state = { collapsed: this.collapsedPref.get(), sticky: this.stickyPref.get(), showChips: this.showChipsPref.get() }
 
     handleFilterChange = (e) => {
         this.props.handleFilterChange(e.target.name, e.target.value);
@@ -52,11 +53,15 @@ class FiltersView extends React.Component {
         this.setState({ collapsed: !this.state.collapsed }, () => this.collapsedPref.set(this.state.collapsed));
     }
 
+    handleShowChipsChange = () => {
+        this.setState({ showChips: !this.state.showChips }, () => this.showChipsPref.set(this.state.showChips));
+    }
+
     getHeader() {
         const { collapsed, sticky } = this.state;
         const count = this.getActiveFilterCount();
         return <div className="d-flex align-items-center gap-1 mb-1">
-            {count > 0 && <span className="badge bg-dark bg-opacity-10 text-dark">{count}</span>}
+            {count > 0 && <span className={"badge cursor-pointer " + (this.state.showChips ? "bg-dark text-white" : "bg-dark bg-opacity-10 text-dark")} onClick={this.handleShowChipsChange}>{count}</span>}
             <div className="text-muted small page-header mb-0">Filters</div>
             <HelpTip items={FILTERS_HELP(this.props.isDraft)} />
             <div className="ms-auto d-flex align-items-center gap-2">
@@ -209,10 +214,8 @@ class FiltersView extends React.Component {
         return <div className={"mb-2" + (this.state.sticky ? " filter-sticky" : "")}>
             <div className="filter-bar">
                 {this.getHeader()}
-                {!this.state.collapsed && <>
-                    {this.getFilters(counts)}
-                    {this.getChips()}
-                </>}
+                {!this.state.collapsed && this.getFilters(counts)}
+                {this.state.showChips && this.getChips()}
             </div>
         </div>;
     }
