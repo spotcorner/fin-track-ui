@@ -57,7 +57,6 @@ class TransactionsLayout extends React.Component {
             searchFilter: this.state.searchFilter,
             searchCaseSensitive: this.state.searchCaseSensitive,
             searchRegex: this.state.searchRegex,
-            expandSplits: this.state.expandSplits,
         };
     }
 
@@ -74,7 +73,6 @@ class TransactionsLayout extends React.Component {
             searchFilter: "",
             searchCaseSensitive: false,
             searchRegex: false,
-            expandSplits: true,
         };
     }
 

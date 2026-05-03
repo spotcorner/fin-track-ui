@@ -86,6 +86,7 @@ class TransactionsView extends React.Component {
         const hasAppliedTags = _.some(transaction.appliedTags, v => v >= 1);
         return <div className="d-flex flex-wrap align-items-center gap-1">
             {transaction.excludeFromTotals == 1 && <span className="badge bg-secondary">Excluded</span>}
+            {!!transaction.parentId && <span className="badge bg-warning text-dark">Split</span>}
             {!hasAppliedTags && <span className="badge bg-dark">Untagged</span>}
             {!hasAppliedTags && this.props.lastAppliedTagId && this.props.tagsMap[this.props.lastAppliedTagId] &&
                 <span className="badge tag-status-1 cursor-pointer quick-apply-tag" onClick={() => this.quickApplyTag(transaction)}>
@@ -175,7 +176,6 @@ class TransactionsView extends React.Component {
                 {accountLabel && <div className="text-muted small text-nowrap">{accountLabel}</div>}
                 <span className={"fw-bold text-nowrap " + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
                 <div className="flex-grow-1 text-truncate small">
-                    {(transaction.childIds?.length > 0 || transaction.parentId) && <span className="badge bg-warning text-dark me-1"><i className="bi bi-scissors"></i></span>}
                     {transaction.description}
                 </div>
                 {this.getTagBadges(transaction)}

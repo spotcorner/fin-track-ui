@@ -3,12 +3,7 @@ import tagUtil from "./tagUtil";
 export default {
     applyFilters: (transactions, filters, accountsMap, tags) => {
         const filtered = _.filter(transactions, (transaction) => {
-            // split view filter
-            if (filters.expandSplits) {
-                if (transaction.childIds?.length) return false; // hide split parents
-            } else {
-                if (transaction.parentId) return false; // hide children
-            }
+            if (transaction.childIds?.length) return false;
             if (!_.isEmpty(filters.minAmountFilter) && transaction.amount < filters.minAmountFilter) return false;
             if (!_.isEmpty(filters.maxAmountFilter) && transaction.amount > filters.maxAmountFilter) return false;
             if (filters.excludeFromTotalsFilter.length && !filters.excludeFromTotalsFilter.includes(String(transaction.excludeFromTotals ? 1 : 0))) return false;

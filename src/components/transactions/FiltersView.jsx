@@ -29,8 +29,7 @@ class FiltersView extends React.Component {
         return filters.datePreset !== defaultDatePreset
             || filters.minAmountFilter || filters.maxAmountFilter || filters.transactionTypeFilter.length
             || filters.excludeFromTotalsFilter.length || filters.accountTypeFilter.length
-            || filters.accountIdFilter.length || filters.tagFilter.length || filters.searchFilter
-            || !filters.expandSplits;
+            || filters.accountIdFilter.length || filters.tagFilter.length || filters.searchFilter;
     }
 
     getTagOptions() {
@@ -128,12 +127,7 @@ class FiltersView extends React.Component {
                             selected={filters.accountIdFilter} onChange={v => this.props.handleFilterChange("accountIdFilter", v)} countMap={counts.account} />
                     </div>
                 </>}
-                <div className="col d-flex gap-2 justify-content-end align-items-center">
-                    <label className="form-check-label small text-nowrap d-flex align-items-center gap-1 cursor-pointer">
-                        <input type="checkbox" className="form-check-input" checked={filters.expandSplits}
-                            onChange={(e) => this.props.handleFilterChange("expandSplits", e.target.checked)} />
-                        Expand splits
-                    </label>
+                <div className="col d-flex gap-1 justify-content-end align-items-center">
                     {this.hasActiveFilters() && <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={this.props.clearFilters}>
                         <i className="bi bi-x-lg"></i> Clear All
                     </button>}
@@ -162,7 +156,6 @@ class FiltersView extends React.Component {
         filters.accountIdFilter.forEach(id => { const text = labelUtil.getAccountLabel(accountsMap[id]) || id; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("accountIdFilter", filters.accountIdFilter.filter(v => v !== id)) }); });
         filters.tagFilter.forEach(id => { const text = id === "__NONE__" ? "Untagged" : (tagsMap[id]?.name || id); chips.push({ text, label: <><i className="bi bi-tag"></i> {text}</>, onRemove: () => this.props.handleFilterChange("tagFilter", filters.tagFilter.filter(v => v !== id)) }); });
         if (filters.searchFilter) chips.push({ text: filters.searchFilter, label: <><i className="bi bi-search"></i> {filters.searchFilter}</>, onRemove: () => this.props.handleFilterChange("searchFilter", "") });
-        if (!filters.expandSplits) chips.push({ text: "Splits collapsed", label: "Splits collapsed", onRemove: () => this.props.handleFilterChange("expandSplits", true) });
         return chips;
     }
 
@@ -177,12 +170,6 @@ class FiltersView extends React.Component {
 
     matchesFilters(t, skip) {
         const { filters, accountsMap } = this.props;
-        // split view filter
-        if (filters.expandSplits) {
-            if (t.childIds?.length) return false;
-        } else {
-            if (t.parentId) return false;
-        }
         if (skip !== "amount") {
             if (filters.minAmountFilter && t.amount < filters.minAmountFilter) return false;
             if (filters.maxAmountFilter && t.amount > filters.maxAmountFilter) return false;
