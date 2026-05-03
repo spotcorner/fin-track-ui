@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import { TRANSACTION_TYPES } from "@config";
 import amountUtil from "@utils/amountUtil";
 import TransactionPreview from "@components/upload/TransactionPreview.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { BUDGETS_HELP, UNBUDGETED_HELP } from "@utils/helpContent";
 
 class BudgetView extends React.Component {
 
@@ -152,7 +154,10 @@ class BudgetView extends React.Component {
         const total = _.sumBy(data, "spent");
         return <>
             <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
-                <div className="text-muted small page-header mb-0">Unbudgeted</div>
+                <div className="d-flex align-items-center gap-1">
+                    <div className="text-muted small page-header mb-0">Unbudgeted</div>
+                    <HelpTip items={UNBUDGETED_HELP} />
+                </div>
                 <div className="d-flex align-items-center gap-2">
                     <span className="badge bg-dark bg-opacity-10 text-dark">₹{amountUtil.getFormattedAmount(total)}</span>
                     <i className={"bi cursor-pointer " + (this.state.unbudgetedCollapsed ? "bi-chevron-down" : "bi-chevron-up")}
@@ -170,6 +175,7 @@ class BudgetView extends React.Component {
         return <div>
             <div className="d-flex align-items-center gap-2 mb-2">
                 <div className="text-muted small page-header mb-0">Budgets</div>
+                <HelpTip items={BUDGETS_HELP} />
                 {this.isProRated() && <span className="text-muted" style={{ fontSize: "0.7rem" }}><i className="bi bi-calendar"></i> {moment(this.props.endDate).diff(moment(this.props.startDate), "days") + 1} days</span>}
             </div>
             {this.renderOverall(data)}

@@ -112,7 +112,7 @@ class CrudTransactionModal extends React.Component {
 
     getModalTitle() {
         const title = this.props.transaction ? "Edit Transaction" : "Add Transaction";
-        return <span className="d-flex align-items-center gap-1">{title}<HelpTip items={TRANSACTION_MODAL_HELP} /></span>;
+        return <span className="d-flex align-items-center gap-1">{title}<HelpTip items={TRANSACTION_MODAL_HELP.overview} /></span>;
     }
 
     onSubmitClick = () => {
@@ -131,12 +131,11 @@ class CrudTransactionModal extends React.Component {
         const { children, splitMode, amount } = this.state;
         if (!amount || parseFloat(amount) <= 0) return null;
         return <div className="mb-2">
-            <div className="d-flex align-items-center gap-2 mb-1">
-                <label className="form-label mb-0">Split</label>
-                <button type="button" className={"btn btn-sm " + (splitMode ? "btn-dark" : "btn-outline-secondary")}
-                    onClick={this.toggleSplitMode}>
-                    <i className="bi bi-scissors"></i>
-                </button>
+            <div className="d-flex align-items-center gap-1 mb-1">
+                <input type="checkbox" className="form-check-input" checked={splitMode}
+                    onChange={this.toggleSplitMode} />
+                <label className="form-check-label">Split amount</label>
+                <HelpTip text={TRANSACTION_MODAL_HELP.split} />
             </div>
             {splitMode && <>
                 {children.map((child, i) => <div key={i} className="row g-2 mb-1">
@@ -201,16 +200,17 @@ class CrudTransactionModal extends React.Component {
                     <label className="form-label">Amount</label>
                     <input type="number" className="form-control" name="amount" value={amount} onChange={this.handleChange} required />
                 </div>
-                <div className="mb-2 form-check">
+                {this.getSplitSection()}
+                <div className="mb-2 d-flex align-items-center gap-1">
                     <input type="checkbox" className="form-check-input" name="excludeFromTotals" checked={excludeFromTotals == 1}
                         onChange={(e) => this.setState({ excludeFromTotals: e.target.checked ? 1 : 0 })} />
                     <label className="form-check-label">Exclude from totals</label>
+                    <HelpTip text={TRANSACTION_MODAL_HELP.excludeFromTotals} />
                 </div>
                 <div className="mb-2">
                     <label className="form-label">Description</label>
                     <input type="text" className="form-control" name="description" value={description} onChange={this.handleChange} />
                 </div>
-                {this.getSplitSection()}
                 <div className="mb-2">
                     <label className="form-label">Comments</label>
                     <textarea className="form-control" name="comments" value={comments} onChange={this.handleChange} />

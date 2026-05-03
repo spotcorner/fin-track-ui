@@ -49,7 +49,7 @@ class CrudAccountModal extends React.Component {
 
     getModalTitle() {
         const label = this.props.account ? "Edit Account" : "Create Account";
-        return <div className="d-flex align-items-center gap-1">{label} <HelpTip items={ACCOUNT_MODAL_HELP} /></div>;
+        return <div className="d-flex align-items-center gap-1">{label} <HelpTip items={ACCOUNT_MODAL_HELP.overview} /></div>;
     }
 
     onSubmitClick = () => {
@@ -76,7 +76,10 @@ class CrudAccountModal extends React.Component {
                     <input type="text" className="form-control" name="name" value={name} onChange={this.handleChange} required />
                 </div>
                 {type !== "credit_card" && <div className="mb-2">
-                    <label className="form-label">Opening Balance</label>
+                    <div className="d-flex align-items-center gap-1">
+                        <label className="form-label mb-0">Opening Balance</label>
+                        <HelpTip text={ACCOUNT_MODAL_HELP.openingBalance} />
+                    </div>
                     <input type="number" className="form-control" name="openingBalance" value={openingBalance} onChange={this.handleChange} />
                 </div>}
                 <div className="mb-2">

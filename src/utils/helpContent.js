@@ -6,10 +6,14 @@ export const ACCOUNTS_HELP = [
     "Opening balance is used to calculate closing balance in the Summary tab.",
 ];
 
-export const ACCOUNT_MODAL_HELP = [
-    <><b>Account Type</b> — category of the account. Credit cards don't have opening balance.</>,
-    <><b>Opening Balance</b> — starting balance used to calculate closing balance in Summary.</>,
-];
+export const ACCOUNT_MODAL_HELP = {
+    overview: [
+        "Create and manage bank accounts for tracking transactions.",
+        "Supported types: Savings, Credit Card, Wallet, Others.",
+    ],
+    type: "Credit cards don't have opening balance.",
+    openingBalance: "Used with pre-period totals to compute effective opening balance for the selected date range.",
+};
 
 export const FILTERS_HELP = (isDraft) => [
     <><b>Date</b> — filter by date range. Changing dates refetches from server.</>,
@@ -22,8 +26,8 @@ export const FILTERS_HELP = (isDraft) => [
         <><b>Account Type</b> — filter by account category (Savings, Credit Card, etc.).</>,
         <><b>Account</b> — filter by specific account.</>,
     ] : []),
-    <><b>Chips</b> — active filters shown as badges below. Click a chip to remove that filter.</>,
-    <><b>Clear All</b> — removes all filters including defaults.</>,
+    <><b>Chips</b> — active filters shown as badges below. Click × to remove. Filter count badge toggles chip visibility.</>,
+    <><b>Clear All</b> — shown in chips area when filters are active. Removes all filters.</>,
     <><b>Reset</b> — restores filters to default state.</>,
     <><b>Pin</b> — toggle to keep filters sticky on scroll.</>,
     <><b>Collapse</b> — hide/show the filter controls.</>,
@@ -47,9 +51,24 @@ export const DRAFTS_HELP = [
     <><b>Close Draft</b> — removes the draft from the list.</>,
 ];
 
+export const BUDGETS_HELP = [
+    "Track spending against monthly budgets set on tags.",
+    <><b>Overall</b> — combined budget and spending across all budgeted tags.</>,
+    <><b>Progress bars</b> — green (&lt;75%), yellow (75-100%), cyan (exactly 100%), red (over budget).</>,
+    <><b>Pro-rated</b> — when the date range isn't an exact month, budgets are scaled to daily rate × days.</>,
+    <><b>Expand</b> — click the chevron on any card to see matching transactions.</>,
+    "Set a monthly budget on any tag from the tag edit modal.",
+];
+
+export const UNBUDGETED_HELP = [
+    "Tags without budgets that have spending in the selected period.",
+    "Includes untagged transactions.",
+];
+
 export const TRANSACTIONS_HELP = [
     "Full list of transactions with date, account, amount, description, and tags.",
     "Edit, delete, or tag transactions using the action buttons on each row.",
+    <><b>Split transactions</b> — shown with a Split badge. Parent is hidden, children display individually with ↳ icon.</>,
     "Quick-apply: after tagging one transaction, the same tag appears as a one-click option on other untagged transactions.",
 ];
 
@@ -66,7 +85,7 @@ export const SUMMARY_HELP = (isDraft) => [
 ];
 
 export const CASHFLOW_HELP = [
-    "View and manage your saved transactions across three tabs: Stats, Summary, and Transactions.",
+    "View and manage your saved transactions across tabs: Budgets, Stats, Summary, and Transactions.",
     "Use filters to narrow down by date, tags, amount, account, and more.",
     "Transactions can be created, edited, deleted, and tagged.",
 ];
@@ -82,6 +101,7 @@ export const TAG_MODAL_HELP = {
         "Define rules to auto-tag transactions based on their description.",
         "Link child tags so this tag auto-applies when they match.",
         "Set priority to control which tag wins when multiple match.",
+        <><b>Monthly Budget</b> — set a spending limit to track in the Budgets tab.</>,
     ],
     rules: [
         <><b>Keyword</b> — matches if description contains this text.</>,
@@ -139,11 +159,14 @@ export const ACCESS_MODAL_HELP = {
     nickname: "A private label only you see. Each side sets their own.",
 };
 
-export const TRANSACTION_MODAL_HELP = [
-    <><b>Split</b> — track shared expenses. For debits, enter the amount owed. For credits, enter the amount settled.</>,
-    <><b>Exclude from totals</b> — flag this transaction so it doesn't count in summaries.</>,
-    <><b>Comments</b> — add notes to this transaction.</>,
-];
+export const TRANSACTION_MODAL_HELP = {
+    overview: [
+        "Create or edit a transaction with date, account, type, amount, and description.",
+        "Transactions can be split, excluded from totals, and commented.",
+    ],
+    split: "Split a transaction into parts for shared expenses or categorization. Each part gets its own tags.",
+    excludeFromTotals: "Excluded transactions are hidden by default and don't count in summaries or budgets.",
+};
 
 export const TAG_SELECTION_HELP = [
     <><b>Badges</b> — currently applied tags. Click × to remove. Greyed-out tags were removed — click to restore.</>,
