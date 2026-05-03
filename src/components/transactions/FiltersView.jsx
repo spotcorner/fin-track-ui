@@ -150,10 +150,10 @@ class FiltersView extends React.Component {
         const defaultDatePreset = isDraft ? "allTime" : "currentMonth";
         if (filters.startDateFilter || filters.endDateFilter || isAllTime) {
             const text = formatDateRange(filters.startDateFilter, filters.endDateFilter, filters.datePreset);
-            chips.push({ text, label: <><i className="bi bi-calendar"></i> {text}</>, onRemove: isAllTime ? null : this.props.resetDateFilter, isDefault: filters.datePreset === defaultDatePreset });
+            chips.push({ text, label: <><i className="bi bi-calendar"></i> {text}</>, onRemove: isAllTime ? null : this.props.resetDateFilter });
         }
         if (filters.transactionTypeFilter.length) filters.transactionTypeFilter.forEach(v => { const text = v === TRANSACTION_TYPES.DEBIT ? "Debit" : "Credit"; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("transactionTypeFilter", filters.transactionTypeFilter.filter(x => x !== v)) }); });
-        filters.excludeFromTotalsFilter.forEach(v => { const text = v === "1" ? "Excluded" : "Active"; chips.push({ text, label: text, isDefault: v === "0", onRemove: () => this.props.handleFilterChange("excludeFromTotalsFilter", filters.excludeFromTotalsFilter.filter(x => x !== v)) }); });
+        filters.excludeFromTotalsFilter.forEach(v => { const text = v === "1" ? "Excluded" : "Active"; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("excludeFromTotalsFilter", filters.excludeFromTotalsFilter.filter(x => x !== v)) }); });
         if (filters.minAmountFilter) chips.push({ text: "Min: ₹" + filters.minAmountFilter, label: "Min: ₹" + filters.minAmountFilter, onRemove: () => this.props.handleFilterChange("minAmountFilter", "") });
         if (filters.maxAmountFilter) chips.push({ text: "Max: ₹" + filters.maxAmountFilter, label: "Max: ₹" + filters.maxAmountFilter, onRemove: () => this.props.handleFilterChange("maxAmountFilter", "") });
         filters.accountTypeFilter.forEach(type => { const text = ACCOUNT_TYPE_LABELS[type] || type; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("accountTypeFilter", filters.accountTypeFilter.filter(v => v !== type)) }); });
@@ -167,7 +167,7 @@ class FiltersView extends React.Component {
     getChips(chips) {
         if (!chips.length) return null;
         return <div className="filter-chips d-flex flex-wrap gap-1">
-            {chips.map((chip, i) => <span key={i} className={"badge filter-chip" + (chip.isDefault ? " bg-dark bg-opacity-10 text-dark" : " bg-dark") + (chip.onRemove ? " cursor-pointer" : "")} onClick={chip.onRemove}>
+            {chips.map((chip, i) => <span key={i} className={"badge filter-chip bg-dark" + (chip.onRemove ? " cursor-pointer" : "")} onClick={chip.onRemove}>
                 {chip.label}{chip.onRemove && " ×"}
             </span>)}
         </div>;
