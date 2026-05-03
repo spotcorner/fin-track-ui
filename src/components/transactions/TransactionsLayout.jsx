@@ -8,6 +8,7 @@ import transactionService from "@services/transactionService";
 import FiltersView from "@components/transactions/FiltersView.jsx";
 import TransactionsView from "@components/transactions/TransactionsView.jsx";
 import StatsView from "./stats/StatsView.jsx";
+import BudgetView from "./BudgetView.jsx";
 import SummaryTable from "./SummaryTable.jsx";
 import transactionUtil from "@utils/transactionUtil";
 import HelpTip from "@components/ui/HelpTip.jsx";
@@ -17,6 +18,7 @@ import { getDateRange } from "@utils/datePresetUtil";
 import uiUtil from "@utils/uiUtil";
 
 const TABS = [
+    { key: "budgets", label: "Budgets" },
     { key: "stats", label: "Stats" },
     { key: "summary", label: "Summary" },
     { key: "transactions", label: "Transactions" },
@@ -161,14 +163,18 @@ class TransactionsLayout extends React.Component {
         const basePath = this.props.basePath || "/";
         return <ul className="nav nav-tabs mb-2">
             {TABS.map(tab => <li key={tab.key} className="nav-item">
-                <NavLink className="nav-link" activeClassName="active" exact={tab.key === "stats"}
-                    to={tab.key === "stats" ? basePath : `${basePath}/${tab.key}`}>{tab.label}</NavLink>
+                <NavLink className="nav-link" activeClassName="active" exact={tab.key === "budgets"}
+                    to={tab.key === "budgets" ? basePath : `${basePath}/${tab.key}`}>{tab.label}</NavLink>
             </li>)}
         </ul>;
     }
 
     getTabContent(filteredTransactions) {
-        const tab = this.props.tab || "stats";
+        const tab = this.props.tab || "budgets";
+        if (tab === "budgets") {
+            return <BudgetView filteredTransactions={filteredTransactions}
+                startDate={this.state.startDateFilter} endDate={this.state.endDateFilter} />;
+        }
         if (tab === "stats") {
             return <StatsView filteredTransactions={filteredTransactions} prefStoreKey={this.getPrefStoreKey()} />;
         }

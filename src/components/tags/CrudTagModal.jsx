@@ -17,6 +17,7 @@ function getDerivedStateFromProps(props) {
         linkedTags: props.tag?.linkedTags || [],
         priority: props.tag?.priority || 0,
         description: props.tag?.description || "",
+        budget: props.tag?.budget || "",
     };
 }
 
@@ -67,6 +68,7 @@ class CrudTagModal extends React.Component {
             linkedTags: this.state.linkedTags,
             priority: parseInt(this.state.priority) || 0,
             description: this.state.description,
+            budget: this.state.budget ? parseFloat(this.state.budget) : null,
         };
         this.props.dispatch(upsertTagRequest(payload)).unwrap().then(data => {
             toast.info("Tag saved ✅");
@@ -145,6 +147,13 @@ class CrudTagModal extends React.Component {
                         <HelpTip text={TAG_MODAL_HELP.priority} />
                     </div>
                     {this.state.priority > 0 && <input type="number" className="form-control mt-1" name="priority" value={this.state.priority} onChange={this.handleChange} min="1" />}
+                </div>
+                <div className="mb-2">
+                    <label className="form-label">Monthly Budget</label>
+                    <div className="input-group">
+                        <span className="input-group-text">₹</span>
+                        <input type="number" className="form-control" name="budget" value={this.state.budget} onChange={this.handleChange} placeholder="Optional" min="0" />
+                    </div>
                 </div>
             </form>
         );
