@@ -50,14 +50,18 @@ export const fetchReceivedAccessRequest = createAsyncThunk(
 export const upsertAccountRequest = createAsyncThunk(
     "user/upsertAccountRequest",
     async (account) => {
-        return await accountService.upsert(account);
+        return account._id
+            ? await accountService.update(account._id, account)
+            : await accountService.create(account);
     }
 );
 
 export const upsertTagRequest = createAsyncThunk(
     "user/upsertTagRequest",
     async (tag) => {
-        return await tagService.upsert(tag);
+        return tag._id
+            ? await tagService.update(tag._id, tag)
+            : await tagService.create(tag);
     }
 );
 

@@ -51,7 +51,10 @@ class CrudTransactionModal extends React.Component {
         this.state.amount = parseFloat(this.state.amount);
         this.state.splitAmount = this.state.splitAmount ? parseFloat(this.state.splitAmount) : null;
         this.state.excludeFromTotals = parseInt(this.state.excludeFromTotals);
-        transactionService.upsert(this.state).then(data => {
+        const save = this.state._id
+            ? transactionService.update(this.state._id, this.state)
+            : transactionService.create(this.state);
+        save.then(data => {
             toast.info("Transaction saved ✅");
             this.props.onSave(data.transaction);
             this.props.onClose();
