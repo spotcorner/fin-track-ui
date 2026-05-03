@@ -23,13 +23,19 @@ class FiltersView extends React.Component {
         this.props.handleFilterChange(e.target.name, e.target.value);
     };
 
-    hasActiveFilters() {
-        const { filters, isDraft } = this.props;
-        const defaultDatePreset = isDraft ? "allTime" : "currentMonth";
-        return filters.datePreset !== defaultDatePreset
-            || filters.minAmountFilter || filters.maxAmountFilter || filters.transactionTypeFilter.length
-            || filters.excludeFromTotalsFilter.length || filters.accountTypeFilter.length
-            || filters.accountIdFilter.length || filters.tagFilter.length || filters.searchFilter;
+    getActiveFilterCount() {
+        const { filters } = this.props;
+        let count = 0;
+        if (filters.datePreset !== "allTime") count++;
+        count += filters.transactionTypeFilter.length;
+        count += filters.excludeFromTotalsFilter.length;
+        count += filters.accountTypeFilter.length;
+        count += filters.accountIdFilter.length;
+        count += filters.tagFilter.length;
+        if (filters.minAmountFilter) count++;
+        if (filters.maxAmountFilter) count++;
+        if (filters.searchFilter) count++;
+        return count;
     }
 
     getTagOptions() {
@@ -59,7 +65,7 @@ class FiltersView extends React.Component {
     getHeader(chips) {
         const { collapsed, sticky } = this.state;
         return <div className="d-flex align-items-center gap-1 mb-1">
-            {chips.length > 0 && <span className={"badge cursor-pointer " + (this.state.showChips ? "bg-dark text-white" : "bg-dark bg-opacity-10 text-dark")} onClick={this.handleShowChipsChange}>{chips.length}</span>}
+            <span className={"badge cursor-pointer " + (this.state.showChips ? "bg-dark text-white" : "bg-dark bg-opacity-10 text-dark")} onClick={this.handleShowChipsChange}>{this.getActiveFilterCount()}</span>
             <div className="text-muted small page-header mb-0">Filters</div>
             <HelpTip items={FILTERS_HELP(this.props.isDraft)} />
             {!this.state.showChips && this.getFilterSummary(chips)}
@@ -128,9 +134,6 @@ class FiltersView extends React.Component {
                     </div>
                 </>}
                 <div className="col d-flex gap-1 justify-content-end align-items-center">
-                    {this.hasActiveFilters() && <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={this.props.clearFilters}>
-                        <i className="bi bi-x-lg"></i> Clear All
-                    </button>}
                     <button className="btn btn-outline-dark btn-sm text-nowrap" onClick={this.props.resetFilters}>
                         <i className="bi bi-arrow-counterclockwise"></i> Reset to Default
                     </button>
@@ -165,6 +168,9 @@ class FiltersView extends React.Component {
             {chips.map((chip, i) => <span key={i} className={"badge filter-chip bg-dark" + (chip.onRemove ? " cursor-pointer" : "")} onClick={chip.onRemove}>
                 {chip.label}{chip.onRemove && " ×"}
             </span>)}
+            {this.getActiveFilterCount() > 0 && <span className="badge filter-chip bg-danger cursor-pointer" onClick={this.props.clearFilters}>
+                <i className="bi bi-trash"></i> Clear All
+            </span>}
         </div>;
     }
 
