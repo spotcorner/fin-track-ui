@@ -24,8 +24,10 @@ class FiltersView extends React.Component {
     };
 
     hasActiveFilters() {
-        const { filters } = this.props;
-        return filters.minAmountFilter || filters.maxAmountFilter || filters.transactionTypeFilter.length
+        const { filters, isDraft } = this.props;
+        const defaultDatePreset = isDraft ? "allTime" : "currentMonth";
+        return filters.datePreset !== defaultDatePreset
+            || filters.minAmountFilter || filters.maxAmountFilter || filters.transactionTypeFilter.length
             || filters.excludeFromTotalsFilter.length || filters.accountTypeFilter.length
             || filters.accountIdFilter.length || filters.tagFilter.length || filters.searchFilter
             || !filters.expandSplits;
