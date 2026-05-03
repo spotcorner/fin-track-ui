@@ -32,7 +32,7 @@ class TransactionsView extends React.Component {
     }
 
     getSelectedTransaction() {
-        return this.props.filteredTransactions.find(t => t._id === this.state.selectedTransactionId);
+        return this.props.transactions.find(t => t._id === this.state.selectedTransactionId);
     }
 
     toggleTagModal = (transaction) => {
@@ -45,13 +45,26 @@ class TransactionsView extends React.Component {
             onClose={() => this.toggleTagModal()} />;
     }
 
+    getParentTransaction(transaction) {
+        if (!transaction.parentId) return transaction;
+        return this.props.transactions.find(t => t._id === transaction.parentId);
+    }
+
     toggleTransactionModal = (transaction) => {
-        this.setState({ showTransactionModal: !this.state.showTransactionModal, selectedTransactionId: transaction?._id || null });
+        const resolved = transaction?.parentId ? this.getParentTransaction(transaction) : transaction;
+        this.setState({ showTransactionModal: !this.state.showTransactionModal, selectedTransactionId: resolved?._id || null });
+    }
+
+    getChildrenForTransaction(transaction) {
+        if (!transaction?.childIds?.length) return [];
+        return this.props.transactions.filter(t => t.parentId === transaction._id);
     }
 
     getCrudTransactionModal() {
+        const transaction = this.getSelectedTransaction();
         return <CrudTransactionModal show={this.state.showTransactionModal}
-            transaction={this.getSelectedTransaction()} onSave={this.props.updateTransaction}
+            transaction={transaction} children={this.getChildrenForTransaction(transaction)}
+            onSave={this.props.updateTransaction}
             isDraft={this.props.isDraft} draftId={this.props.draftId}
             onClose={() => this.toggleTransactionModal()} />;
     }
@@ -73,9 +86,6 @@ class TransactionsView extends React.Component {
         const hasAppliedTags = _.some(transaction.appliedTags, v => v >= 1);
         return <div className="d-flex flex-wrap align-items-center gap-1">
             {transaction.excludeFromTotals == 1 && <span className="badge bg-secondary">Excluded</span>}
-            {transaction.splitAmount > 0 && <span className="badge bg-warning text-dark">
-                {transaction.type === TRANSACTION_TYPES.DEBIT ? "Owed" : "Settled"} ₹{amountUtil.getFormattedAmount(transaction.splitAmount)}
-            </span>}
             {!hasAppliedTags && <span className="badge bg-dark">Untagged</span>}
             {!hasAppliedTags && this.props.lastAppliedTagId && this.props.tagsMap[this.props.lastAppliedTagId] &&
                 <span className="badge tag-status-1 cursor-pointer quick-apply-tag" onClick={() => this.quickApplyTag(transaction)}>
@@ -142,10 +152,13 @@ class TransactionsView extends React.Component {
     }
 
     getActionButtons(transaction) {
+        const isChild = !!transaction.parentId;
         return <div className="d-flex gap-1 flex-nowrap">
             <span className="badge badge-outline-primary cursor-pointer" onClick={() => this.toggleTagModal(transaction)}><i className="bi bi-tag"></i></span>
             <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.toggleTransactionModal(transaction)}><i className="bi bi-pencil"></i></span>
-            <span className="badge badge-outline-danger cursor-pointer" onClick={() => this.setState({ deleteTransactionId: transaction._id })}><i className="bi bi-trash"></i></span>
+            {isChild
+                ? <span className="badge" style={{ visibility: "hidden" }}><i className="bi bi-trash"></i></span>
+                : <span className="badge badge-outline-danger cursor-pointer" onClick={() => this.setState({ deleteTransactionId: transaction._id })}><i className="bi bi-trash"></i></span>}
         </div>;
     }
 
@@ -161,7 +174,10 @@ class TransactionsView extends React.Component {
                 <div className="text-muted small text-nowrap">{moment(transaction.date, "YYYY-MM-DD").format("MMM D, YYYY")}</div>
                 {accountLabel && <div className="text-muted small text-nowrap">{accountLabel}</div>}
                 <span className={"fw-bold text-nowrap " + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
-                <div className="flex-grow-1 text-truncate small">{transaction.description}</div>
+                <div className="flex-grow-1 text-truncate small">
+                    {(transaction.childIds?.length > 0 || transaction.parentId) && <span className="badge bg-warning text-dark me-1"><i className="bi bi-scissors"></i></span>}
+                    {transaction.description}
+                </div>
                 {this.getTagBadges(transaction)}
                 {this.getActionButtons(transaction)}
             </div>

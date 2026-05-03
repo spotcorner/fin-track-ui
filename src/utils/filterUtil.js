@@ -18,5 +18,6 @@ export function getFilterLabels(filters, accountsMap = {}, tagsMap = {}) {
     if (filters.accountIdFilter?.length) filters.accountIdFilter.forEach(id => labels.push(labelUtil.getAccountLabel(accountsMap[id]) || id));
     if (filters.tagFilter?.length) filters.tagFilter.forEach(id => labels.push(id === "__NONE__" ? "Untagged" : (tagsMap[id]?.name || id)));
     if (filters.searchFilter) labels.push(filters.searchFilter);
+    if (filters.expandSplits === false) labels.push("Splits collapsed");
     return labels;
 }

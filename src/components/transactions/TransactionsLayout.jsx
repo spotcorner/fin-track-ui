@@ -57,6 +57,7 @@ class TransactionsLayout extends React.Component {
             searchFilter: this.state.searchFilter,
             searchCaseSensitive: this.state.searchCaseSensitive,
             searchRegex: this.state.searchRegex,
+            expandSplits: this.state.expandSplits,
         };
     }
 
@@ -73,6 +74,7 @@ class TransactionsLayout extends React.Component {
             searchFilter: "",
             searchCaseSensitive: false,
             searchRegex: false,
+            expandSplits: true,
         };
     }
 
@@ -93,13 +95,14 @@ class TransactionsLayout extends React.Component {
     }
 
     handleFilterChange = (name, value) => {
-        this.setState({ [name]: value }, () => {
-            this.cacheFiltersState();
-        });
+        this.setState({ [name]: value }, this.cacheFiltersState);
     };
 
     resetFilters = () => {
-        this.setState(this.getInitialFilters(), this.cacheFiltersState);
+        this.setState(this.getInitialFilters(), () => {
+            this.cacheFiltersState();
+            this.fetchTransactions();
+        });
     }
 
     clearFilters = () => {
@@ -113,16 +116,23 @@ class TransactionsLayout extends React.Component {
         return transactionUtil.applyFilters(this.state.transactions, this.getFilters(), this.props.accountsMap, this.props.tags);
     }
 
-    updateTransaction = (transaction) => {
+    updateTransaction = (transaction, children = []) => {
         this.setState((prevState) => {
-            const transactions = [...prevState.transactions];
+            let transactions = [...prevState.transactions];
+            // upsert parent
             const index = _.findIndex(transactions, (a) => a._id === transaction._id);
             if (index >= 0) {
                 transactions[index] = { ...transaction };
             } else {
                 transactions.push(transaction);
             }
-            return { transactions, showTransactionModal: false, };
+            // remove old children of this parent
+            transactions = transactions.filter(t => t.parentId !== transaction._id);
+            // add new children
+            if (children.length) {
+                transactions.push(...children);
+            }
+            return { transactions };
         });
     }
 
@@ -144,7 +154,7 @@ class TransactionsLayout extends React.Component {
     deleteTransaction = (transaction) => {
         transactionService.delete(transaction._id).then((data) => {
             this.setState((prevState) => ({
-                transactions: prevState.transactions.filter(t => t._id !== data._id)
+                transactions: prevState.transactions.filter(t => t._id !== data._id && t.parentId !== data._id)
             }), () => toast.info("Transaction deleted ✅"));
         });
     }
