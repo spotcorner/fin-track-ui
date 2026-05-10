@@ -20,6 +20,12 @@ class Tags extends React.Component {
         sortDirection: "asc",
     };
 
+    getTotalBudget() {
+        const total = _.sumBy(this.props.tags.filter(t => t.budget > 0), "budget");
+        if (!total) return null;
+        return <span className="badge bg-dark bg-opacity-10 text-dark">₹{total.toLocaleString("en-IN")}/mo</span>;
+    }
+
     getSortOptions() {
         return [{ field: "name", label: "Name" }, { field: "createdAt", label: "Created" }, { field: "updatedAt", label: "Updated" }];
     }
@@ -69,7 +75,10 @@ class Tags extends React.Component {
                     {tag.rules.map((rule, i) => this.getRuleText(rule, i))}
                     {this.getLinkedTagNames(tag)}
                 </div>
-                {this.getActionButtons(tag)}
+                <div className="d-flex align-items-center gap-2">
+                    {tag.budget > 0 && <span className="badge bg-dark bg-opacity-10 text-dark">₹{tag.budget.toLocaleString("en-IN")}/mo</span>}
+                    {this.getActionButtons(tag)}
+                </div>
             </div>
         </div>;
     }
@@ -94,6 +103,7 @@ class Tags extends React.Component {
                 <div className="d-flex align-items-center gap-1 mb-2">
                     <div className="text-muted small page-header">Tags</div>
                     <HelpTip items={TAGS_VIEW_HELP} />
+                    {this.getTotalBudget()}
                     <div className="ms-auto d-flex align-items-center gap-2">
                         <SortDropdown options={this.getSortOptions()} prefStoreKey="tags.sort"
                             selected={{ field: this.state.sortField, direction: this.state.sortDirection }}
