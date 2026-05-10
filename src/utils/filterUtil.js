@@ -11,7 +11,7 @@ export function getFilterLabels(filters, accountsMap = {}, tagsMap = {}) {
         labels.push(formatDateRange(filters.startDateFilter, filters.endDateFilter, filters.datePreset));
     }
     if (filters.transactionTypeFilter?.length) filters.transactionTypeFilter.forEach(v => labels.push(v === TRANSACTION_TYPES.DEBIT ? "Debit" : "Credit"));
-    if (filters.excludeFromTotalsFilter?.length) filters.excludeFromTotalsFilter.forEach(v => labels.push(v === "1" ? "Excluded" : "Active"));
+    if (filters.skipExcluded) labels.push("Skip excluded");
     if (filters.minAmountFilter) labels.push("Min: ₹" + filters.minAmountFilter);
     if (filters.maxAmountFilter) labels.push("Max: ₹" + filters.maxAmountFilter);
     if (filters.accountTypeFilter?.length) filters.accountTypeFilter.forEach(type => labels.push(ACCOUNT_TYPE_LABELS[type] || type));

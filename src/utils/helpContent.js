@@ -21,7 +21,7 @@ export const FILTERS_HELP = (isDraft) => [
     <><b>₹ Min/Max</b> — filter by transaction amount range.</>,
     <><b>Search</b> — search in description. Supports case-sensitive (Aa) and regex (.*) modes.</>,
     <><b>Type</b> — filter by Debit or Credit.</>,
-    <><b>Totals</b> — Active: counts in summaries. Excluded: flagged to not count.</>,
+    <><b>Skip excluded</b> — when checked, transactions flagged as "exclude from totals" are hidden from all views.</>,
     ...(!isDraft ? [
         <><b>Account Type</b> — filter by account category (Savings, Credit Card, etc.).</>,
         <><b>Account</b> — filter by specific account.</>,

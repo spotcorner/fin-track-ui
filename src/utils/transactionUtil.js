@@ -6,7 +6,7 @@ export default {
             if (transaction.childIds?.length) return false;
             if (!_.isEmpty(filters.minAmountFilter) && transaction.amount < filters.minAmountFilter) return false;
             if (!_.isEmpty(filters.maxAmountFilter) && transaction.amount > filters.maxAmountFilter) return false;
-            if (filters.excludeFromTotalsFilter.length && !filters.excludeFromTotalsFilter.includes(String(transaction.excludeFromTotals ? 1 : 0))) return false;
+            if (filters.skipExcluded && transaction.excludeFromTotals) return false;
             const account = accountsMap && accountsMap[transaction.accountId] || {};
             transaction.account = account;
             if (filters.accountTypeFilter.length && !filters.accountTypeFilter.includes(account.type)) return false;

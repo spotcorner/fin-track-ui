@@ -28,7 +28,7 @@ class FiltersView extends React.Component {
         let count = 0;
         if (filters.datePreset !== "allTime") count++;
         count += filters.transactionTypeFilter.length;
-        count += filters.excludeFromTotalsFilter.length;
+        if (filters.skipExcluded) count++;
         count += filters.accountTypeFilter.length;
         count += filters.accountIdFilter.length;
         count += filters.tagFilter.length;
@@ -120,8 +120,11 @@ class FiltersView extends React.Component {
                         selected={filters.transactionTypeFilter} onChange={v => this.props.handleFilterChange("transactionTypeFilter", v)} countMap={counts.type} />
                 </div>
                 <div className="col-6 col-md-3 col-lg-2">
-                    <CheckDropdown label="Totals" options={[{ value: "0", label: "Active" }, { value: "1", label: "Excluded" }]}
-                        selected={filters.excludeFromTotalsFilter} onChange={v => this.props.handleFilterChange("excludeFromTotalsFilter", v)} countMap={counts.totals} />
+                    <label className="form-check-label small text-nowrap d-flex align-items-center gap-1 cursor-pointer h-100">
+                        <input type="checkbox" className="form-check-input" checked={filters.skipExcluded}
+                            onChange={() => this.props.handleFilterChange("skipExcluded", !filters.skipExcluded)} />
+                        Skip excluded
+                    </label>
                 </div>
                 {!this.props.isDraft && <>
                     <div className="col-6 col-md-3 col-lg-2">
@@ -152,7 +155,7 @@ class FiltersView extends React.Component {
             chips.push({ text, label: <><i className="bi bi-calendar"></i> {text}</>, onRemove: isAllTime ? null : this.props.resetDateFilter });
         }
         if (filters.transactionTypeFilter.length) filters.transactionTypeFilter.forEach(v => { const text = v === TRANSACTION_TYPES.DEBIT ? "Debit" : "Credit"; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("transactionTypeFilter", filters.transactionTypeFilter.filter(x => x !== v)) }); });
-        filters.excludeFromTotalsFilter.forEach(v => { const text = v === "1" ? "Excluded" : "Active"; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("excludeFromTotalsFilter", filters.excludeFromTotalsFilter.filter(x => x !== v)) }); });
+        if (filters.skipExcluded) chips.push({ text: "Skip excluded", label: "Skip excluded", onRemove: () => this.props.handleFilterChange("skipExcluded", false) });
         if (filters.minAmountFilter) chips.push({ text: "Min: ₹" + filters.minAmountFilter, label: "Min: ₹" + filters.minAmountFilter, onRemove: () => this.props.handleFilterChange("minAmountFilter", "") });
         if (filters.maxAmountFilter) chips.push({ text: "Max: ₹" + filters.maxAmountFilter, label: "Max: ₹" + filters.maxAmountFilter, onRemove: () => this.props.handleFilterChange("maxAmountFilter", "") });
         filters.accountTypeFilter.forEach(type => { const text = ACCOUNT_TYPE_LABELS[type] || type; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("accountTypeFilter", filters.accountTypeFilter.filter(v => v !== type)) }); });
@@ -180,7 +183,7 @@ class FiltersView extends React.Component {
             if (filters.minAmountFilter && t.amount < filters.minAmountFilter) return false;
             if (filters.maxAmountFilter && t.amount > filters.maxAmountFilter) return false;
         }
-        if (skip !== "excludeFromTotals" && filters.excludeFromTotalsFilter.length && !filters.excludeFromTotalsFilter.includes(String(t.excludeFromTotals ? 1 : 0))) return false;
+        if (skip !== "excludeFromTotals" && filters.skipExcluded && t.excludeFromTotals) return false;
         const acc = accountsMap?.[t.accountId] || {};
         if (skip !== "accountType" && filters.accountTypeFilter.length && !filters.accountTypeFilter.includes(acc.type)) return false;
         if (skip !== "accountId" && filters.accountIdFilter.length && !filters.accountIdFilter.includes(t.accountId)) return false;
@@ -206,10 +209,9 @@ class FiltersView extends React.Component {
 
     getCounts() {
         const { transactions, accountsMap } = this.props;
-        const counts = { type: {}, totals: {}, accountType: {}, account: {}, tag: {} };
+        const counts = { type: {}, accountType: {}, account: {}, tag: {} };
         (transactions || []).forEach(t => {
             if (this.matchesFilters(t, "transactionType")) counts.type[t.type] = (counts.type[t.type] || 0) + 1;
-            if (this.matchesFilters(t, "excludeFromTotals")) counts.totals[t.excludeFromTotals ? "1" : "0"] = (counts.totals[t.excludeFromTotals ? "1" : "0"] || 0) + 1;
             const acc = accountsMap?.[t.accountId];
             if (acc?.type && this.matchesFilters(t, "accountType")) counts.accountType[acc.type] = (counts.accountType[acc.type] || 0) + 1;
             if (t.accountId && this.matchesFilters(t, "accountId")) counts.account[t.accountId] = (counts.account[t.accountId] || 0) + 1;
