@@ -4,7 +4,6 @@ import React from "react";
 import { connect } from "react-redux";
 import { TRANSACTION_TYPES } from "@config";
 import amountUtil from "@utils/amountUtil";
-import TransactionPreview from "@components/upload/TransactionPreview.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { BUDGETS_HELP, UNBUDGETED_HELP } from "@utils/helpContent";
 import CrudTagModal from "@components/tags/CrudTagModal.jsx";
@@ -105,7 +104,7 @@ class BudgetView extends React.Component {
 
     renderTransactions(tagId) {
         if (this.state.expandedTagId !== tagId) return null;
-        return <div className="mt-2"><TransactionPreview transactions={this.getTransactionsForTag(tagId)} /></div>;
+        return <div className="mt-2">{this.props.renderTransactions(this.getTransactionsForTag(tagId))}</div>;
     }
 
     renderOverall(data) {

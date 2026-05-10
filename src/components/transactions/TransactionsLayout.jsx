@@ -159,6 +159,18 @@ class TransactionsLayout extends React.Component {
         });
     }
 
+    renderTransactionsView = (filteredTransactions, { compact } = {}) => {
+        return <TransactionsView compact={compact}
+            isDraft={this.props.isDraft} draftId={this.props.draftId}
+            transactions={this.state.transactions} filteredTransactions={filteredTransactions}
+            updateTransaction={this.updateTransaction} updateTransactionTags={this.updateTransactionTags}
+            deleteTransaction={this.deleteTransaction}
+            fetchTransactions={this.fetchTransactions}
+            lastAppliedTagId={this.state.lastAppliedTagId}
+            clearLastAppliedTag={() => this.setState({ lastAppliedTagId: null })}
+            prefStoreKey={this.getPrefStoreKey()} />;
+    }
+
     getTabBar() {
         const basePath = this.props.basePath || "/";
         return <ul className="nav nav-tabs mb-2">
@@ -173,7 +185,8 @@ class TransactionsLayout extends React.Component {
         const tab = this.props.tab || "budgets";
         if (tab === "budgets") {
             return <BudgetView filteredTransactions={filteredTransactions}
-                startDate={this.state.startDateFilter} endDate={this.state.endDateFilter} />;
+                startDate={this.state.startDateFilter} endDate={this.state.endDateFilter}
+                renderTransactions={(txns) => this.renderTransactionsView(txns, { compact: true })} />;
         }
         if (tab === "stats") {
             return <StatsView filteredTransactions={filteredTransactions} prefStoreKey={this.getPrefStoreKey()} />;
@@ -184,14 +197,7 @@ class TransactionsLayout extends React.Component {
                 draftOpeningBalance={this.props.draftOpeningBalance}
                 prePeriodTotals={this.state.prePeriodTotals} />;
         }
-        return <TransactionsView isDraft={this.props.isDraft} draftId={this.props.draftId}
-            transactions={this.state.transactions} filteredTransactions={filteredTransactions}
-            updateTransaction={this.updateTransaction} updateTransactionTags={this.updateTransactionTags}
-            deleteTransaction={this.deleteTransaction}
-            fetchTransactions={this.fetchTransactions}
-            lastAppliedTagId={this.state.lastAppliedTagId}
-            clearLastAppliedTag={() => this.setState({ lastAppliedTagId: null })}
-            prefStoreKey={this.getPrefStoreKey()} />;
+        return this.renderTransactionsView(filteredTransactions);
     }
 
     getNoTransactionsLabel() {

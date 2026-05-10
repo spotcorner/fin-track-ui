@@ -88,7 +88,7 @@ class TransactionsView extends React.Component {
             {transaction.excludeFromTotals == 1 && <span className="badge bg-secondary">Excluded</span>}
             {!!transaction.parentId && <span className="badge bg-warning text-dark">Split</span>}
             {!hasAppliedTags && <span className="badge bg-dark">Untagged</span>}
-            {!hasAppliedTags && this.props.lastAppliedTagId && this.props.tagsMap[this.props.lastAppliedTagId] &&
+            {!hasAppliedTags && !this.props.compact && this.props.lastAppliedTagId && this.props.tagsMap[this.props.lastAppliedTagId] &&
                 <span className="badge tag-status-1 cursor-pointer quick-apply-tag" onClick={() => this.quickApplyTag(transaction)}>
                     <i className="bi bi-check me-1"></i>{this.props.tagsMap[this.props.lastAppliedTagId].name}
                     <span className="ms-1" onClick={(e) => { e.stopPropagation(); this.props.clearLastAppliedTag(); }}>&times;</span>
@@ -242,8 +242,8 @@ class TransactionsView extends React.Component {
     getTransactions(filteredTransactions) {
         const isDraft = this.props.isDraft == 1 && this.props.transactions.length > 0;
         return <div>
-            {this.getToolbar(filteredTransactions, isDraft)}
-            {this.getSelectionControls(filteredTransactions)}
+            {!this.props.compact && this.getToolbar(filteredTransactions, isDraft)}
+            {!this.props.compact && this.getSelectionControls(filteredTransactions)}
             <div style={{ overflowX: "auto" }}><div className="list-group list-group-striped mb-2" style={{ minWidth: "700px" }}>{filteredTransactions.map(this.getListTransaction)}</div></div>
         </div>;
     }
