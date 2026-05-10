@@ -19,7 +19,7 @@ export const FILTERS_HELP = (isDraft) => [
     <><b>Date</b> — filter by date range. Changing dates refetches from server.</>,
     <><b>Tags</b> — show transactions matching selected tags. "Untagged" shows transactions with no tags.</>,
     <><b>₹ Min/Max</b> — filter by transaction amount range.</>,
-    <><b>Search</b> — search in description. Supports case-sensitive (Aa) and regex (.*) modes.</>,
+    <><b>Search</b> — press Enter to add search terms. Multiple terms use AND logic. Each term captures its own case-sensitive (Aa) and regex (.*) settings. Smart suggestions appear for dates, amounts, tags, accounts, and types.</>,
     <><b>Type</b> — filter by Debit or Credit.</>,
     <><b>Skip excluded</b> — when checked, transactions flagged as "exclude from totals" are hidden from all views.</>,
     ...(!isDraft ? [
@@ -80,8 +80,9 @@ export const TRANSACTIONS_DRAFT_HELP = [
 export const SUMMARY_HELP = (isDraft) => [
     "Account-wise balance breakdown — opening, debit, credit, and closing balance.",
     ...(isDraft ? ["Opening balance comes from the draft setting instead of the account."] : []),
+    "When filters are active, shows filtered/total format — filtered amount (muted) and total amount (badge).",
+    "Closing balance always uses total for accuracy.",
     "Credit card accounts show spends and payments separately.",
-    "Split summary shows owed vs settled amounts for shared expenses.",
 ];
 
 export const CASHFLOW_HELP = [

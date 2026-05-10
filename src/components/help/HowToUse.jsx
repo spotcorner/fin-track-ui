@@ -17,7 +17,7 @@ const flow = [
     { label: "Map Columns (if unmapped)", options: ["Debit/Credit", "Suffix mapper", "Keyword mapper", "Balance inference", "Manual date"] },
     { label: "Save as Drafts" },
     { label: "Review & Edit Drafts", options: ["Budgets", "Stats", "Summary", "Edit / delete", "Tag transactions", "Save All → Cashflow"] },
-    { label: "Cashflow", options: ["Budgets", "Stats", "Summary", "Transactions", "Split", "Tag / edit / delete"] },
+    { label: "Cashflow", options: ["Budgets", "Stats", "Summary", "Transactions", "Split", "Smart Search", "Tag / edit / delete"] },
     { label: "Share Access", options: ["Read Only", "Full Access", "Nicknames", "View As"] },
 ];
 
