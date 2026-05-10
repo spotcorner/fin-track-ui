@@ -10,7 +10,7 @@ import { FILTERS_HELP } from "@utils/helpContent";
 import { formatDateRange } from "@utils/datePresetUtil";
 import labelUtil from "@utils/labelUtil";
 import PreferenceStore from "@utils/PreferenceStore";
-import { parseSmartFilter } from "@utils/smartFilterUtil";
+import { getSmartSuggestions } from "@utils/smartFilterUtil";
 import "@styles/filtersView.scss";
 
 class FiltersView extends React.Component {
@@ -34,33 +34,66 @@ class FiltersView extends React.Component {
         }
     }
 
-    applySmartFilter = (smart) => {
-        if (smart.type === "amount") {
-            if (smart.min) this.props.handleFilterChange("minAmountFilter", smart.min);
-            if (smart.max) this.props.handleFilterChange("maxAmountFilter", smart.max);
-        } else if (smart.type === "date") {
-            this.props.handleDateChange(smart.start, smart.end, smart.preset);
+    applySmartFilter = (suggestion) => {
+        switch (suggestion.type) {
+            case "amount":
+                if (suggestion.min) this.props.handleFilterChange("minAmountFilter", suggestion.min);
+                if (suggestion.max) this.props.handleFilterChange("maxAmountFilter", suggestion.max);
+                break;
+            case "date":
+                this.props.handleDateChange(suggestion.start, suggestion.end, suggestion.preset);
+                break;
+            case "transactionType":
+                this.props.handleFilterChange("transactionTypeFilter", [...this.props.filters.transactionTypeFilter, suggestion.value]);
+                break;
+            case "accountType":
+                this.props.handleFilterChange("accountTypeFilter", [...this.props.filters.accountTypeFilter, suggestion.value]);
+                break;
+            case "account":
+                this.props.handleFilterChange("accountIdFilter", [...this.props.filters.accountIdFilter, suggestion.value]);
+                break;
+            case "tag":
+                this.props.handleFilterChange("tagFilter", [...this.props.filters.tagFilter, suggestion.value]);
+                break;
         }
         this.setState({ searchInput: "" });
+    }
+
+    getSuggestionCount(suggestion) {
+        const { transactions, accountsMap } = this.props;
+        if (!transactions) return 0;
+        switch (suggestion.type) {
+            case "transactionType": return transactions.filter(t => t.type === suggestion.value).length;
+            case "accountType": return transactions.filter(t => accountsMap?.[t.accountId]?.type === suggestion.value).length;
+            case "account": return transactions.filter(t => t.accountId === suggestion.value).length;
+            case "tag": return transactions.filter(t => t.appliedTags?.[suggestion.value] >= 1).length;
+            default: return null;
+        }
     }
 
     getSmartSuggestions() {
         const input = this.state.searchInput.trim();
         if (!input) return null;
-        const smart = parseSmartFilter(input);
-        if (!smart) return null;
-        let label;
-        if (smart.type === "amount") {
-            if (smart.min && smart.max) label = `Min ₹${smart.min}, Max ₹${smart.max}`;
-            else if (smart.min) label = `Min ₹${smart.min}`;
-            else label = `Max ₹${smart.max}`;
-        } else if (smart.type === "date") {
-            label = `Period: ${smart.start} to ${smart.end}`;
-        }
+        const { filters } = this.props;
+        const suggestions = getSmartSuggestions(input, {
+            tags: _.values(this.props.tagsMap),
+            accounts: _.values(this.props.accountsMap),
+        }).filter(s => {
+            if (s.type === "transactionType") return !filters.transactionTypeFilter.includes(s.value);
+            if (s.type === "accountType") return !filters.accountTypeFilter.includes(s.value);
+            if (s.type === "account") return !filters.accountIdFilter.includes(s.value);
+            if (s.type === "tag") return !filters.tagFilter.includes(s.value);
+            return true;
+        });
+        if (!suggestions.length) return null;
         return <div className="smart-suggestions position-absolute bg-white border rounded shadow-sm mt-1 p-1" style={{ zIndex: 10, minWidth: "200px" }}>
-            <div className="small cursor-pointer px-2 py-1 rounded" onClick={() => this.applySmartFilter(smart)}>
-                {smart.type === "date" && <i className="bi bi-calendar me-1"></i>}{label}
-            </div>
+            {suggestions.map((s, i) => {
+                const count = this.getSuggestionCount(s);
+                return <div key={i} className="small cursor-pointer px-2 py-1 rounded d-flex align-items-center justify-content-between" onClick={() => this.applySmartFilter(s)}>
+                    <span>{s.icon && <i className={"bi me-1 " + s.icon}></i>}{s.label}</span>
+                    {count !== null && <span className="badge bg-dark bg-opacity-10 text-dark ms-2">{count}</span>}
+                </div>;
+            })}
         </div>;
     }
 

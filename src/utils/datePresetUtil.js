@@ -20,18 +20,18 @@ const PRESET_CONFIG = {
 };
 
 export const DATE_PRESETS = [
-    { key: "currentMonth", label: "Current Month", group: "quick" },
-    { key: "lastMonth", label: "Last Month", group: "quick" },
-    { key: "currentYear", label: "Current Year", group: "quick" },
-    { key: "lastYear", label: "Last Year", group: "quick" },
-    { key: "currentFY", label: "Current FY", group: "quick" },
-    { key: "lastFY", label: "Last FY", group: "quick" },
+    { key: "currentMonth", label: "Current Month", group: "quick", searchKeys: ["current month", "this month"] },
+    { key: "lastMonth", label: "Last Month", group: "quick", searchKeys: ["last month"] },
+    { key: "currentYear", label: "Current Year", group: "quick", searchKeys: ["current year", "this year"] },
+    { key: "lastYear", label: "Last Year", group: "quick", searchKeys: ["last year"] },
+    { key: "currentFY", label: "Current FY", group: "quick", searchKeys: ["current fy", "this fy"] },
+    { key: "lastFY", label: "Last FY", group: "quick", searchKeys: ["last fy"] },
     { key: "weekly", label: "Weekly", group: "window" },
     { key: "monthly", label: "Monthly", group: "window" },
     { key: "quarterly", label: "Quarterly", group: "window" },
     { key: "halfYearly", label: "Half-Yearly", group: "window" },
     { key: "yearly", label: "Yearly", group: "window" },
-    { key: "allTime", label: "All Time", group: "other" },
+    { key: "allTime", label: "All Time", group: "other", searchKeys: ["all time"] },
     { key: "custom", label: "Custom", group: "other" },
 ];
 
