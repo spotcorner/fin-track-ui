@@ -112,6 +112,11 @@ class TransactionsLayout extends React.Component {
         return transactionUtil.applyFilters(this.state.transactions, this.getFilters(), this.props.accountsMap, this.props.tags);
     }
 
+    // transactions excluding split parents (displayable count)
+    getTotalCount() {
+        return this.state.transactions.filter(t => !t.childIds?.length).length;
+    }
+
     updateTransaction = (transaction, children = []) => {
         this.setState((prevState) => {
             let transactions = [...prevState.transactions];
@@ -159,6 +164,7 @@ class TransactionsLayout extends React.Component {
         return <TransactionsView compact={compact}
             isDraft={this.props.isDraft} draftId={this.props.draftId}
             transactions={this.state.transactions} filteredTransactions={filteredTransactions}
+            totalCount={this.getTotalCount()}
             updateTransaction={this.updateTransaction} updateTransactionTags={this.updateTransactionTags}
             deleteTransaction={this.deleteTransaction}
             fetchTransactions={this.fetchTransactions}

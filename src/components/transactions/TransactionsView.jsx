@@ -220,7 +220,7 @@ class TransactionsView extends React.Component {
             <div className="d-flex align-items-center gap-1 mb-2">
                 <div className="text-muted small page-header mb-0">Transactions</div>
                 <HelpTip items={isDraft ? [...TRANSACTIONS_HELP, ...TRANSACTIONS_DRAFT_HELP] : TRANSACTIONS_HELP} />
-                <span className="text-muted mx-auto">Showing {filteredTransactions.length} of {this.props.transactions.length} entries</span>
+                <span className="text-muted mx-auto">Showing {filteredTransactions.length} of {this.props.totalCount} entries</span>
                 <div className="d-flex align-items-center gap-2">
                     <button className={"btn btn-sm text-nowrap " + (this.state.selectionMode ? "btn-dark" : "btn-outline-secondary")}
                         onClick={() => this.setState(prev => ({ selectionMode: !prev.selectionMode, selectedIds: {} }))}>
