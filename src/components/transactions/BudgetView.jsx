@@ -7,10 +7,11 @@ import amountUtil from "@utils/amountUtil";
 import TransactionPreview from "@components/upload/TransactionPreview.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { BUDGETS_HELP, UNBUDGETED_HELP } from "@utils/helpContent";
+import CrudTagModal from "@components/tags/CrudTagModal.jsx";
 
 class BudgetView extends React.Component {
 
-    state = { unbudgetedCollapsed: true, expandedTagId: null }
+    state = { unbudgetedCollapsed: true, expandedTagId: null, editTag: null }
 
     // exact month (1st to last day) → use budget as-is, otherwise pro-rate by days
     getEffectiveBudget(budget) {
@@ -30,6 +31,11 @@ class BudgetView extends React.Component {
         const start = moment(startDate, "YYYY-MM-DD");
         const end = moment(endDate, "YYYY-MM-DD");
         return !(start.date() === 1 && end.isSame(end.clone().endOf("month"), "day") && start.isSame(end, "month"));
+    }
+
+    getPeriodLabel() {
+        if (this.isProRated()) return `${moment(this.props.endDate).diff(moment(this.props.startDate), "days") + 1} days`;
+        return "monthly";
     }
 
     // tags with budget, sorted by % spent descending
@@ -116,13 +122,19 @@ class BudgetView extends React.Component {
         </div>;
     }
 
+    renderEditButton(tag) {
+        if (tag._id === "__UNTAGGED__") return null;
+        return <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.setState({ editTag: tag })}>
+            <i className="bi bi-pencil"></i>
+        </span>;
+    }
+
     renderBudgetCard({ tag, spent, effective, pct }) {
-        const proRated = this.isProRated();
         return <div key={tag._id} className="mb-3 p-2 border rounded">
             <div className="d-flex justify-content-between align-items-center mb-1">
                 <div className="d-flex align-items-center gap-2">
                     <span className="small fw-bold">{tag.name}</span>
-                    <span className="text-muted" style={{ fontSize: "0.7rem" }}>{proRated ? `₹${amountUtil.getFormattedAmount(tag.budget / 30)}/day` : "monthly"}</span>
+                    {this.renderEditButton(tag)}
                 </div>
                 <div className="d-flex align-items-center gap-2">
                     <span className="small text-muted">₹{amountUtil.getFormattedAmount(spent)} / ₹{amountUtil.getFormattedAmount(effective)}</span>
@@ -130,7 +142,10 @@ class BudgetView extends React.Component {
                 </div>
             </div>
             {this.renderProgressBar(pct)}
-            {this.renderStatus(spent, effective)}
+            <div className="d-flex justify-content-between align-items-center">
+                {this.renderStatus(spent, effective)}
+                <span className="text-muted" style={{ fontSize: "0.7rem" }}>₹{amountUtil.getFormattedAmount(tag.budget / 30)}/day</span>
+            </div>
             {this.renderTransactions(tag._id)}
         </div>;
     }
@@ -138,7 +153,10 @@ class BudgetView extends React.Component {
     renderUnbudgetedCard({ tag, spent }) {
         return <div key={tag._id} className="mb-2 p-2 border rounded">
             <div className="d-flex justify-content-between align-items-center">
-                <span className="small fw-bold">{tag.name}</span>
+                <div className="d-flex align-items-center gap-2">
+                    <span className="small fw-bold">{tag.name}</span>
+                    {this.renderEditButton(tag)}
+                </div>
                 <div className="d-flex align-items-center gap-2">
                     <span className="small text-muted">₹{amountUtil.getFormattedAmount(spent)}</span>
                     {this.renderExpandToggle(tag._id)}
@@ -179,11 +197,12 @@ class BudgetView extends React.Component {
             <div className="d-flex align-items-center gap-2 mb-2">
                 <div className="text-muted small page-header mb-0">Budgets</div>
                 <HelpTip items={BUDGETS_HELP} />
-                {this.isProRated() && <span className="text-muted" style={{ fontSize: "0.7rem" }}><i className="bi bi-calendar"></i> {moment(this.props.endDate).diff(moment(this.props.startDate), "days") + 1} days</span>}
+                <span className="ms-auto badge bg-dark bg-opacity-10 text-dark" style={{ fontSize: "0.7rem" }}><i className="bi bi-calendar"></i> {this.getPeriodLabel()}</span>
             </div>
             {this.renderOverall(data)}
             {data.map(d => this.renderBudgetCard(d))}
             {this.renderUnbudgeted()}
+            <CrudTagModal show={!!this.state.editTag} tag={this.state.editTag} onClose={() => this.setState({ editTag: null })} />
         </div>;
     }
 }
