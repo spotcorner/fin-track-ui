@@ -20,14 +20,15 @@ export default {
                 const matchesTag = tagIds.length && _.some(tagIds, id => transaction.appliedTags[id] >= 1);
                 if (!(hasUntagged && isUntagged) && !matchesTag) return false;
             }
-            if (!_.isEmpty(filters.searchFilter)) {
-                if (filters.searchRegex) {
-                    try { if (!new RegExp(filters.searchFilter, filters.searchCaseSensitive ? "" : "i").test(transaction.description)) return false; }
-                    catch (e) { return false; }
-                } else {
-                    const match = filters.searchCaseSensitive ? _.includes(transaction.description, filters.searchFilter) : _.includes(_.toLower(transaction.description), _.toLower(filters.searchFilter));
-                    if (!match) return false;
-                }
+            if (filters.searchTerms.length) {
+                const matches = filters.searchTerms.every(term => {
+                    if (term.regex) {
+                        try { return new RegExp(term.value, term.caseSensitive ? "" : "i").test(transaction.description); }
+                        catch (e) { return false; }
+                    }
+                    return term.caseSensitive ? _.includes(transaction.description, term.value) : _.includes(_.toLower(transaction.description), _.toLower(term.value));
+                });
+                if (!matches) return false;
             }
             return true;
         });

@@ -17,6 +17,6 @@ export function getFilterLabels(filters, accountsMap = {}, tagsMap = {}) {
     if (filters.accountTypeFilter?.length) filters.accountTypeFilter.forEach(type => labels.push(ACCOUNT_TYPE_LABELS[type] || type));
     if (filters.accountIdFilter?.length) filters.accountIdFilter.forEach(id => labels.push(labelUtil.getAccountLabel(accountsMap[id]) || id));
     if (filters.tagFilter?.length) filters.tagFilter.forEach(id => labels.push(id === "__NONE__" ? "Untagged" : (tagsMap[id]?.name || id)));
-    if (filters.searchFilter) labels.push(filters.searchFilter);
+    if (filters.searchTerms?.length) filters.searchTerms.forEach(term => labels.push(term.value));
     return labels;
 }

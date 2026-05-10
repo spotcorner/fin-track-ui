@@ -17,11 +17,20 @@ class FiltersView extends React.Component {
     collapsedPref = new PreferenceStore(`${this.props.prefStoreKey}.filters.collapsed`, false);
     stickyPref = new PreferenceStore(`${this.props.prefStoreKey}.filters.sticky`, true);
     showChipsPref = new PreferenceStore(`${this.props.prefStoreKey}.filters.showChips`, true);
-    state = { collapsed: this.collapsedPref.get(), sticky: this.stickyPref.get(), showChips: this.showChipsPref.get() }
+    state = { collapsed: this.collapsedPref.get(), sticky: this.stickyPref.get(), showChips: this.showChipsPref.get(), searchInput: "", searchCaseSensitive: false, searchRegex: false }
 
     handleFilterChange = (e) => {
         this.props.handleFilterChange(e.target.name, e.target.value);
     };
+
+    handleSearchKeyDown = (e) => {
+        if (e.key === "Enter" && this.state.searchInput.trim()) {
+            const term = { value: this.state.searchInput.trim(), caseSensitive: this.state.searchCaseSensitive, regex: this.state.searchRegex };
+            const terms = [...this.props.filters.searchTerms, term];
+            this.props.handleFilterChange("searchTerms", terms);
+            this.setState({ searchInput: "" });
+        }
+    }
 
     getActiveFilterCount() {
         const { filters } = this.props;
@@ -34,7 +43,7 @@ class FiltersView extends React.Component {
         count += filters.tagFilter.length;
         if (filters.minAmountFilter) count++;
         if (filters.maxAmountFilter) count++;
-        if (filters.searchFilter) count++;
+        if (filters.searchTerms.length) count++;
         return count;
     }
 
@@ -95,13 +104,15 @@ class FiltersView extends React.Component {
                 <div className="col-12 col-md-6 col-lg-3">
                     <div className="input-group input-group-sm">
                         <span className="input-group-text"><i className="bi bi-search"></i></span>
-                        <input type="search" name="searchFilter" value={filters.searchFilter} className="form-control" placeholder="Search..." onChange={this.handleFilterChange} />
-                        <button className={"btn btn-sm " + (filters.searchCaseSensitive ? "btn-dark" : "btn-outline-secondary")}
-                            title="Match Case" onClick={() => this.props.handleFilterChange("searchCaseSensitive", !filters.searchCaseSensitive)}>
+                        <input type="search" value={this.state.searchInput} className="form-control" placeholder="Search... (Enter to add)"
+                            onChange={(e) => this.setState({ searchInput: e.target.value })}
+                            onKeyDown={this.handleSearchKeyDown} />
+                        <button className={"btn btn-sm " + (this.state.searchCaseSensitive ? "btn-dark" : "btn-outline-secondary")}
+                            title="Match Case" onClick={() => this.setState(prev => ({ searchCaseSensitive: !prev.searchCaseSensitive }))}>
                             Aa
                         </button>
-                        <button className={"btn btn-sm " + (filters.searchRegex ? "btn-dark" : "btn-outline-secondary")}
-                            title="Use Regex" onClick={() => this.props.handleFilterChange("searchRegex", !filters.searchRegex)}>
+                        <button className={"btn btn-sm " + (this.state.searchRegex ? "btn-dark" : "btn-outline-secondary")}
+                            title="Use Regex" onClick={() => this.setState(prev => ({ searchRegex: !prev.searchRegex }))}>
                             .*
                         </button>
                     </div>
@@ -161,7 +172,11 @@ class FiltersView extends React.Component {
         filters.accountTypeFilter.forEach(type => { const text = ACCOUNT_TYPE_LABELS[type] || type; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("accountTypeFilter", filters.accountTypeFilter.filter(v => v !== type)) }); });
         filters.accountIdFilter.forEach(id => { const text = labelUtil.getAccountLabel(accountsMap[id]) || id; chips.push({ text, label: text, onRemove: () => this.props.handleFilterChange("accountIdFilter", filters.accountIdFilter.filter(v => v !== id)) }); });
         filters.tagFilter.forEach(id => { const text = id === "__NONE__" ? "Untagged" : (tagsMap[id]?.name || id); chips.push({ text, label: <><i className="bi bi-tag"></i> {text}</>, onRemove: () => this.props.handleFilterChange("tagFilter", filters.tagFilter.filter(v => v !== id)) }); });
-        if (filters.searchFilter) chips.push({ text: filters.searchFilter, label: <><i className="bi bi-search"></i> {filters.searchFilter}</>, onRemove: () => this.props.handleFilterChange("searchFilter", "") });
+        filters.searchTerms.forEach((term, i) => {
+            const indicators = (term.caseSensitive ? "Aa" : "") + (term.regex ? ".*" : "");
+            const suffix = indicators ? ` [${indicators}]` : "";
+            chips.push({ text: term.value, label: <><i className="bi bi-search"></i> {term.value}{suffix}</>, onRemove: () => this.props.handleFilterChange("searchTerms", filters.searchTerms.filter((_, j) => j !== i)) });
+        });
         return chips;
     }
 
@@ -195,14 +210,15 @@ class FiltersView extends React.Component {
             const matchesTag = tagIds.length && _.some(tagIds, id => t.appliedTags[id] >= 1);
             if (!(hasUntagged && isUntagged) && !matchesTag) return false;
         }
-        if (skip !== "search" && filters.searchFilter) {
-            if (filters.searchRegex) {
-                try { if (!new RegExp(filters.searchFilter, filters.searchCaseSensitive ? "" : "i").test(t.description)) return false; }
-                catch (e) { return false; }
-            } else {
-                const match = filters.searchCaseSensitive ? _.includes(t.description, filters.searchFilter) : _.includes(_.toLower(t.description), _.toLower(filters.searchFilter));
-                if (!match) return false;
-            }
+        if (skip !== "search" && filters.searchTerms.length) {
+            const matches = filters.searchTerms.every(term => {
+                if (term.regex) {
+                    try { return new RegExp(term.value, term.caseSensitive ? "" : "i").test(t.description); }
+                    catch (e) { return false; }
+                }
+                return term.caseSensitive ? _.includes(t.description, term.value) : _.includes(_.toLower(t.description), _.toLower(term.value));
+            });
+            if (!matches) return false;
         }
         return true;
     }

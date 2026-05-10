@@ -56,9 +56,7 @@ class TransactionsLayout extends React.Component {
             accountIdFilter: this.state.accountIdFilter,
             transactionTypeFilter: this.state.transactionTypeFilter,
             tagFilter: this.state.tagFilter,
-            searchFilter: this.state.searchFilter,
-            searchCaseSensitive: this.state.searchCaseSensitive,
-            searchRegex: this.state.searchRegex,
+            searchTerms: this.state.searchTerms,
         };
     }
 
@@ -72,9 +70,7 @@ class TransactionsLayout extends React.Component {
             transactionTypeFilter: [],
             tagFilter: [],
             skipExcluded: !clearAll,
-            searchFilter: "",
-            searchCaseSensitive: false,
-            searchRegex: false,
+            searchTerms: [],
         };
     }
 
