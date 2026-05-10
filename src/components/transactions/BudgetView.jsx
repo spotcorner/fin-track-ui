@@ -78,15 +78,15 @@ class BudgetView extends React.Component {
     }
 
     getProgressColor(pct) {
-        if (pct > 100) return "bg-danger";
-        if (pct === 100) return "bg-info";
-        if (pct >= 75) return "bg-warning";
-        return "bg-success";
+        if (pct > 100) return "danger";
+        if (pct === 100) return "info";
+        if (pct >= 75) return "warning";
+        return "success";
     }
 
     renderProgressBar(pct) {
         return <div className="progress" style={{ height: "8px" }}>
-            <div className={"progress-bar " + this.getProgressColor(pct)}
+            <div className={"progress-bar bg-" + this.getProgressColor(pct)}
                 style={{ width: Math.min(pct, 100) + "%" }}></div>
         </div>;
     }
@@ -133,7 +133,7 @@ class BudgetView extends React.Component {
                     {this.renderEditButton(tag)}
                 </div>
                 <div className="d-flex align-items-center gap-2">
-                    <span className="small text-muted">₹{amountUtil.getFormattedAmount(spent)} / ₹{amountUtil.getFormattedAmount(effective)}</span>
+                    <span className="small text-muted"><span className={"text-" + this.getProgressColor(pct)}>{Math.round(pct)}%</span> · ₹{amountUtil.getFormattedAmount(spent)} / ₹{amountUtil.getFormattedAmount(effective)}</span>
                     {!isOverall && this.renderExpandToggle(tag._id)}
                 </div>
             </div>
