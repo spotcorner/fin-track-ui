@@ -119,13 +119,6 @@ class FiltersView extends React.Component {
                     <CheckDropdown label="Type" options={[{ value: TRANSACTION_TYPES.DEBIT, label: "Debit" }, { value: TRANSACTION_TYPES.CREDIT, label: "Credit" }]}
                         selected={filters.transactionTypeFilter} onChange={v => this.props.handleFilterChange("transactionTypeFilter", v)} countMap={counts.type} />
                 </div>
-                <div className="col-6 col-md-3 col-lg-2">
-                    <label className="form-check-label small text-nowrap d-flex align-items-center gap-1 cursor-pointer h-100">
-                        <input type="checkbox" className="form-check-input" checked={filters.skipExcluded}
-                            onChange={() => this.props.handleFilterChange("skipExcluded", !filters.skipExcluded)} />
-                        Skip excluded
-                    </label>
-                </div>
                 {!this.props.isDraft && <>
                     <div className="col-6 col-md-3 col-lg-2">
                         <CheckDropdown label="Account Type" options={accountTypeOptions}
@@ -136,6 +129,13 @@ class FiltersView extends React.Component {
                             selected={filters.accountIdFilter} onChange={v => this.props.handleFilterChange("accountIdFilter", v)} countMap={counts.account} />
                     </div>
                 </>}
+                <div className="col-auto d-flex align-items-center">
+                    <label className="form-check-label small text-nowrap d-flex align-items-center gap-1 cursor-pointer">
+                        <input type="checkbox" className="form-check-input" checked={filters.skipExcluded}
+                            onChange={() => this.props.handleFilterChange("skipExcluded", !filters.skipExcluded)} />
+                        Skip excluded
+                    </label>
+                </div>
                 <div className="col d-flex gap-1 justify-content-end align-items-center">
                     <button className="btn btn-outline-dark btn-sm text-nowrap" onClick={this.props.resetFilters}>
                         <i className="bi bi-arrow-counterclockwise"></i> Reset to Default
