@@ -3,7 +3,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { toast } from "react-toastify";
-import { NavLink, withRouter } from "react-router-dom";
+import { NavLink, withRouter, Redirect } from "react-router-dom";
 import transactionService from "@services/transactionService";
 import FiltersView from "@components/transactions/FiltersView.jsx";
 import TransactionsView from "@components/transactions/TransactionsView.jsx";
@@ -182,7 +182,9 @@ class TransactionsLayout extends React.Component {
     }
 
     getTabContent(filteredTransactions) {
-        const tab = this.props.tab || "budgets";
+        const tab = this.props.match?.params?.tab || this.props.tab || "budgets";
+        const validTabs = TABS.map(t => t.key);
+        if (!validTabs.includes(tab)) return <Redirect to={this.props.basePath || "/"} />;
         if (tab === "budgets") {
             return <BudgetView filteredTransactions={filteredTransactions}
                 startDate={this.state.startDateFilter} endDate={this.state.endDateFilter}

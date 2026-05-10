@@ -12,14 +12,8 @@ const cashflowProps = { isDraft: 0, title: "Cashflow", sortByDate: 1, basePath: 
 
 const routes = [
     { path: '/', component: () => import('./components/home/Home.jsx') },
-    { path: '/cashflow', component: cashflowComponent, props: { ...cashflowProps, tab: "budgets" } },
-    { path: '/cashflow/stats', component: cashflowComponent, props: { ...cashflowProps, tab: "stats" } },
-    { path: '/cashflow/summary', component: cashflowComponent, props: { ...cashflowProps, tab: "summary" } },
-    { path: '/cashflow/transactions', component: cashflowComponent, props: { ...cashflowProps, tab: "transactions" } },
-    { path: '/drafts', component: draftsComponent, props: { tab: "budgets" } },
-    { path: '/drafts/stats', component: draftsComponent, props: { tab: "stats" } },
-    { path: '/drafts/summary', component: draftsComponent, props: { tab: "summary" } },
-    { path: '/drafts/transactions', component: draftsComponent, props: { tab: "transactions" } },
+    { path: '/cashflow/:tab?', component: cashflowComponent, props: cashflowProps },
+    { path: '/drafts/:tab?', component: draftsComponent },
     { path: '/upload-statement', component: () => import('./components/upload/UploadView.jsx') },
     { path: '/accounts', component: () => import('./components/accounts/Accounts.jsx') },
     { path: '/tags', component: () => import('./components/tags/Tags.jsx') },

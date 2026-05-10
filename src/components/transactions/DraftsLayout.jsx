@@ -112,7 +112,7 @@ class DraftsLayout extends React.Component {
                 onClose={() => this.setState({ showEditModal: false })} />
             {selectedDraftId && <TransactionsLayout key={selectedDraftId}
                 isDraft={1} draftId={selectedDraftId} draftOpeningBalance={selectedDraft?.openingBalance || 0}
-                sortByDate={1} basePath={"/drafts"} tab={this.props.tab} />}
+                sortByDate={1} basePath={"/drafts"} tab={this.props.match?.params?.tab} />}
         </div>;
     }
 
