@@ -59,19 +59,7 @@ class FiltersView extends React.Component {
         this.setState({ searchInput: "" });
     }
 
-    getSuggestionCount(suggestion) {
-        const { transactions, accountsMap } = this.props;
-        if (!transactions) return 0;
-        switch (suggestion.type) {
-            case "transactionType": return transactions.filter(t => t.type === suggestion.value).length;
-            case "accountType": return transactions.filter(t => accountsMap?.[t.accountId]?.type === suggestion.value).length;
-            case "account": return transactions.filter(t => t.accountId === suggestion.value).length;
-            case "tag": return transactions.filter(t => t.appliedTags?.[suggestion.value] >= 1).length;
-            default: return null;
-        }
-    }
-
-    getSmartSuggestions() {
+    getSmartSuggestions(counts) {
         const input = this.state.searchInput.trim();
         if (!input) return null;
         const { filters } = this.props;
@@ -88,13 +76,23 @@ class FiltersView extends React.Component {
         if (!suggestions.length) return null;
         return <div className="smart-suggestions position-absolute bg-white border rounded shadow-sm mt-1 p-1" style={{ zIndex: 10, minWidth: "200px" }}>
             {suggestions.map((s, i) => {
-                const count = this.getSuggestionCount(s);
+                const count = this.getCountForSuggestion(s, counts);
                 return <div key={i} className="small cursor-pointer px-2 py-1 rounded d-flex align-items-center justify-content-between" onClick={() => this.applySmartFilter(s)}>
                     <span>{s.icon && <i className={"bi me-1 " + s.icon}></i>}{s.label}</span>
                     {count !== null && <span className="badge bg-dark bg-opacity-10 text-dark ms-2">{count}</span>}
                 </div>;
             })}
         </div>;
+    }
+
+    getCountForSuggestion(suggestion, counts) {
+        switch (suggestion.type) {
+            case "transactionType": return counts.type[suggestion.value] || 0;
+            case "accountType": return counts.accountType[suggestion.value] || 0;
+            case "account": return counts.account[suggestion.value] || 0;
+            case "tag": return counts.tag[suggestion.value] || 0;
+            default: return null;
+        }
     }
 
     getActiveFilterCount() {
@@ -181,7 +179,7 @@ class FiltersView extends React.Component {
                             .*
                         </button>
                     </div>
-                    {this.getSmartSuggestions()}
+                    {this.getSmartSuggestions(counts)}
                 </div>
             </div>
             <div className="row g-2">
