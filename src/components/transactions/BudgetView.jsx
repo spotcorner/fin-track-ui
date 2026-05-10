@@ -84,8 +84,8 @@ class BudgetView extends React.Component {
         return "bg-success";
     }
 
-    renderProgressBar(pct, height = "8px") {
-        return <div className="progress" style={{ height }}>
+    renderProgressBar(pct) {
+        return <div className="progress" style={{ height: "8px" }}>
             <div className={"progress-bar " + this.getProgressColor(pct)}
                 style={{ width: Math.min(pct, 100) + "%" }}></div>
         </div>;
@@ -109,27 +109,24 @@ class BudgetView extends React.Component {
 
     renderOverall(data) {
         const totalBudget = _.sumBy(data, "effective");
+        const totalMonthly = _.sumBy(data, d => d.tag.budget);
         const totalSpent = _.sumBy(data, "spent");
         const totalPct = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
-        return <div className="mb-3 p-2 border rounded">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-                <span className="small fw-bold">Overall</span>
-                <span className="small text-muted">₹{amountUtil.getFormattedAmount(totalSpent)} / ₹{amountUtil.getFormattedAmount(totalBudget)}</span>
-            </div>
-            {this.renderProgressBar(totalPct, "10px")}
-            {this.renderStatus(totalSpent, totalBudget)}
-        </div>;
+        return this.renderBudgetCard({
+            tag: { _id: "__OVERALL__", name: "Overall", budget: totalMonthly },
+            spent: totalSpent, effective: totalBudget, pct: totalPct, isOverall: true,
+        });
     }
 
     renderEditButton(tag) {
-        if (tag._id === "__UNTAGGED__") return null;
+        if (tag._id === "__UNTAGGED__" || tag._id === "__OVERALL__") return null;
         return <span className="badge badge-outline-secondary cursor-pointer" onClick={() => this.setState({ editTag: tag })}>
             <i className="bi bi-pencil"></i>
         </span>;
     }
 
-    renderBudgetCard({ tag, spent, effective, pct }) {
-        return <div key={tag._id} className="mb-3 p-2 border rounded">
+    renderBudgetCard({ tag, spent, effective, pct, isOverall }) {
+        return <div key={tag._id} className={"mb-3 p-2 border rounded" + (isOverall ? " bg-light" : "")}>
             <div className="d-flex justify-content-between align-items-center mb-1">
                 <div className="d-flex align-items-center gap-2">
                     <span className="small fw-bold">{tag.name}</span>
@@ -137,7 +134,7 @@ class BudgetView extends React.Component {
                 </div>
                 <div className="d-flex align-items-center gap-2">
                     <span className="small text-muted">₹{amountUtil.getFormattedAmount(spent)} / ₹{amountUtil.getFormattedAmount(effective)}</span>
-                    {this.renderExpandToggle(tag._id)}
+                    {!isOverall && this.renderExpandToggle(tag._id)}
                 </div>
             </div>
             {this.renderProgressBar(pct)}
@@ -145,7 +142,7 @@ class BudgetView extends React.Component {
                 {this.renderStatus(spent, effective)}
                 <span className="text-muted" style={{ fontSize: "0.7rem" }}>₹{amountUtil.getFormattedAmount(tag.budget / 30)}/day</span>
             </div>
-            {this.renderTransactions(tag._id)}
+            {!isOverall && this.renderTransactions(tag._id)}
         </div>;
     }
 
@@ -185,12 +182,16 @@ class BudgetView extends React.Component {
         </>;
     }
 
+    renderBudgetCards(data) {
+        if (!data.length) return <div className="text-muted small mb-2">No tags with budgets set. Edit a tag to add a monthly budget.</div>;
+        return <>
+            {this.renderOverall(data)}
+            {data.map(d => this.renderBudgetCard(d))}
+        </>;
+    }
+
     render() {
         const data = this.getBudgetData();
-        if (!data.length) return <div>
-            <div className="text-muted small">No tags with budgets set. Edit a tag to add a monthly budget.</div>
-            {this.renderUnbudgeted()}
-        </div>;
 
         return <div>
             <div className="d-flex align-items-center gap-2 mb-2">
@@ -198,8 +199,7 @@ class BudgetView extends React.Component {
                 <HelpTip items={BUDGETS_HELP} />
                 <span className="ms-auto badge bg-dark bg-opacity-10 text-dark" style={{ fontSize: "0.7rem" }}><i className="bi bi-calendar"></i> {this.getPeriodLabel()}</span>
             </div>
-            {this.renderOverall(data)}
-            {data.map(d => this.renderBudgetCard(d))}
+            {this.renderBudgetCards(data)}
             {this.renderUnbudgeted()}
             <CrudTagModal show={!!this.state.editTag} tag={this.state.editTag} onClose={() => this.setState({ editTag: null })} />
         </div>;
