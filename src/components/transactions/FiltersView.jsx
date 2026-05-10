@@ -10,6 +10,7 @@ import { FILTERS_HELP } from "@utils/helpContent";
 import { formatDateRange } from "@utils/datePresetUtil";
 import labelUtil from "@utils/labelUtil";
 import PreferenceStore from "@utils/PreferenceStore";
+import { parseSmartFilter } from "@utils/smartFilterUtil";
 import "@styles/filtersView.scss";
 
 class FiltersView extends React.Component {
@@ -25,11 +26,42 @@ class FiltersView extends React.Component {
 
     handleSearchKeyDown = (e) => {
         if (e.key === "Enter" && this.state.searchInput.trim()) {
-            const term = { value: this.state.searchInput.trim(), caseSensitive: this.state.searchCaseSensitive, regex: this.state.searchRegex };
+            const input = this.state.searchInput.trim();
+            const term = { value: input, caseSensitive: this.state.searchCaseSensitive, regex: this.state.searchRegex };
             const terms = [...this.props.filters.searchTerms, term];
             this.props.handleFilterChange("searchTerms", terms);
             this.setState({ searchInput: "" });
         }
+    }
+
+    applySmartFilter = (smart) => {
+        if (smart.type === "amount") {
+            if (smart.min) this.props.handleFilterChange("minAmountFilter", smart.min);
+            if (smart.max) this.props.handleFilterChange("maxAmountFilter", smart.max);
+        } else if (smart.type === "date") {
+            this.props.handleDateChange(smart.start, smart.end, smart.preset);
+        }
+        this.setState({ searchInput: "" });
+    }
+
+    getSmartSuggestions() {
+        const input = this.state.searchInput.trim();
+        if (!input) return null;
+        const smart = parseSmartFilter(input);
+        if (!smart) return null;
+        let label;
+        if (smart.type === "amount") {
+            if (smart.min && smart.max) label = `Min ₹${smart.min}, Max ₹${smart.max}`;
+            else if (smart.min) label = `Min ₹${smart.min}`;
+            else label = `Max ₹${smart.max}`;
+        } else if (smart.type === "date") {
+            label = `Period: ${smart.start} to ${smart.end}`;
+        }
+        return <div className="smart-suggestions position-absolute bg-white border rounded shadow-sm mt-1 p-1" style={{ zIndex: 10, minWidth: "200px" }}>
+            <div className="small cursor-pointer px-2 py-1 rounded" onClick={() => this.applySmartFilter(smart)}>
+                {smart.type === "date" && <i className="bi bi-calendar me-1"></i>}{label}
+            </div>
+        </div>;
     }
 
     getActiveFilterCount() {
@@ -101,10 +133,10 @@ class FiltersView extends React.Component {
                     <CheckDropdown label="Tags" options={this.getTagOptions()} searchable sortByLabel pinSelected
                         selected={filters.tagFilter} onChange={v => this.props.handleFilterChange("tagFilter", v)} countMap={counts.tag} />
                 </div>
-                <div className="col-12 col-md-6 col-lg-3">
+                <div className="col-12 col-md-6 col-lg-3 position-relative">
                     <div className="input-group input-group-sm">
                         <span className="input-group-text"><i className="bi bi-search"></i></span>
-                        <input type="search" value={this.state.searchInput} className="form-control" placeholder="Search... (Enter to add)"
+                        <input type="text" value={this.state.searchInput} className="form-control" placeholder="Search... (Enter to add)"
                             onChange={(e) => this.setState({ searchInput: e.target.value })}
                             onKeyDown={this.handleSearchKeyDown} />
                         <button className={"btn btn-sm " + (this.state.searchCaseSensitive ? "btn-dark" : "btn-outline-secondary")}
@@ -116,6 +148,7 @@ class FiltersView extends React.Component {
                             .*
                         </button>
                     </div>
+                    {this.getSmartSuggestions()}
                 </div>
             </div>
             <div className="row g-2">
