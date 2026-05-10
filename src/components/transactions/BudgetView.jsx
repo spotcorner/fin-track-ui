@@ -170,7 +170,10 @@ class BudgetView extends React.Component {
 
     render() {
         const data = this.getBudgetData();
-        if (!data.length) return <div className="text-muted small">No tags with budgets set. Edit a tag to add a monthly budget.</div>;
+        if (!data.length) return <div>
+            <div className="text-muted small">No tags with budgets set. Edit a tag to add a monthly budget.</div>
+            {this.renderUnbudgeted()}
+        </div>;
 
         return <div>
             <div className="d-flex align-items-center gap-2 mb-2">
