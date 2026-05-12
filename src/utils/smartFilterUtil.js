@@ -121,6 +121,24 @@ function parseDateFilter(input, lower) {
         return { type: "date", label, icon: "bi-calendar", start: m.startOf("month").format("YYYY-MM-DD"), end: m.clone().endOf("month").format("YYYY-MM-DD"), preset: "monthly" };
     }
 
+    // specific date: "15 jan", "jan 15", "15 jan 2024", "jan 15 2024"
+    const dateMatch1 = lower.match(/^(\d{1,2})\s+(\w+)(?:\s+(20\d{2}))?$/);
+    const dateMatch2 = lower.match(/^(\w+)\s+(\d{1,2})(?:\s+(20\d{2}))?$/);
+    const dateMatch = dateMatch1 ? { day: dateMatch1[1], month: dateMatch1[2], year: dateMatch1[3] }
+        : dateMatch2 ? { day: dateMatch2[2], month: dateMatch2[1], year: dateMatch2[3] } : null;
+    if (dateMatch) {
+        const idx = getMonthIndex(dateMatch.month);
+        if (idx >= 0) {
+            const year = dateMatch.year ? parseInt(dateMatch.year) : moment().year();
+            const d = moment().year(year).month(idx).date(parseInt(dateMatch.day));
+            if (d.isValid() && d.date() === parseInt(dateMatch.day)) {
+                const label = d.format("MMM D, YYYY");
+                const formatted = d.format("YYYY-MM-DD");
+                return { type: "date", label, icon: "bi-calendar", start: formatted, end: formatted, preset: "custom" };
+            }
+        }
+    }
+
     return null;
 }
 
