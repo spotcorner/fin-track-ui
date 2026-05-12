@@ -49,6 +49,9 @@ export function getSmartSuggestions(input, { tags = [], accounts = [] } = {}) {
     });
 
     // tags
+    if ("untagged".startsWith(lower)) {
+        suggestions.push({ type: "tag", label: "Untagged", icon: "bi-tag", value: "__NONE__" });
+    }
     tags.forEach(tag => {
         if (tag.name.toLowerCase().includes(lower)) {
             suggestions.push({ type: "tag", label: tag.name, icon: "bi-tag", value: tag._id });
