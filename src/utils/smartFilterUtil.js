@@ -29,6 +29,16 @@ export function getSmartSuggestions(input, { tags = [], accounts = [] } = {}) {
     const dateSuggestion = parseDateFilter(input, lower);
     if (dateSuggestion) suggestions.push(dateSuggestion);
 
+    // tags
+    if ("untagged".startsWith(lower)) {
+        suggestions.push({ type: "tag", label: "Untagged", icon: "bi-tag", value: "__NONE__" });
+    }
+    tags.forEach(tag => {
+        if (tag.name.toLowerCase().includes(lower)) {
+            suggestions.push({ type: "tag", label: tag.name, icon: "bi-tag", value: tag._id });
+        }
+    });
+
     // transaction type: "debit", "credit"
     if ("debit".startsWith(lower)) suggestions.push({ type: "transactionType", label: "Debit", icon: "bi-arrow-down-circle", value: TRANSACTION_TYPES.DEBIT });
     if ("credit".startsWith(lower) && !lower.startsWith("credit c")) suggestions.push({ type: "transactionType", label: "Credit", icon: "bi-arrow-up-circle", value: TRANSACTION_TYPES.CREDIT });
@@ -45,16 +55,6 @@ export function getSmartSuggestions(input, { tags = [], accounts = [] } = {}) {
         const accLabel = labelUtil.getAccountLabel(acc);
         if (accLabel.toLowerCase().includes(lower)) {
             suggestions.push({ type: "account", label: accLabel, icon: "bi-bank", value: acc._id });
-        }
-    });
-
-    // tags
-    if ("untagged".startsWith(lower)) {
-        suggestions.push({ type: "tag", label: "Untagged", icon: "bi-tag", value: "__NONE__" });
-    }
-    tags.forEach(tag => {
-        if (tag.name.toLowerCase().includes(lower)) {
-            suggestions.push({ type: "tag", label: tag.name, icon: "bi-tag", value: tag._id });
         }
     });
 
