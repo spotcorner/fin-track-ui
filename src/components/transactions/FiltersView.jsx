@@ -11,6 +11,7 @@ import { formatDateRange } from "@utils/datePresetUtil";
 import labelUtil from "@utils/labelUtil";
 import PreferenceStore from "@utils/PreferenceStore";
 import { getSmartSuggestions } from "@utils/smartFilterUtil";
+import { matchesTransaction } from "@utils/transactionUtil";
 import "@styles/filtersView.scss";
 
 class FiltersView extends React.Component {
@@ -257,34 +258,7 @@ class FiltersView extends React.Component {
     }
 
     matchesFilters(t, skip) {
-        const { filters, accountsMap } = this.props;
-        if (skip !== "amount") {
-            if (filters.minAmountFilter && t.amount < filters.minAmountFilter) return false;
-            if (filters.maxAmountFilter && t.amount > filters.maxAmountFilter) return false;
-        }
-        if (skip !== "excludeFromTotals" && filters.skipExcluded && t.excludeFromTotals) return false;
-        const acc = accountsMap?.[t.accountId] || {};
-        if (skip !== "accountType" && filters.accountTypeFilter.length && !filters.accountTypeFilter.includes(acc.type)) return false;
-        if (skip !== "accountId" && filters.accountIdFilter.length && !filters.accountIdFilter.includes(t.accountId)) return false;
-        if (skip !== "transactionType" && filters.transactionTypeFilter.length && !filters.transactionTypeFilter.includes(t.type)) return false;
-        if (skip !== "tag" && filters.tagFilter.length) {
-            const hasUntagged = filters.tagFilter.includes("__NONE__");
-            const tagIds = filters.tagFilter.filter(id => id !== "__NONE__");
-            const isUntagged = !_.some(t.appliedTags, v => v >= 1);
-            const matchesTag = tagIds.length && _.some(tagIds, id => t.appliedTags[id] >= 1);
-            if (!(hasUntagged && isUntagged) && !matchesTag) return false;
-        }
-        if (skip !== "search" && filters.searchTerms.length) {
-            const matches = filters.searchTerms.every(term => {
-                if (term.regex) {
-                    try { return new RegExp(term.value, term.caseSensitive ? "" : "i").test(t.description); }
-                    catch (e) { return false; }
-                }
-                return term.caseSensitive ? _.includes(t.description, term.value) : _.includes(_.toLower(t.description), _.toLower(term.value));
-            });
-            if (!matches) return false;
-        }
-        return true;
+        return matchesTransaction(t, this.props.filters, this.props.accountsMap, { skip });
     }
 
     getCounts() {
