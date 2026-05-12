@@ -177,6 +177,7 @@ class TransactionsView extends React.Component {
                 <span className={"fw-bold text-nowrap " + amountColor}>₹{amountUtil.getFormattedAmount(transaction.amount)}</span>
                 <div className="flex-grow-1 text-truncate small">
                     {transaction.description}
+                    {transaction.comments && <span className="text-muted ms-1">— {transaction.comments}</span>}
                 </div>
                 {this.getTagBadges(transaction)}
                 {this.getActionButtons(transaction)}
