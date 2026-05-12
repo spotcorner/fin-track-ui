@@ -1,5 +1,9 @@
 import tagUtil from "./tagUtil";
 
+/**
+ * Checks if a search term matches against text (description or comments).
+ * Each term is matched independently against description OR comments.
+ */
 function matchesSearchTerms(transaction, searchTerms) {
     return searchTerms.every(term => {
         const matchText = (text) => {
@@ -13,6 +17,19 @@ function matchesSearchTerms(transaction, searchTerms) {
     });
 }
 
+/**
+ * Tests if a transaction passes the given filters.
+ * Used for both main filtering (applyFilters) and cross-filter counts (getCounts).
+ *
+ * @param {object} transaction - transaction to test
+ * @param {object} filters - active filter state
+ * @param {object} accountsMap - accounts lookup by id
+ * @param {object} options
+ * @param {string} options.skip - filter key to skip (for cross-filter counts).
+ *   When computing counts for a filter dropdown, skip that filter so counts show
+ *   "how many would match if I select this option" instead of "how many currently match".
+ *   Values: "amount", "excludeFromTotals", "accountType", "accountId", "transactionType", "tag", "search"
+ */
 export function matchesTransaction(transaction, filters, accountsMap, { skip } = {}) {
     if (skip !== "amount") {
         if (filters.minAmountFilter && transaction.amount < filters.minAmountFilter) return false;
@@ -36,6 +53,9 @@ export function matchesTransaction(transaction, filters, accountsMap, { skip } =
     return true;
 }
 
+/**
+ * Filters transactions for display. Excludes split parents, applies tags, then runs matchesTransaction.
+ */
 export default {
     applyFilters: (transactions, filters, accountsMap, tags) => {
         return _.filter(transactions, (transaction) => {
