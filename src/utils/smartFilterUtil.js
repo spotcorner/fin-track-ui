@@ -88,6 +88,14 @@ function parseDateFilter(input, lower) {
         }
     }
 
+    // year range: "2023 - 2025", "2023 to 2024"
+    const yearRangeMatch = input.match(/^(20\d{2})\s*(?:-|to)\s*(20\d{2})$/);
+    if (yearRangeMatch) {
+        const start = moment(yearRangeMatch[1], "YYYY").startOf("year");
+        const end = moment(yearRangeMatch[2], "YYYY").endOf("year");
+        return { type: "date", label: `${yearRangeMatch[1]} – ${yearRangeMatch[2]}`, icon: "bi-calendar", start: start.format("YYYY-MM-DD"), end: end.format("YYYY-MM-DD"), preset: "custom" };
+    }
+
     // year: "2024"
     const yearMatch = input.match(/^(20\d{2})$/);
     if (yearMatch) {
