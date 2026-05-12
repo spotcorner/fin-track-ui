@@ -69,6 +69,25 @@ function parseDateFilter(input, lower) {
         }
     }
 
+    // date range: "march - may", "jan to mar", "march - may 2024", "jan to mar 2024", "dec 2025 to jan 2026"
+    const rangeMatch = lower.match(/^(\w+)(?:\s+(20\d{2}))?\s*(?:-|to)\s*(\w+)(?:\s+(20\d{2}))?$/);
+    if (rangeMatch) {
+        const startIdx = getMonthIndex(rangeMatch[1]);
+        const endIdx = getMonthIndex(rangeMatch[3]);
+        if (startIdx >= 0 && endIdx >= 0) {
+            const currentYear = moment().year();
+            const startYear = rangeMatch[2] ? parseInt(rangeMatch[2]) : (rangeMatch[4] ? parseInt(rangeMatch[4]) : currentYear);
+            const endYear = rangeMatch[4] ? parseInt(rangeMatch[4]) : startYear;
+            const start = moment().year(startYear).month(startIdx).startOf("month");
+            const end = moment().year(endYear).month(endIdx).endOf("month");
+            const startLabel = MONTHS_FULL[startIdx].charAt(0).toUpperCase() + MONTHS_FULL[startIdx].slice(1);
+            const endLabel = MONTHS_FULL[endIdx].charAt(0).toUpperCase() + MONTHS_FULL[endIdx].slice(1);
+            const showStartYear = startYear !== endYear || rangeMatch[2];
+            const label = `${startLabel}${showStartYear ? " " + startYear : ""} – ${endLabel} ${endYear}`;
+            return { type: "date", label, icon: "bi-calendar", start: start.format("YYYY-MM-DD"), end: end.format("YYYY-MM-DD"), preset: "custom" };
+        }
+    }
+
     // year: "2024"
     const yearMatch = input.match(/^(20\d{2})$/);
     if (yearMatch) {
