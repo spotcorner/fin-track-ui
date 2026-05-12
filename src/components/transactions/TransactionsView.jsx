@@ -65,7 +65,7 @@ class TransactionsView extends React.Component {
         return <CrudTransactionModal show={this.state.showTransactionModal}
             transaction={transaction} children={this.getChildrenForTransaction(transaction)}
             onSave={this.props.updateTransaction}
-            isDraft={this.props.isDraft} draftId={this.props.draftId}
+            isDraft={this.props.isDraft} draftId={this.props.draftId} draftAccountId={this.props.draftAccountId}
             onClose={() => this.toggleTransactionModal()} />;
     }
 

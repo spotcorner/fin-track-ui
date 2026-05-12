@@ -63,6 +63,8 @@ class DraftsLayout extends React.Component {
             toast.info("Draft closed ✅");
             this.setState({ showCloseModal: false });
             this.fetchDrafts();
+        }).catch(err => {
+            this.setState({ showCloseModal: false });
         });
     }
 
@@ -111,7 +113,8 @@ class DraftsLayout extends React.Component {
                 onSave={this.handleDraftSave}
                 onClose={() => this.setState({ showEditModal: false })} />
             {selectedDraftId && <TransactionsLayout key={selectedDraftId}
-                isDraft={1} draftId={selectedDraftId} draftOpeningBalance={selectedDraft?.openingBalance || 0}
+                isDraft={1} draftId={selectedDraftId} draftAccountId={selectedDraft?.accountId}
+                draftOpeningBalance={selectedDraft?.openingBalance || 0}
                 sortByDate={1} basePath={"/drafts"} tab={this.props.match?.params?.tab} />}
         </div>;
     }

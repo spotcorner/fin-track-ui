@@ -16,7 +16,7 @@ function getDerivedStateFromProps(props) {
         _id: props.transaction?._id || "",
         date: props.transaction?.date || moment().format("YYYY-MM-DD"),
         type: props.transaction?.type || TRANSACTION_TYPES.DEBIT,
-        accountId: props.transaction?.accountId || "",
+        accountId: props.transaction?.accountId || props.draftAccountId || "",
         amount: props.transaction?.amount || 0,
         excludeFromTotals: props.transaction?.excludeFromTotals || 0,
         balance: props.transaction?.balance || 0,
@@ -180,7 +180,7 @@ class CrudTransactionModal extends React.Component {
                 <div className="row mb-2">
                     <div className="col">
                         <label className="form-label">Account</label>
-                        <select className="form-select" name="accountId" value={accountId} onChange={this.handleChange} required>
+                        <select className="form-select" name="accountId" value={accountId} onChange={this.handleChange} required disabled={this.props.isDraft}>
                             <option value=""></option>
                             {_.values(accountsMap).map((account, index) => (
                                 <option key={index} value={account._id}>{labelUtil.getAccountLabel(account)}</option>

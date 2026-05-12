@@ -162,7 +162,7 @@ class TransactionsLayout extends React.Component {
 
     renderTransactionsView = (filteredTransactions, { compact } = {}) => {
         return <TransactionsView compact={compact}
-            isDraft={this.props.isDraft} draftId={this.props.draftId}
+            isDraft={this.props.isDraft} draftId={this.props.draftId} draftAccountId={this.props.draftAccountId}
             transactions={this.state.transactions} filteredTransactions={filteredTransactions}
             totalCount={this.getTotalCount()}
             updateTransaction={this.updateTransaction} updateTransactionTags={this.updateTransactionTags}
