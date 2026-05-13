@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import jobService from "@services/jobService";
 import uiUtil from "@utils/uiUtil";
 import JobCard from "./JobCard.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { JOBS_HELP } from "@utils/helpContent";
 
 class JobsView extends React.Component {
     state = { jobs: [], loading: true };
@@ -49,6 +51,7 @@ class JobsView extends React.Component {
         return <div>
             <div className="d-flex align-items-center gap-2 mb-2">
                 <div className="text-muted small page-header mb-0">Extraction Jobs</div>
+                <HelpTip items={JOBS_HELP} />
             </div>
             {this.renderJobs()}
         </div>;

@@ -3,7 +3,7 @@
 import React from "react";
 import {
     ACCOUNTS_HELP, TAGS_VIEW_HELP, TAG_MODAL_HELP,
-    UPLOAD_HELP, EXTRACTION_RESULT_HELP,
+    UPLOAD_HELP, JOBS_HELP, JOB_DETAIL_HELP, EXTRACTION_RESULT_HELP,
     DRAFTS_HELP, TRANSACTIONS_HELP, TRANSACTIONS_DRAFT_HELP, TRANSACTION_MODAL_HELP,
     CASHFLOW_HELP, STATS_HELP, SUMMARY_HELP, BUDGETS_HELP,
     PROFILE_GRANTED_HELP, PROFILE_RECEIVED_HELP,
@@ -12,10 +12,11 @@ import {
 const flow = [
     { label: "Create Accounts", options: ["Savings", "Credit Card", "Wallet", "Others"] },
     { label: "Set Up Tags", options: ["Keyword rules", "Regex patterns", "Priority", "Linked tags", "Monthly budget"] },
-    { label: "Upload PDF Statement", options: ["Password protected"] },
-    { label: "Auto Extraction", options: ["Table with headers", "Table without headers", "Text-based"] },
+    { label: "Upload PDF Statement", options: ["Account", "Opening Balance", "Draft Name", "Password"] },
+    { label: "Extraction Job", options: ["Queued", "Started", "Extracting", "Extracted / Failed"] },
+    { label: "Review Extraction", options: ["Tables with header", "Tables without header", "Text"] },
     { label: "Map Columns (if unmapped)", options: ["Debit/Credit", "Suffix mapper", "Keyword mapper", "Balance inference", "Manual date"] },
-    { label: "Save as Drafts" },
+    { label: "Save as Draft" },
     { label: "Review & Edit Drafts", options: ["Budgets", "Stats", "Summary", "Edit / delete", "Tag transactions", "Save All → Cashflow"] },
     { label: "Cashflow", options: ["Budgets", "Stats", "Summary", "Transactions", "Split", "Smart Search", "Tag / edit / delete"] },
     { label: "Share Access", options: ["Read Only", "Full Access", "Nicknames", "View As"] },
@@ -41,23 +42,33 @@ const steps = [
     {
         title: "3. Upload Bank Statements",
         intro: [
-            "Go to Upload Statement and select a PDF bank statement.",
+            "Go to Upload and select a PDF bank statement.",
+            "Fill in the account, opening balance (optional), and draft name, then submit the extraction job.",
         ],
         help: UPLOAD_HELP,
     },
     {
-        title: "3.1 Pick an Extraction Result",
+        title: "3.1 Extraction Jobs",
         intro: [
-            "The system tries three extraction engines on your PDF:",
-            "— Table with headers: detects table structures with column headers (e.g. Date, Description, Amount). Produces mapped results ready to save.",
-            "— Table without headers: detects table structures without recognizable headers. Produces unmapped results that need column mapping.",
-            "— Text-based: reads raw text line by line when no table structure is found. Produces unmapped results.",
-            "All results are shown as preview tables. Compare them and pick the one that looks most accurate.",
+            "Go to Jobs to see all extraction jobs and their progress.",
+            "Jobs run in the background — the page auto-refreshes until extraction completes.",
         ],
-        help: [EXTRACTION_RESULT_HELP.mapped],
+        help: JOBS_HELP,
     },
     {
-        title: "3.2 Map Columns (Unmapped Results)",
+        title: "3.2 Review Extraction",
+        intro: [
+            "Open a completed job to review extraction results.",
+            "The system tries three extraction engines on your PDF:",
+            "— Tables with header: detects table structures with column headers (e.g. Date, Description, Amount). Produces mapped results ready to save.",
+            "— Tables without header: detects table structures without recognizable headers. Produces unmapped results that need column mapping.",
+            "— Text: reads raw text line by line when no table structure is found. Produces unmapped results.",
+            "All results are shown as preview tables. Compare them and pick the one that looks most accurate.",
+        ],
+        help: JOB_DETAIL_HELP,
+    },
+    {
+        title: "3.3 Map Columns (Unmapped Results)",
         intro: [],
         help: EXTRACTION_RESULT_HELP.unmapped,
     },

@@ -6,6 +6,8 @@ import jobService from "@services/jobService";
 import uiUtil from "@utils/uiUtil";
 import JobCard from "./JobCard.jsx";
 import ExtractionResults from "./ExtractionResults.jsx";
+import HelpTip from "@components/ui/HelpTip.jsx";
+import { JOB_DETAIL_HELP } from "@utils/helpContent";
 
 class JobDetailView extends React.Component {
     state = { job: null, loading: true };
@@ -62,6 +64,7 @@ class JobDetailView extends React.Component {
             <div className="d-flex align-items-center gap-2 mb-2">
                 <Link to="/jobs" className="btn btn-sm btn-outline-secondary"><i className="bi bi-arrow-left"></i></Link>
                 <div className="text-muted small page-header mb-0">Review Extraction</div>
+                <HelpTip items={JOB_DETAIL_HELP} />
             </div>
             {!job
                 ? <div className="alert alert-danger">Job not found.</div>

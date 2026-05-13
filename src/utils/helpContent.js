@@ -115,14 +115,31 @@ export const TAG_MODAL_HELP = {
 };
 
 export const UPLOAD_HELP = [
-    "Upload a bank PDF statement to extract transactions automatically.",
-    <><b>Password protected</b> — check this for encrypted PDFs. Password is never stored.</>,
-    <><b>Account</b> — select the account this statement belongs to. Always visible after extraction.</>,
-    <><b>Opening Balance</b> — set for bank accounts to calculate closing balance. Shown on extractor results as a Closing badge.</>,
-    <><b>Source Preview</b> — view the uploaded PDF inline for reference while reviewing results.</>,
-    <><b>Extractor results</b> — multiple extraction methods are tried. Results are grouped by page range and column structure, shown as separate results with transaction count and debit/credit totals.</>,
-    <><b>Unmapped results</b> — raw table data that needs column mapping (date, amount) before saving.</>,
-    <><b>Confirm & Save as Draft</b> — select a result, name the draft, pick an account, and save for review in Edit Drafts.</>,
+    "Upload a bank PDF statement to submit an extraction job.",
+    <><b>File</b> — select a PDF bank statement. Supports password-protected files.</>,
+    <><b>Password protected</b> — checked by default. Enter the PDF password if encrypted. Password is never stored.</>,
+    <><b>Account</b> — select the account this statement belongs to. Opening balance auto-fills from the account's closing balance.</>,
+    <><b>Opening Balance</b> — shown for non-credit-card accounts. Used to calculate closing balance in drafts.</>,
+    <><b>Draft Name</b> — auto-fills as "Account - filename" when both are set. Editable.</>,
+    <><b>Submit</b> — creates an extraction job that runs in the background. View progress on the Jobs page.</>,
+];
+
+export const JOBS_HELP = [
+    "View all extraction jobs — past and in-progress.",
+    <><b>Status</b> — Queued (waiting), Started (extracting), Extracted (ready to review), Failed (error).</>,
+    <><b>Timeline</b> — expand any job to see step-by-step progress with per-extractor timing.</>,
+    <><b>Open</b> — navigate to the Review Extraction page for extracted jobs.</>,
+    <><b>Edit</b> — update draft name, account, or opening balance before saving as draft.</>,
+    <><b>Delete</b> — remove extracted or failed jobs from history.</>,
+    "Jobs auto-refresh while queued or started.",
+];
+
+export const JOB_DETAIL_HELP = [
+    "Review extraction results and save as draft.",
+    <><b>Job Card</b> — shows draft name, file, account, opening balance, status, and duration. Edit or delete from here.</>,
+    <><b>Extractor results</b> — multiple extraction methods are tried. Select the most accurate result.</>,
+    <><b>Unmapped results</b> — need column mapping before saving. Yellow badge indicates incomplete mapping.</>,
+    <><b>Save as Draft</b> — creates a draft with the selected transactions. Job is deleted and you're redirected to Drafts.</>,
 ];
 
 export const SOURCE_PREVIEW_HELP = "View the uploaded PDF inline. Use this to cross-check extracted transactions against the original statement.";
