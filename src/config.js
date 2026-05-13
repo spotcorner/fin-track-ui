@@ -30,8 +30,8 @@ export const TRANSACTION_TYPES_LABELS = {
 
 export const EXTRACTOR_TYPE_LABELS = {
     "AUTO": "Automatic",
-    "PDF_TABLE_V1": "PDF Table (header)",
-    "PDF_TABLE_V2": "PDF Table (headerless)",
+    "PDF_TABLE_V1": "Tables with header",
+    "PDF_TABLE_V2": "Tables without header",
     // "PDF_TABLE_V3": "PDF Table (explode)",
-    "PDF_TEXT_V1": "PDF Text",
+    "PDF_TEXT_V1": "Text",
 };

@@ -15,6 +15,8 @@ const routes = [
     { path: '/cashflow/:tab?', component: cashflowComponent, props: cashflowProps },
     { path: '/drafts/:tab?', component: draftsComponent },
     { path: '/upload-statement', component: () => import('./components/upload/UploadView.jsx') },
+    { path: '/jobs', component: () => import('./components/jobs/JobsView.jsx') },
+    { path: '/jobs/:id', component: () => import('./components/jobs/JobDetailView.jsx') },
     { path: '/accounts', component: () => import('./components/accounts/Accounts.jsx') },
     { path: '/tags', component: () => import('./components/tags/Tags.jsx') },
     { path: '/profile', component: () => import('./components/profile/Profile.jsx') },
