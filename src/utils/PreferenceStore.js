@@ -2,10 +2,10 @@
 
 /**
  * Persists user preferences to localStorage.
- * Each instance is scoped to a key (e.g. "moneyflow.filters", "draft.stats.groupByPeriod").
+ * Each instance is scoped to a key (e.g. "moneyflow.filters.collapsed", "draft.stats.groupByPeriod").
  *
  * Usage:
- *   const store = new PreferenceStore("moneyflow.filters", { sortField: "date" });
+ *   const store = new PreferenceStore("moneyflow.filters.collapsed", false);
  *   store.getMap()     // returns saved values merged with defaults — safe against schema changes
  *   store.get()        // returns saved value as-is, or defaults (for strings, arrays, primitives)
  *   store.set(value)   // saves to localStorage
@@ -17,7 +17,6 @@
  */
 
 const REGISTRY = [
-    { key: "moneyflow.filters", label: "Filters", icon: "bi-funnel", group: "Moneyflow", subgroup: "Filters" },
     { key: "moneyflow.filters.collapsed", label: "Filters Collapsed", icon: "bi-funnel", group: "Moneyflow", subgroup: "Filters" },
     { key: "moneyflow.filters.sticky", label: "Filters Sticky", icon: "bi-pin", group: "Moneyflow", subgroup: "Filters" },
     { key: "moneyflow.filters.showChips", label: "Filters Show Chips", icon: "bi-tags", group: "Moneyflow", subgroup: "Filters" },
@@ -26,7 +25,6 @@ const REGISTRY = [
     { key: "moneyflow.stats.sort.tags", label: "Amount by Tags — Sort", icon: "bi-sort-down", group: "Moneyflow", subgroup: "Stats" },
     { key: "moneyflow.transactionSort", label: "Transaction Sort", icon: "bi-sort-down", group: "Moneyflow", subgroup: "Transactions" },
     { key: "drafts.selection", label: "Selected Draft", icon: "bi-file-text", group: "Drafts" },
-    { key: "draft.filters", label: "Filters", icon: "bi-funnel", group: "Drafts", subgroup: "Filters" },
     { key: "draft.filters.collapsed", label: "Filters Collapsed", icon: "bi-funnel", group: "Drafts", subgroup: "Filters" },
     { key: "draft.filters.sticky", label: "Filters Sticky", icon: "bi-pin", group: "Drafts", subgroup: "Filters" },
     { key: "draft.filters.showChips", label: "Filters Show Chips", icon: "bi-tags", group: "Drafts", subgroup: "Filters" },

@@ -13,7 +13,6 @@ import SummaryTable from "./SummaryTable.jsx";
 import transactionUtil from "@utils/transactionUtil";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { MONEYFLOW_HELP } from "@utils/helpContent";
-import PreferenceStore from "@utils/PreferenceStore";
 import { getDateRange } from "@utils/datePresetUtil";
 import uiUtil from "@utils/uiUtil";
 
@@ -24,14 +23,30 @@ const TABS = [
     { key: "transactions", label: "Transactions" },
 ];
 
+const FILTERS_KEY = "filters";
+
 class TransactionsLayout extends React.Component {
 
-    filterCache = new PreferenceStore(`${this.getPrefStoreKey()}.filters`, this.getInitialFilters());
-
     state = {
-        ...this.filterCache.getMap(),
+        ...this.getInitialStateFromURL(),
         transactions: [],
         transactionsLoading: false,
+    }
+
+    getInitialStateFromURL() {
+        const filters = this.deserializeFilters();
+        return filters ? { ...this.getInitialFilters(), ...filters } : this.getInitialFilters();
+    }
+
+    deserializeFilters() {
+        const raw = new URLSearchParams(this.props.location?.search).get(FILTERS_KEY);
+        try { return raw ? JSON.parse(raw) : null; } catch { return null; }
+    }
+
+    syncFiltersToURL = () => {
+        const params = new URLSearchParams(this.props.location.search);
+        params.set(FILTERS_KEY, JSON.stringify(this.getFilters()));
+        this.props.history.replace({ pathname: this.props.location.pathname, search: `?${params.toString()}` });
     }
 
     getPrefStoreKey() {
@@ -74,13 +89,9 @@ class TransactionsLayout extends React.Component {
         };
     }
 
-    cacheFiltersState = () => {
-        this.filterCache.set(this.getFilters());
-    }
-
     handleDateChange = (startDateFilter, endDateFilter, datePreset) => {
         this.setState({ startDateFilter, endDateFilter, datePreset }, () => {
-            this.cacheFiltersState();
+            this.syncFiltersToURL();
             this.fetchTransactions();
         });
     }
@@ -91,19 +102,21 @@ class TransactionsLayout extends React.Component {
     }
 
     handleFilterChange = (name, value) => {
-        this.setState({ [name]: value }, this.cacheFiltersState);
+        this.setState({ [name]: value }, () => {
+            this.syncFiltersToURL();
+        });
     };
 
     resetFilters = () => {
         this.setState(this.getInitialFilters(), () => {
-            this.cacheFiltersState();
+            this.syncFiltersToURL();
             this.fetchTransactions();
         });
     }
 
     clearFilters = () => {
         this.setState(this.getInitialFilters({ clearAll: true }), () => {
-            this.cacheFiltersState();
+            this.syncFiltersToURL();
             this.fetchTransactions();
         });
     }
@@ -178,7 +191,7 @@ class TransactionsLayout extends React.Component {
         return <ul className="nav nav-tabs mb-2">
             {TABS.map(tab => <li key={tab.key} className="nav-item">
                 <NavLink className="nav-link" activeClassName="active" exact={tab.key === "budgets"}
-                    to={tab.key === "budgets" ? basePath : `${basePath}/${tab.key}`}>{tab.label}</NavLink>
+                    to={{ pathname: tab.key === "budgets" ? basePath : `${basePath}/${tab.key}`, search: this.props.location.search }}>{tab.label}</NavLink>
             </li>)}
         </ul>;
     }
