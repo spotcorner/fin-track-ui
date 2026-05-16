@@ -1,6 +1,6 @@
 const utils = {
     getFormattedAmount: (amount) => {
-        return amount.toLocaleString("en-IN", {
+        return (amount || 0).toLocaleString("en-IN", {
             minimumFractionDigits: 2,
         });
     },

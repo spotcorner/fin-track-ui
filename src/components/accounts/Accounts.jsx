@@ -2,13 +2,11 @@
 
 import React from "react";
 import { connect } from "react-redux";
-import { toast } from 'react-toastify';
 import CrudAccountModal from "./CrudAccountModal.jsx";
+import DeleteAccountModal from "./DeleteAccountModal.jsx";
 import SortDropdown from "@components/ui/SortDropdown.jsx";
 import HelpTip from "@components/ui/HelpTip.jsx";
 import { ACCOUNTS_HELP } from "@utils/helpContent";
-import Modal from "@components/modal/Modal.jsx";
-import { deleteAccountRequest } from "@store";
 import { ACCOUNT_TYPE_LABELS } from "@config";
 import uiUtil from "@utils/uiUtil.js";
 import amountUtil from "@utils/amountUtil.js";
@@ -38,13 +36,6 @@ class Accounts extends React.Component {
 
     toggleModal = (selectedAccount = null) => {
         this.setState({ showModal: !this.state.showModal, selectedAccount });
-    };
-
-    handleDelete = () => {
-        this.props.dispatch(deleteAccountRequest(this.state.deleteAccountId)).unwrap().then(() => {
-            this.setState({ deleteAccountId: null });
-            toast.info("Account deleted ✅");
-        });
     };
 
     getActionButtons(acc) {
@@ -131,9 +122,7 @@ class Accounts extends React.Component {
                 </div>
                 {this.getAccountsContainer()}
                 {this.getCrudAccountModal()}
-                <Modal show={!!this.state.deleteAccountId} title="Delete Account"
-                    body="Are you sure you want to delete this account?"
-                    onSubmitClick={this.handleDelete}
+                <DeleteAccountModal accountId={this.state.deleteAccountId}
                     onClose={() => this.setState({ deleteAccountId: null })} />
             </div>
         );
