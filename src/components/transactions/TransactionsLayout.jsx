@@ -12,7 +12,7 @@ import BudgetView from "./BudgetView.jsx";
 import SummaryTable from "./SummaryTable.jsx";
 import transactionUtil from "@utils/transactionUtil";
 import HelpTip from "@components/ui/HelpTip.jsx";
-import { CASHFLOW_HELP } from "@utils/helpContent";
+import { MONEYFLOW_HELP } from "@utils/helpContent";
 import PreferenceStore from "@utils/PreferenceStore";
 import { getDateRange } from "@utils/datePresetUtil";
 import uiUtil from "@utils/uiUtil";
@@ -35,7 +35,7 @@ class TransactionsLayout extends React.Component {
     }
 
     getPrefStoreKey() {
-        return this.props.isDraft ? "draft" : "cashflow";
+        return this.props.isDraft ? "draft" : "moneyflow";
     }
 
     getInitialDateFilters({ clearAll } = {}) {
@@ -227,7 +227,7 @@ class TransactionsLayout extends React.Component {
         return <div className="">
             {this.props.title !== undefined && <div className="d-flex align-items-center gap-1 mb-2">
                 <div className="text-muted small page-header">{this.props.title}</div>
-                <HelpTip items={CASHFLOW_HELP} />
+                <HelpTip items={MONEYFLOW_HELP} />
             </div>}
             <FiltersView filters={this.getFilters()} transactions={this.state.transactions} isDraft={this.props.isDraft} handleFilterChange={this.handleFilterChange} handleDateChange={this.handleDateChange} resetFilters={this.resetFilters} clearFilters={this.clearFilters} resetDateFilter={this.resetDateFilter} prefStoreKey={this.getPrefStoreKey()} />
             {this.getLoader()}

@@ -5,7 +5,7 @@ import {
     ACCOUNTS_HELP, TAGS_VIEW_HELP, TAG_MODAL_HELP,
     UPLOAD_HELP, JOBS_HELP, JOB_DETAIL_HELP, EXTRACTION_RESULT_HELP,
     DRAFTS_HELP, TRANSACTIONS_HELP, TRANSACTIONS_DRAFT_HELP, TRANSACTION_MODAL_HELP,
-    CASHFLOW_HELP, STATS_HELP, SUMMARY_HELP, BUDGETS_HELP,
+    MONEYFLOW_HELP, STATS_HELP, SUMMARY_HELP, BUDGETS_HELP,
     PROFILE_GRANTED_HELP, PROFILE_RECEIVED_HELP,
 } from "@utils/helpContent";
 
@@ -17,8 +17,8 @@ const flow = [
     { label: "Review Extraction", options: ["Tables with header", "Tables without header", "Text"] },
     { label: "Map Columns (if unmapped)", options: ["Debit/Credit", "Suffix mapper", "Keyword mapper", "Balance inference", "Manual date"] },
     { label: "Save as Draft" },
-    { label: "Review & Edit Drafts", options: ["Budgets", "Stats", "Summary", "Edit / delete", "Tag transactions", "Save All → Cashflow"] },
-    { label: "Cashflow", options: ["Budgets", "Stats", "Summary", "Transactions", "Split", "Smart Search", "Tag / edit / delete"] },
+    { label: "Review & Edit Drafts", options: ["Budgets", "Stats", "Summary", "Edit / delete", "Tag transactions", "Save All → Moneyflow"] },
+    { label: "Moneyflow", options: ["Budgets", "Stats", "Summary", "Transactions", "Split", "Smart Search", "Tag / edit / delete"] },
     { label: "Share Access", options: ["Read Only", "Full Access", "Nicknames", "View As"] },
 ];
 
@@ -83,10 +83,10 @@ const steps = [
         ],
     },
     {
-        title: "5. Track in Cashflow",
+        title: "5. Track in Moneyflow",
         intro: [],
         help: [
-            ...CASHFLOW_HELP,
+            ...MONEYFLOW_HELP,
             { label: "Budgets", items: BUDGETS_HELP },
             { label: "Stats", items: STATS_HELP.overview },
             { label: "Summary", items: SUMMARY_HELP() },

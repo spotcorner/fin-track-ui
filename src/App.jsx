@@ -6,13 +6,13 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import LazyLoad from "./components/lazy-load/LazyLoad.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
 
-const cashflowComponent = () => import("./components/transactions/TransactionsLayout.jsx");
+const moneyflowComponent = () => import("./components/transactions/TransactionsLayout.jsx");
 const draftsComponent = () => import("./components/transactions/DraftsLayout.jsx");
-const cashflowProps = { isDraft: 0, title: "Cashflow", sortByDate: 1, basePath: "/cashflow" };
+const moneyflowProps = { isDraft: 0, title: "Moneyflow", sortByDate: 1, basePath: "/moneyflow" };
 
 const routes = [
     { path: '/', component: () => import('./components/home/Home.jsx') },
-    { path: '/cashflow/:tab?', component: cashflowComponent, props: cashflowProps },
+    { path: '/moneyflow/:tab?', component: moneyflowComponent, props: moneyflowProps },
     { path: '/drafts/:tab?', component: draftsComponent },
     { path: '/upload-statement', component: () => import('./components/upload/UploadView.jsx') },
     { path: '/jobs', component: () => import('./components/jobs/JobsView.jsx') },

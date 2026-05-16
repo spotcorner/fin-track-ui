@@ -49,7 +49,7 @@ class AppLayout extends React.Component {
                                 {this.getNavLink("/", "Home")}
                             </li>
                             <li className="nav-item">
-                                {this.getNavLink("/cashflow", "Cashflow")}
+                                {this.getNavLink("/moneyflow", "Moneyflow")}
                             </li>
                             <li className="nav-item">
                                 {this.getNavLink("/drafts", "Drafts")}

@@ -4,7 +4,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const features = [
-    { icon: "bi-graph-up", title: "Cashflow", desc: "Track spending with budgets, stats, summaries, and split transactions", to: "/cashflow" },
+    { icon: "bi-graph-up", title: "Moneyflow", desc: "Track spending with budgets, stats, summaries, and split transactions", to: "/moneyflow" },
     { icon: "bi-file-earmark-pdf", title: "Upload Statement", desc: "Extract transactions from bank PDF statements automatically", to: "/upload-statement" },
     { icon: "bi-journal-check", title: "Drafts", desc: "Review and edit extracted transactions before finalizing", to: "/drafts" },
     { icon: "bi-wallet2", title: "Accounts", desc: "Manage bank accounts, credit cards, and wallets", to: "/accounts" },

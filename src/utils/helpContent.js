@@ -73,7 +73,7 @@ export const TRANSACTIONS_HELP = [
 ];
 
 export const TRANSACTIONS_DRAFT_HELP = [
-    <><b>Save All</b> — finalize and move all draft transactions to Cashflow.</>,
+    <><b>Save All</b> — finalize and move all draft transactions to Moneyflow.</>,
     <><b>Delete All</b> — discard all draft transactions.</>,
 ];
 
@@ -85,7 +85,7 @@ export const SUMMARY_HELP = (isDraft) => [
     "Credit card accounts show spends and payments separately.",
 ];
 
-export const CASHFLOW_HELP = [
+export const MONEYFLOW_HELP = [
     "View and manage your saved transactions across tabs: Budgets, Stats, Summary, and Transactions.",
     "Use filters to narrow down by date, tags, amount, account, and more.",
     "Transactions can be created, edited, deleted, and tagged.",
