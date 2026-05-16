@@ -80,7 +80,7 @@ class JobCard extends React.Component {
     render() {
         const { job, accounts, showOpen } = this.props;
         const { expanded } = this.state;
-        const account = accounts.find(a => a._id === job.accountId);
+        const account = accounts[job.accountId];
         return <div className="border rounded mb-2">
             <div className="d-flex align-items-center gap-2 p-2">
                 <div className="flex-grow-1">
@@ -116,4 +116,4 @@ class JobCard extends React.Component {
     }
 }
 
-export default withRouter(connect(state => _.pick(state.user, ["accounts"]))(JobCard));
+export default withRouter(connect(state => ({ accounts: state.user.accountsMap }))(JobCard));

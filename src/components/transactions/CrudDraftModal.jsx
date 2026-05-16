@@ -41,7 +41,7 @@ class CrudDraftModal extends React.Component {
         });
     }
 
-    isCreditCard = () => this.props.accounts.find(a => a._id === this.state.accountId)?.type === "credit_card";
+    isCreditCard = () => this.props.accountsMap[this.state.accountId]?.type === "credit_card";
 
     getBody() {
         return <form>
@@ -73,4 +73,4 @@ class CrudDraftModal extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accounts"]))(CrudDraftModal);
+export default connect(state => _.pick(state.user, ["accounts", "accountsMap"]))(CrudDraftModal);

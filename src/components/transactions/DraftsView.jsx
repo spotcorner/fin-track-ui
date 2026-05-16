@@ -35,7 +35,7 @@ class DraftsView extends React.Component {
 
     getSortedDrafts() {
         const drafts = this.state.drafts.map(d => {
-            const account = this.props.accounts.find(a => a._id === d.accountId);
+            const account = this.props.accountsMap[d.accountId];
             return { ...d, accountName: account?.name || "", accountType: account?.type || "" };
         });
         return _.orderBy(drafts, [this.state.sortField], [this.state.sortDirection]);
@@ -67,7 +67,7 @@ class DraftsView extends React.Component {
                 ? <div className="text-muted small">No active drafts. <Link to="/upload-statement">Upload a statement</Link> to create one.</div>
                 : <div className="list-group">
                     {this.getSortedDrafts().map(draft => {
-                        const account = this.props.accounts.find(a => a._id === draft.accountId);
+                        const account = this.props.accountsMap[draft.accountId];
                         const isCreditCard = account?.type === "credit_card";
                         return <div key={draft._id} className="list-group-item d-flex align-items-center gap-2">
                             <Link to={`/drafts/${draft._id}`} className="flex-grow-1 text-decoration-none text-reset">
@@ -93,4 +93,4 @@ class DraftsView extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accounts"]))(DraftsView);
+export default connect(state => _.pick(state.user, ["accountsMap"]))(DraftsView);

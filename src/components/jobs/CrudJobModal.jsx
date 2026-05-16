@@ -40,7 +40,7 @@ class CrudJobModal extends React.Component {
         });
     }
 
-    isCreditCard = () => this.props.accounts.find(a => a._id === this.state.accountId)?.type === "credit_card";
+    isCreditCard = () => this.props.accountsMap[this.state.accountId]?.type === "credit_card";
 
     getBody() {
         return <form>
@@ -72,4 +72,4 @@ class CrudJobModal extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accounts"]))(CrudJobModal);
+export default connect(state => _.pick(state.user, ["accounts", "accountsMap"]))(CrudJobModal);

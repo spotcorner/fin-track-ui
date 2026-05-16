@@ -35,7 +35,7 @@ class Upload extends React.Component {
         const accountId = e.target.value;
         const update = { accountId };
         if (!this.state.openingBalance && accountId) {
-            const account = this.props.accounts.find(a => a._id === accountId);
+            const account = this.props.accountsMap[accountId];
             if (account && account.closingBalance) update.openingBalance = account.closingBalance;
         }
         this.setState(update, this.autoFillDraftName);
@@ -45,7 +45,7 @@ class Upload extends React.Component {
         if (this.state.draftName) return;
         const { accountId, file } = this.state;
         if (!accountId || !file) return;
-        const account = this.props.accounts.find(a => a._id === accountId);
+        const account = this.props.accountsMap[accountId];
         if (!account) return;
         const fileName = file.name;
         this.setState({ draftName: `${labelUtil.getAccountLabel(account)} - ${fileName}` });
@@ -102,7 +102,7 @@ class Upload extends React.Component {
                             <button type="button" className="btn btn-outline-dark" onClick={() => this.toggleAccountModal()}>+</button>
                         </div>
                     </div>
-                    {this.state.accountId && this.props.accounts.find(a => a._id === this.state.accountId)?.type !== "credit_card" && <div className="col">
+                    {this.state.accountId && this.props.accountsMap[this.state.accountId]?.type !== "credit_card" && <div className="col">
                         <label className="form-label">Opening Balance <span className="text-muted small">(optional)</span></label>
                         <input type="number" className="form-control" name="openingBalance" value={this.state.openingBalance} onChange={this.handleChange} />
                     </div>}
@@ -125,4 +125,4 @@ class Upload extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accounts"]))(Upload);
+export default connect(state => _.pick(state.user, ["accounts", "accountsMap"]))(Upload);

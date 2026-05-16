@@ -54,7 +54,7 @@ class JobsView extends React.Component {
             return <div className="text-muted small">No extraction jobs yet. <Link to="/upload-statement">Upload a statement</Link> to get started.</div>;
         }
         const enriched = jobs.map(j => {
-            const account = this.props.accounts.find(a => a._id === j.accountId);
+            const account = this.props.accountsMap[j.accountId];
             return { ...j, accountName: account?.name || "", accountType: account?.type || "" };
         });
         const sorted = _.orderBy(enriched, [this.state.sortField], [this.state.sortDirection]);
@@ -81,4 +81,4 @@ class JobsView extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accounts"]))(JobsView);
+export default connect(state => _.pick(state.user, ["accountsMap"]))(JobsView);

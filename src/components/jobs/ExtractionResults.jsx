@@ -68,7 +68,7 @@ class ExtractionResults extends React.Component {
 
     canSave = () => this.state.selectedResult !== null && !this.isMappingIncomplete();
 
-    getAccount = () => this.props.accounts.find(a => a._id === this.props.job.accountId);
+    getAccount = () => this.props.accountsMap[this.props.job.accountId];
     isCreditCard = () => this.getAccount()?.type === "credit_card";
 
     toggleExpand = (i) => this.setState({ expanded: { ...this.state.expanded, [`row_${i}`]: !this.state.expanded[`row_${i}`] } });
@@ -200,4 +200,4 @@ class ExtractionResults extends React.Component {
     }
 }
 
-export default connect(state => _.pick(state.user, ["accounts"]))(ExtractionResults);
+export default connect(state => _.pick(state.user, ["accountsMap"]))(ExtractionResults);
