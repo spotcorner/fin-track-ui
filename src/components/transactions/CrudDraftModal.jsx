@@ -33,6 +33,7 @@ class CrudDraftModal extends React.Component {
         const data = {
             name: this.state.name,
             openingBalance: parseFloat(this.state.openingBalance) || 0,
+            version: this.props.draft.version,
         };
         draftService.update(this.props.draft._id, data).then(({ draft }) => {
             toast.info("Draft updated ✅");

@@ -18,6 +18,7 @@ function getDerivedStateFromProps(props) {
         priority: props.tag?.priority || 0,
         description: props.tag?.description || "",
         budget: props.tag?.budget || "",
+        version: props.tag?.version,
     };
 }
 

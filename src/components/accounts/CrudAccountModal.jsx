@@ -16,6 +16,7 @@ function getDerivedStateFromProps(props) {
         name: props.account?.name || "",
         openingBalance: props.account?.openingBalance || 0,
         description: props.account?.description || "",
+        version: props.account?.version,
     };
 }
 

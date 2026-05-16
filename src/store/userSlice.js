@@ -76,8 +76,8 @@ export const switchViewAs = createAsyncThunk(
 
 export const updateNicknameForOwnerRequest = createAsyncThunk(
     "user/updateNicknameForOwner",
-    async ({ _id, nickname }) => {
-        return await accessService.update(_id, { nickname });
+    async ({ _id, nickname, version }) => {
+        return await accessService.update(_id, { nickname, version });
     }
 );
 
@@ -185,9 +185,8 @@ const userSlice = createSlice({
             .addCase(deleteAccountRequest.fulfilled, reducers.deleteAccount)
             .addCase(deleteTagRequest.fulfilled, reducers.deleteTag)
             .addCase(updateNicknameForOwnerRequest.fulfilled, (user, action) => {
-                const { _id, nicknameForOwner } = action.payload;
-                const item = user.receivedAccessList.find(a => a._id === _id);
-                if (item) item.nicknameForOwner = nicknameForOwner;
+                const item = user.receivedAccessList.find(a => a._id === action.payload._id);
+                if (item) Object.assign(item, action.payload);
             });
     }
 });

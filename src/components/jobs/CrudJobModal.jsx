@@ -32,6 +32,7 @@ class CrudJobModal extends React.Component {
             draftName: this.state.draftName,
             accountId: this.state.accountId,
             openingBalance: parseFloat(this.state.openingBalance) || 0,
+            version: this.props.job.version,
         };
         jobService.update(this.props.job._id, data).then(({ job }) => {
             toast.info("Job updated ✅");

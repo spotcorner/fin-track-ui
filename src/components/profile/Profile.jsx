@@ -43,11 +43,11 @@ class Profile extends React.Component {
     }
 
     openEditGrantedModal = (a) => {
-        this.setState({ modalData: { mode: "editGranted", _id: a._id, email: a.user.email, accessType: a.accessType, nickname: a.nicknameForMember || "", onSubmit: this.handleEditGranted } });
+        this.setState({ modalData: { mode: "editGranted", _id: a._id, version: a.version, email: a.user.email, accessType: a.accessType, nickname: a.nicknameForMember || "", onSubmit: this.handleEditGranted } });
     }
 
     openEditReceivedModal = (a) => {
-        this.setState({ modalData: { mode: "editReceived", _id: a._id, email: a.user.email, accessType: a.accessType, nickname: a.nicknameForOwner || "", onSubmit: this.handleEditReceived } });
+        this.setState({ modalData: { mode: "editReceived", _id: a._id, version: a.version, email: a.user.email, accessType: a.accessType, nickname: a.nicknameForOwner || "", onSubmit: this.handleEditReceived } });
     }
 
     closeModal = () => {
@@ -63,19 +63,19 @@ class Profile extends React.Component {
     }
 
     handleEditGranted = (formData) => {
-        const { _id } = this.state.modalData;
-        accessService.update(_id, { nickname: formData.nickname, accessType: formData.accessType }).then((data) => {
+        const { _id, version } = this.state.modalData;
+        accessService.update(_id, { nickname: formData.nickname, accessType: formData.accessType, version }).then((data) => {
             toast.info("Access updated");
             this.setState(prev => ({
-                granted: prev.granted.map(a => a._id === _id ? { ...a, nicknameForMember: data.nicknameForMember, accessType: data.accessType } : a),
+                granted: prev.granted.map(a => a._id === _id ? { ...a, ...data } : a),
             }));
             this.closeModal();
         });
     }
 
     handleEditReceived = (formData) => {
-        const { _id } = this.state.modalData;
-        this.props.dispatch(updateNicknameForOwnerRequest({ _id, nickname: formData.nickname })).unwrap().then(() => {
+        const { _id, version } = this.state.modalData;
+        this.props.dispatch(updateNicknameForOwnerRequest({ _id, nickname: formData.nickname, version })).unwrap().then(() => {
             toast.info("Nickname updated");
             this.closeModal();
         });
