@@ -28,6 +28,7 @@ function getDerivedStateFromProps(props) {
         children: props.transaction?.childIds?.length ? (props.children || []) : [],
         splitMode: !!(props.transaction?.childIds?.length),
         wasSplit: !!(props.transaction?.childIds?.length),
+        version: props.transaction?.version,
     };
 }
 
