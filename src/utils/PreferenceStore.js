@@ -24,6 +24,7 @@ const REGISTRY = [
     { key: "moneyflow.stats.groupByPeriod", label: "Trends — Group By Period", icon: "bi-calendar", group: "Moneyflow", subgroup: "Stats" },
     { key: "moneyflow.stats.sort.tags", label: "Amount by Tags — Sort", icon: "bi-sort-down", group: "Moneyflow", subgroup: "Stats" },
     { key: "moneyflow.transactionSort", label: "Transaction Sort", icon: "bi-sort-down", group: "Moneyflow", subgroup: "Transactions" },
+    { key: "jobs.sort", label: "Jobs Sort", icon: "bi-sort-down", group: "Jobs" },
     { key: "draft.filters.collapsed", label: "Filters Collapsed", icon: "bi-funnel", group: "Drafts", subgroup: "Filters" },
     { key: "draft.filters.sticky", label: "Filters Sticky", icon: "bi-pin", group: "Drafts", subgroup: "Filters" },
     { key: "draft.filters.showChips", label: "Filters Show Chips", icon: "bi-tags", group: "Drafts", subgroup: "Filters" },
