@@ -7,13 +7,15 @@ import LazyLoad from "./components/lazy-load/LazyLoad.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
 
 const moneyflowComponent = () => import("./components/transactions/TransactionsLayout.jsx");
-const draftsComponent = () => import("./components/transactions/DraftsLayout.jsx");
+const draftsListComponent = () => import("./components/transactions/DraftsView.jsx");
+const draftDetailComponent = () => import("./components/transactions/DraftDetailView.jsx");
 const moneyflowProps = { isDraft: 0, title: "Moneyflow", sortByDate: 1, basePath: "/moneyflow" };
 
 const routes = [
     { path: '/', component: () => import('./components/home/Home.jsx') },
     { path: '/moneyflow/:tab?', component: moneyflowComponent, props: moneyflowProps },
-    { path: '/drafts/:tab?', component: draftsComponent },
+    { path: '/drafts', component: draftsListComponent },
+    { path: '/drafts/:id/:tab?', component: draftDetailComponent },
     { path: '/upload-statement', component: () => import('./components/upload/UploadView.jsx') },
     { path: '/jobs', component: () => import('./components/jobs/JobsView.jsx') },
     { path: '/jobs/:id', component: () => import('./components/jobs/JobDetailView.jsx') },

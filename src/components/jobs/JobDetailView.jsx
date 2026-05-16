@@ -38,7 +38,7 @@ class JobDetailView extends React.Component {
     }
 
     onDraftCreated = (draftId) => {
-        this.props.history.push(`/drafts?draftId=${draftId}`);
+        this.props.history.push(`/drafts/${draftId}`);
     }
 
     renderContent() {

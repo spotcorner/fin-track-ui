@@ -43,12 +43,19 @@ export const STATS_HELP = {
     trends: "Debit vs credit over time. Use the period dropdown to group by day, week, month, year, or overall.",
 };
 export const DRAFTS_HELP = [
-    "Drafts are extracted transactions saved for review before finalizing.",
-    "Use Stats, Summary, and Transactions tabs as a sandbox to verify data.",
-    "Use Save All and Delete All in the Transactions tab to finalize or discard.",
-    <><b>Opening Balance</b> — shown as a badge for bank accounts. Used in Summary to calculate closing balance.</>,
-    <><b>Edit draft</b> — use the pencil button to update draft name or opening balance.</>,
-    <><b>Close Draft</b> — removes the draft from the list.</>,
+    "View all active drafts — extracted transactions saved for review before finalizing.",
+    <><b>Sort</b> — sort drafts by name, created date, account, or account type.</>,
+    <><b>Edit</b> — use the pencil button to update draft name or opening balance.</>,
+    <><b>Open</b> — click a draft to review its transactions.</>,
+];
+
+export const DRAFT_DETAIL_HELP = [
+    "Review and edit draft transactions before finalizing.",
+    <><b>Tabs</b> — use Budgets, Stats, Summary, and Transactions tabs to verify data.</>,
+    <><b>Save All</b> — finalize and move all draft transactions to Moneyflow.</>,
+    <><b>Delete All</b> — discard all draft transactions.</>,
+    <><b>Close Draft</b> — removes the draft from the list (only when empty).</>,
+    <><b>Edit</b> — update draft name or opening balance from the header.</>,
 ];
 
 export const BUDGETS_HELP = [

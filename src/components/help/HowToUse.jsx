@@ -4,7 +4,7 @@ import React from "react";
 import {
     ACCOUNTS_HELP, TAGS_VIEW_HELP, TAG_MODAL_HELP,
     UPLOAD_HELP, JOBS_HELP, JOB_DETAIL_HELP, EXTRACTION_RESULT_HELP,
-    DRAFTS_HELP, TRANSACTIONS_HELP, TRANSACTIONS_DRAFT_HELP, TRANSACTION_MODAL_HELP,
+    DRAFTS_HELP, DRAFT_DETAIL_HELP, TRANSACTIONS_HELP, TRANSACTIONS_DRAFT_HELP, TRANSACTION_MODAL_HELP,
     MONEYFLOW_HELP, STATS_HELP, SUMMARY_HELP, BUDGETS_HELP,
     PROFILE_GRANTED_HELP, PROFILE_RECEIVED_HELP,
 } from "@utils/helpContent";
@@ -75,10 +75,12 @@ const steps = [
     {
         title: "4. Review Drafts",
         intro: [
-            "Go to Drafts to review extracted transactions before finalizing.",
+            "Go to Drafts to see all active drafts. Click a draft to open it.",
+            "Each draft has Budgets, Stats, Summary, and Transactions tabs for reviewing data before finalizing.",
         ],
         help: [
             ...DRAFTS_HELP,
+            ...DRAFT_DETAIL_HELP,
             { label: "Transactions", items: [...TRANSACTIONS_HELP, ...TRANSACTIONS_DRAFT_HELP] },
         ],
     },
