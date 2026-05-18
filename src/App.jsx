@@ -21,6 +21,7 @@ const routes = [
     { path: '/jobs/:id', component: () => import('./components/jobs/JobDetailView.jsx') },
     { path: '/accounts', component: () => import('./components/accounts/Accounts.jsx') },
     { path: '/tags', component: () => import('./components/tags/Tags.jsx') },
+    { path: '/activity', component: () => import('./components/activity/ActivityView.jsx') },
     { path: '/profile', component: () => import('./components/profile/Profile.jsx') },
     { path: '/how-to-use', component: () => import('./components/help/HowToUse.jsx') },
 ];
