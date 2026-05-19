@@ -7,7 +7,7 @@ import uiUtil from "@utils/uiUtil";
 const ENTITY_ICONS = {
     user: "bi-person",
     account: "bi-bank",
-    job: "bi-gear",
+    draft: "bi-journal-check",
 };
 
 const ACTION_LABELS = {
@@ -16,12 +16,14 @@ const ACTION_LABELS = {
     created: "Created",
     updated: "Updated",
     deleted: "Deleted",
+    finalized: "Finalized",
+    discarded: "Discarded",
 };
 
 const ENTITY_LABELS = {
     user: " ",
     account: "account",
-    job: "extraction job",
+    draft: "draft",
 };
 
 class ActivityView extends React.Component {

@@ -30,15 +30,14 @@ class DeleteAccountModal extends React.Component {
         const { stats, loading, confirmText } = this.state;
         if (loading) return <div className="d-flex justify-content-center py-3"><div className="spinner-border spinner-border-sm"></div></div>;
         if (!stats) return null;
-        const { transactions, drafts, jobs } = stats;
-        const hasLinked = transactions > 0 || drafts > 0 || jobs > 0;
+        const { transactions, drafts } = stats;
+        const hasLinked = transactions > 0 || drafts > 0;
         return <div>
             {hasLinked && <div className="mb-2">
                 <div className="fw-bold mb-1">This will permanently delete:</div>
                 <ul className="mb-0 small">
                     {transactions > 0 && <li>{transactions} transaction{transactions !== 1 ? "s" : ""}</li>}
                     {drafts > 0 && <li>{drafts} draft{drafts !== 1 ? "s" : ""}</li>}
-                    {jobs > 0 && <li>{jobs} extraction job{jobs !== 1 ? "s" : ""}</li>}
                 </ul>
             </div>}
             <div className="text-danger small fw-bold mb-2">This action is unrecoverable.</div>

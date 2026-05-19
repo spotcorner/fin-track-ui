@@ -23,8 +23,6 @@ class TransactionsView extends React.Component {
         showTransactionModal: false,
         selectedTransactionId: null,
         deleteTransactionId: null,
-        showSaveDraftsModal: false,
-        showDeleteDraftsModal: false,
         selectionMode: false,
         selectedIds: {},
         sortField: "date",
@@ -227,10 +225,6 @@ class TransactionsView extends React.Component {
                         onClick={() => this.setState(prev => ({ selectionMode: !prev.selectionMode, selectedIds: {} }))}>
                         <i className="bi bi-check2-square"></i>
                     </button>
-                    {isDraft && <>
-                        <button className="btn btn-outline-success btn-sm text-nowrap" onClick={() => this.setState({ showSaveDraftsModal: true })}>Save All</button>
-                        <button className="btn btn-outline-danger btn-sm text-nowrap" onClick={() => this.setState({ showDeleteDraftsModal: true })}>Delete All</button>
-                    </>}
                     <SortDropdown options={this.getSortOptions()} prefStoreKey={`${this.props.prefStoreKey}.transactionSort`}
                         selected={{ field: this.state.sortField, direction: this.state.sortDirection }}
                         onChange={this.handleSortChange} />
@@ -249,25 +243,9 @@ class TransactionsView extends React.Component {
         </div>;
     }
 
-    saveDrafts = () => {
-        transactionService.saveDrafts(this.props.draftId).then(() => {
-            toast.info("Draft transactions saved ✅");
-            this.setState({ showSaveDraftsModal: false });
-            this.props.fetchTransactions();
-        });
-    }
-
     handleDeleteTransaction = () => {
         this.props.deleteTransaction({ _id: this.state.deleteTransactionId });
         this.setState({ deleteTransactionId: null });
-    }
-
-    deleteDrafts = () => {
-        transactionService.deleteDrafts(this.props.draftId).then(() => {
-            toast.info("Draft transactions deleted ✅");
-            this.setState({ showDeleteDraftsModal: false });
-            this.props.fetchTransactions();
-        });
     }
 
     render() {
@@ -281,14 +259,6 @@ class TransactionsView extends React.Component {
                     body="Are you sure you want to delete this transaction?"
                     onSubmitClick={this.handleDeleteTransaction}
                     onClose={() => this.setState({ deleteTransactionId: null })} />
-                <Modal show={this.state.showSaveDraftsModal} title="Save All Drafts"
-                    body="Are you sure you want to save all draft transactions?"
-                    onSubmitClick={this.saveDrafts}
-                    onClose={() => this.setState({ showSaveDraftsModal: false })} />
-                <Modal show={this.state.showDeleteDraftsModal} title="Delete All Drafts"
-                    body="Are you sure you want to delete all draft transactions?"
-                    onSubmitClick={this.deleteDrafts}
-                    onClose={() => this.setState({ showDeleteDraftsModal: false })} />
             </div>
         );
     }

@@ -7,8 +7,8 @@ import LazyLoad from "./components/lazy-load/LazyLoad.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
 
 const moneyflowComponent = () => import("./components/transactions/TransactionsLayout.jsx");
-const draftsListComponent = () => import("./components/transactions/DraftsView.jsx");
-const draftDetailComponent = () => import("./components/transactions/DraftDetailView.jsx");
+const draftsListComponent = () => import("./components/drafts/DraftsView.jsx");
+const draftDetailComponent = () => import("./components/drafts/DraftDetailView.jsx");
 const moneyflowProps = { isDraft: 0, title: "Moneyflow", sortByDate: 1, basePath: "/moneyflow" };
 
 const routes = [
@@ -16,9 +16,6 @@ const routes = [
     { path: '/moneyflow/:tab?', component: moneyflowComponent, props: moneyflowProps },
     { path: '/drafts', component: draftsListComponent },
     { path: '/drafts/:id/:tab?', component: draftDetailComponent },
-    { path: '/upload-statement', component: () => import('./components/upload/UploadView.jsx') },
-    { path: '/jobs', component: () => import('./components/jobs/JobsView.jsx') },
-    { path: '/jobs/:id', component: () => import('./components/jobs/JobDetailView.jsx') },
     { path: '/accounts', component: () => import('./components/accounts/Accounts.jsx') },
     { path: '/tags', component: () => import('./components/tags/Tags.jsx') },
     { path: '/activity', component: () => import('./components/activity/ActivityView.jsx') },

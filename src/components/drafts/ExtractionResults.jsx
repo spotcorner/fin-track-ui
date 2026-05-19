@@ -4,8 +4,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { toast } from "react-toastify";
 import { EXTRACTOR_TYPE_LABELS } from "@config";
-import transactionService from "@services/transactionService";
-import jobService from "@services/jobService";
+import draftService from "@services/draftService";
 import amountUtil from "@utils/amountUtil";
 import { getUnmappedColumns, getFlattenedResults, applyMapping } from "@utils/transactionGroupUtil";
 import { getDefaultMapping, isMappingComplete } from "@utils/columnMappingUtil";
@@ -49,12 +48,11 @@ class ExtractionResults extends React.Component {
             ? this.getMappedPreviewData(selected, idx)
             : selected.transactions;
         if (!transactions || transactions.length === 0) return;
-        const { job } = this.props;
+        const { draft } = this.props;
         this.setState({ saving: true });
-        transactionService.createDrafts(job.accountId, job.draftName, transactions, job.openingBalance || 0).then(data => {
-            jobService.delete(job._id);
-            toast.info("Draft created ✅");
-            this.props.onDraftCreated(data.draftId);
+        draftService.saveDraft(draft._id, { transactions }).then(() => {
+            toast.info("Draft saved ✅");
+            this.props.onDraftSaved();
         }).catch(() => {
             this.setState({ saving: false });
         });
@@ -68,8 +66,7 @@ class ExtractionResults extends React.Component {
 
     canSave = () => this.state.selectedResult !== null && !this.isMappingIncomplete();
 
-    getAccount = () => this.props.accountsMap[this.props.job.accountId];
-    isCreditCard = () => this.getAccount()?.type === "credit_card";
+    isCreditCard = () => this.props.accountsMap[this.props.draft.accountId]?.type === "credit_card";
 
     toggleExpand = (i) => this.setState({ expanded: { ...this.state.expanded, [`row_${i}`]: !this.state.expanded[`row_${i}`] } });
 
@@ -113,7 +110,7 @@ class ExtractionResults extends React.Component {
     }
 
     getClosingBalance(totalDebit, totalCredit) {
-        const opening = this.props.job.openingBalance || 0;
+        const opening = this.props.draft.openingBalance || 0;
         if (!opening || this.isCreditCard()) return null;
         return this.renderBadge("closing", opening + totalCredit - totalDebit, "Closing");
     }

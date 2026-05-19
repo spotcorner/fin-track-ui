@@ -5,6 +5,11 @@
     cursor: pointer;
 }
 
+.card-clickable:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    transition: background-color 0.15s;
+}
+
 .badge-outline-primary {
     background: transparent;
     border: 1px solid #0d6efd;

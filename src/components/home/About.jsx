@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 
 const features = [
     { icon: "bi-graph-up", title: "Moneyflow", desc: "Track spending with budgets, stats, summaries, and split transactions", to: "/moneyflow" },
-    { icon: "bi-file-earmark-pdf", title: "Upload Statement", desc: "Extract transactions from bank PDF statements automatically", to: "/upload-statement" },
-    { icon: "bi-journal-check", title: "Drafts", desc: "Review and edit extracted transactions before finalizing", to: "/drafts" },
+    { icon: "bi-journal-check", title: "Drafts", desc: "Import statements and review transactions before finalizing", to: "/drafts" },
     { icon: "bi-wallet2", title: "Accounts", desc: "Manage bank accounts, credit cards, and wallets", to: "/accounts" },
     { icon: "bi-tags", title: "Tags", desc: "Auto-tag transactions with keyword and regex rules", to: "/tags" },
     { icon: "bi-people", title: "Family Sharing", desc: "Share access with family — read-only or full access", to: "/profile" },
